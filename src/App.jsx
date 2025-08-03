@@ -10,6 +10,8 @@ import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
 
 function App() {
+  console.log('🎵 App component rendering...')
+  
   // ALL HOOKS MUST BE CALLED IN THE SAME ORDER EVERY TIME
   // 1. Custom hooks first
   const { 
@@ -20,6 +22,8 @@ function App() {
     clearCache 
   } = useCachedFestivalData()
 
+  console.log('🎵 App - Festival data:', { loading, error, hasData: !!data, dataLength: data?.days?.length })
+
   const { 
     user: spotifyUser, 
     topArtists, 
@@ -29,6 +33,8 @@ function App() {
     logout: spotifyLogout,
     loading: spotifyLoading 
   } = useSpotifyAuth()
+
+  console.log('🎵 App - Spotify auth:', { spotifyAuthenticated, spotifyLoading, hasUser: !!spotifyUser })
 
   const { 
     recommendations, 
@@ -291,9 +297,9 @@ function App() {
     
     // Convert times to minutes for easier comparison
     const slotStartMinutes = parseInt(slotStart.split(':')[0]) * 60 + parseInt(slotStart.split(':')[1])
-    const slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
+    let slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
     const actStartMinutes = parseInt(actStart.split(':')[0]) * 60 + parseInt(actStart.split(':')[1])
-    const actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
+    let actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
     
     // Handle overnight acts
     if (actEndMinutes < actStartMinutes) {
@@ -329,7 +335,7 @@ function App() {
             <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
           </div>
           <div className="header__title font__size--sub">
-            {festival.name} - Personal Timetable 2025
+            {data?.name || 'Hit the City'} - Personal Timetable 2025
           </div>
           <div className="nav__type--header">
             {spotifyAuthenticated ? (
@@ -370,35 +376,183 @@ function App() {
         <div className="section__margin">
           <div className="sticky__helper"></div>
           
+          {/* Debug Info */}
+          <div style={{ 
+            background: '#f8f9fa', 
+            padding: '20px', 
+            margin: '20px 0', 
+            borderRadius: '8px',
+            border: '1px solid #dee2e6'
+          }}>
+            <h3>🔍 Debug Info</h3>
+            <p><strong>Loading:</strong> {loading ? '🔄 Yes' : '✅ No'}</p>
+            <p><strong>Error:</strong> {error ? `❌ ${error}` : '✅ None'}</p>
+            <p><strong>Has Data:</strong> {data ? '✅ Yes' : '❌ No'}</p>
+            <p><strong>Data Days:</strong> {data?.days?.length || 0}</p>
+            <p><strong>Spotify Authenticated:</strong> {spotifyAuthenticated ? '✅ Yes' : '❌ No'}</p>
+            <p><strong>Spotify Loading:</strong> {spotifyLoading ? '🔄 Yes' : '✅ No'}</p>
+          </div>
+          
           <div className="timetable__content">
-            {/* Recommendations Summary */}
-            {spotifyAuthenticated && flattenedRecommendations.length > 0 && (
-              <div className="recommendations-summary">
-                <div className="recommendations-header">
-                  <span className="recommendations-star">★</span>
-                  <h3 className="recommendations-title">
-                    Your Recommendations ({flattenedRecommendations.length} artists)
-                  </h3>
-                </div>
-                
-                {/* Show recommendations for current day */}
-                {currentDayRecommendations.length > 0 && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ 
-                      fontSize: '0.9em', 
-                      color: '#1DB954', 
-                      fontWeight: 'bold',
-                      marginBottom: '8px'
-                    }}>
-                      Playing today ({currentDayRecommendations.length}):
+            {/* Loading State */}
+            {loading && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px', 
+                background: '#f8f9fa', 
+                borderRadius: '8px',
+                margin: '20px 0'
+              }}>
+                <h3>🔄 Loading Festival Data...</h3>
+                <p>Please wait while we fetch the latest timetable information.</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '40px', 
+                background: '#f8d7da', 
+                borderRadius: '8px',
+                margin: '20px 0',
+                border: '1px solid #f5c6cb'
+              }}>
+                <h3>❌ Error Loading Data</h3>
+                <p>{error}</p>
+                <button 
+                  onClick={refreshData}
+                  style={{
+                    background: '#dc3545',
+                    color: 'white',
+                    border: 'none',
+                    padding: '10px 20px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    marginTop: '10px'
+                  }}
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
+
+            {/* Main Content */}
+            {!loading && !error && data && (
+              <>
+                {/* Recommendations Summary */}
+                {spotifyAuthenticated && flattenedRecommendations.length > 0 && (
+                  <div className="recommendations-summary">
+                    <div className="recommendations-header">
+                      <span className="recommendations-star">★</span>
+                      <h3 className="recommendations-title">
+                        Your Recommendations ({flattenedRecommendations.length} artists)
+                      </h3>
                     </div>
+                    
+                    {/* Show recommendations for current day */}
+                    {currentDayRecommendations.length > 0 && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <div style={{ 
+                          fontSize: '0.9em', 
+                          color: '#1DB954', 
+                          fontWeight: 'bold',
+                          marginBottom: '8px'
+                        }}>
+                          Playing today ({currentDayRecommendations.length}):
+                        </div>
+                        <div className="recommendations-tags">
+                          {currentDayRecommendations.map((rec) => (
+                            <div 
+                              key={rec.artist.id} 
+                              className="recommendation-tag"
+                              style={{ backgroundColor: '#f0fff0' }}
+                              onClick={() => {
+                                const act = currentDayData.stages
+                                  .flatMap(stage => stage.acts)
+                                  .find(act => act.artist && act.artist.spotify_id === rec.artist.id)
+                                if (act) {
+                                  handleArtistClick(act)
+                                }
+                              }}
+                            >
+                              {rec.artist.name}
+                              <span className="recommendation-tag-icon">
+                                {rec.type === 'direct_match' ? '★' : '♪'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Time slot recommendations summary */}
+                    {(() => {
+                      const timeSlotSummary = []
+                      const timeSlots = createTimeSlots(currentDayData.start_time || '12:00', currentDayData.end_time || '02:00')
+                      
+                      timeSlots.forEach(slot => {
+                        const slotActs = currentDayData.stages.flatMap(stage => 
+                          stage.acts.filter(act => isActInTimeSlot(act, slot.start_time, slot.end_time))
+                        )
+                        const recommendedActs = slotActs.filter(act => 
+                          act.artist && act.artist.spotify_id && flattenedRecommendations.some(rec => rec.artist.id === act.artist.spotify_id)
+                        )
+                        
+                        if (recommendedActs.length > 0) {
+                          timeSlotSummary.push({
+                            time: `${slot.start_time}-${slot.end_time}`,
+                            count: recommendedActs.length,
+                            acts: recommendedActs
+                          })
+                        }
+                      })
+
+                      if (timeSlotSummary.length > 0) {
+                        return (
+                          <div style={{ marginBottom: '12px' }}>
+                            <div style={{ 
+                              fontSize: '0.9em', 
+                              color: '#1DB954', 
+                              fontWeight: 'bold',
+                              marginBottom: '8px'
+                            }}>
+                              Recommended by time:
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                              {timeSlotSummary.map((slot, index) => (
+                                <div 
+                                  key={index}
+                                  style={{
+                                    background: 'white',
+                                    border: '1px solid #1DB954',
+                                    borderRadius: '12px',
+                                    padding: '3px 8px',
+                                    fontSize: '0.8em',
+                                    color: '#333',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                >
+                                  {slot.time} ({slot.count})
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
+                    
                     <div className="recommendations-tags">
-                      {currentDayRecommendations.map((rec) => (
+                      {flattenedRecommendations.slice(0, 8).map((rec, index) => (
                         <div 
                           key={rec.artist.id} 
                           className="recommendation-tag"
-                          style={{ backgroundColor: '#f0fff0' }}
                           onClick={() => {
+                            // Find the act for this artist and open the dialog
                             const act = currentDayData.stages
                               .flatMap(stage => stage.acts)
                               .find(act => act.artist && act.artist.spotify_id === rec.artist.id)
@@ -413,262 +567,179 @@ function App() {
                           </span>
                         </div>
                       ))}
+                      {flattenedRecommendations.length > 8 && (
+                        <div className="recommendations-more">
+                          +{flattenedRecommendations.length - 8} more
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
-
-                {/* Time slot recommendations summary */}
-                {(() => {
-                  const timeSlotSummary = []
-                  const timeSlots = createTimeSlots(currentDayData.start_time || '12:00', currentDayData.end_time || '02:00')
-                  
-                  timeSlots.forEach(slot => {
-                    const slotActs = currentDayData.stages.flatMap(stage => 
-                      stage.acts.filter(act => isActInTimeSlot(act, slot.start_time, slot.end_time))
-                    )
-                    const recommendedActs = slotActs.filter(act => 
-                      act.artist && act.artist.spotify_id && flattenedRecommendations.some(rec => rec.artist.id === act.artist.spotify_id)
-                    )
                     
-                    if (recommendedActs.length > 0) {
-                      timeSlotSummary.push({
-                        time: `${slot.start_time}-${slot.end_time}`,
-                        count: recommendedActs.length,
-                        acts: recommendedActs
-                      })
-                    }
-                  })
-
-                  if (timeSlotSummary.length > 0) {
-                    return (
-                      <div style={{ marginBottom: '12px' }}>
-                        <div style={{ 
-                          fontSize: '0.9em', 
-                          color: '#1DB954', 
-                          fontWeight: 'bold',
-                          marginBottom: '8px'
-                        }}>
-                          Recommended by time:
-                        </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                          {timeSlotSummary.map((slot, index) => (
-                            <div 
-                              key={index}
-                              style={{
-                                background: 'white',
-                                border: '1px solid #1DB954',
-                                borderRadius: '12px',
-                                padding: '3px 8px',
-                                fontSize: '0.8em',
-                                color: '#333',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease'
-                              }}
-                              onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                              onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                            >
-                              {slot.time} ({slot.count})
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  }
-                  return null
-                })()}
-                
-                <div className="recommendations-tags">
-                  {flattenedRecommendations.slice(0, 8).map((rec, index) => (
-                    <div 
-                      key={rec.artist.id} 
-                      className="recommendation-tag"
-                      onClick={() => {
-                        // Find the act for this artist and open the dialog
-                        const act = currentDayData.stages
-                          .flatMap(stage => stage.acts)
-                          .find(act => act.artist && act.artist.spotify_id === rec.artist.id)
-                        if (act) {
-                          handleArtistClick(act)
-                        }
-                      }}
-                    >
-                      {rec.artist.name}
-                      <span className="recommendation-tag-icon">
-                        {rec.type === 'direct_match' ? '★' : '♪'}
-                      </span>
+                    <div className="recommendations-subtitle">
+                      Based on your Spotify listening history • Click any artist to see details
                     </div>
-                  ))}
-                  {flattenedRecommendations.length > 8 && (
-                    <div className="recommendations-more">
-                      +{flattenedRecommendations.length - 8} more
-                    </div>
-                  )}
-                </div>
-                
-                <div className="recommendations-subtitle">
-                  Based on your Spotify listening history • Click any artist to see details
-                </div>
-              </div>
-            )}
-
-            <div className="timetable__nav">
-              <div className="timetable__nav--head">
-                <nav className="nav__type--days">
-                  {days.map((day, index) => (
-                    <button
-                      key={day.id}
-                      className={`btn__day ${index === currentDay ? 'selected' : ''}`}
-                      data-day-id={index}
-                      onClick={() => setCurrentDay(index)}
-                    >
-                      <span>{new Date(day.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}</span>
-                    </button>
-                  ))}
-                </nav>
-                
-                <button 
-                  className={`btn__second ${currentView === 'list' ? 'active' : ''}`}
-                  id="view-toggle"
-                  onClick={() => setCurrentView(currentView === 'timeline' ? 'list' : 'timeline')}
-                >
-                  <span>
-                    <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
-                    {currentView === 'timeline' ? 'list view' : 'timeline view'}
-                  </span>
-                </button>
-              </div>
-              
-              <div className="timetable__nav--currentday font__size--head">
-                {currentDayData.date ? (
-                  new Date(currentDayData.date).toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long'
-                  })
-                ) : (
-                  days[currentDay] ? 
-                  new Date(days[currentDay].date).toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    day: 'numeric', 
-                    month: 'long'
-                  }) : 'Loading...'
-                )}
-              </div>
-            </div>
-
-            <div className={`timetable__timeline ${currentView === 'timeline' ? '' : 'hidden'}`}>
-              <TimelineView 
-                currentDayData={{
-                  day: currentDayData,
-                  stages: currentDayData.stages || []
-                }}
-                recommendations={flattenedRecommendations}
-                onArtistClick={handleArtistClick}
-              />
-            </div>
-
-            <div className={`timetable__timelist ${currentView === 'list' ? 'active' : ''}`}>
-              <div className="timetable__list" id="timetable__list">
-                {currentDayData.stages.length === 0 ? (
-                  <div style={{ 
-                    textAlign: 'center', 
-                    padding: '2rem',
-                    color: '#666',
-                    fontSize: '1.1rem'
-                  }}>
-                    No acts scheduled for this day
                   </div>
-                ) : (
-                  currentDayData.stages.map((stage, stageIndex) => (
-                    <div 
-                      key={stage.name} 
-                      className="list__stage"
-                      style={{
-                        opacity: 1,
-                        transform: 'translateY(0px)',
-                        animationDelay: `${stageIndex * 0.1}s`,
-                        transition: '0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-                      }}
-                    >
-                      <div className="list__stage-name">{stage.name}</div>
-                      <div className="list__acts">
-                        {stage.acts.length === 0 ? (
-                          <div style={{ 
-                            padding: '1rem',
-                            color: '#999',
-                            fontStyle: 'italic'
-                          }}>
-                            No acts scheduled for this stage
-                          </div>
-                        ) : (
-                          stage.acts.map((act, actIndex) => {
-                            // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
-                            const isRecommended = act.artist && act.artist.spotify_id && flattenedRecommendations.some(rec => {
-                              // rec.artist.id is from Spotify API, act.artist.spotify_id is from Supabase
-                              return rec.artist.id === act.artist.spotify_id
-                            })
-                            const recommendation = isRecommended ? flattenedRecommendations.find(rec => rec.artist.id === act.artist.spotify_id) : null
-                            
-                            // Debug logging
-                            if (act.artist) {
-                              console.log(`Checking act: ${act.name} (Supabase spotify_id: ${act.artist.spotify_id})`)
-                              console.log(`Flattened recommendations count: ${flattenedRecommendations.length}`)
-                              console.log(`Sample recommendation artist.id: ${flattenedRecommendations[0]?.artist?.id}`)
-                              console.log(`Is recommended: ${isRecommended}`)
-                              if (isRecommended) {
-                                console.log(`Recommendation found:`, recommendation)
-                              }
-                            }
-                            
-                            return (
-                              <div 
-                                key={act.id} 
-                                className={`list__act ${isRecommended ? 'list__act--recommended' : ''}`}
-                                style={{ 
-                                  animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
-                                  backgroundColor: isRecommended ? '#e8f5e8' : undefined,
-                                  borderLeft: isRecommended ? '4px solid #1DB954' : undefined
-                                }}
-                                data-artist={act.name}
-                                onClick={() => handleArtistClick(act)}
-                              >
-                                <div className="list__act-name">
-                                  {act.name}
-                                  {isRecommended && (
-                                    <span style={{ 
-                                      fontSize: '0.8em', 
-                                      color: '#1DB954', 
-                                      marginLeft: '8px',
-                                      fontWeight: 'bold'
-                                    }}>
-                                      ★ RECOMMENDED
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="list__act-time">{act.start_time} - {act.end_time}</div>
-                                {isRecommended && recommendation && (
-                                  <div style={{ 
-                                    fontSize: '0.8em', 
-                                    color: '#666', 
-                                    fontStyle: 'italic',
-                                    marginTop: '4px'
-                                  }}>
-                                    {recommendation.reason}
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })
-                        )}
-                      </div>
-                    </div>
-                  ))
                 )}
-              </div>
-            </div>
+
+                <div className="timetable__nav">
+                  <div className="timetable__nav--head">
+                    <nav className="nav__type--days">
+                      {days.map((day, index) => (
+                        <button
+                          key={day.id}
+                          className={`btn__day ${index === currentDay ? 'selected' : ''}`}
+                          data-day-id={index}
+                          onClick={() => setCurrentDay(index)}
+                        >
+                          <span>{new Date(day.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}</span>
+                        </button>
+                      ))}
+                    </nav>
+                    
+                    <button 
+                      className={`btn__second ${currentView === 'list' ? 'active' : ''}`}
+                      id="view-toggle"
+                      onClick={() => setCurrentView(currentView === 'timeline' ? 'list' : 'timeline')}
+                    >
+                      <span>
+                        <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
+                        {currentView === 'timeline' ? 'list view' : 'timeline view'}
+                      </span>
+                    </button>
+                  </div>
+                  
+                  <div className="timetable__nav--currentday font__size--head">
+                    {currentDayData.date ? (
+                      new Date(currentDayData.date).toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long'
+                      })
+                    ) : (
+                      days[currentDay] ? 
+                      new Date(days[currentDay].date).toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        day: 'numeric', 
+                        month: 'long'
+                      }) : 'Loading...'
+                    )}
+                  </div>
+                </div>
+
+                <div className={`timetable__timeline ${currentView === 'timeline' ? '' : 'hidden'}`}>
+                  <TimelineView 
+                    currentDayData={{
+                      day: currentDayData,
+                      stages: currentDayData.stages || []
+                    }}
+                    recommendations={flattenedRecommendations}
+                    onArtistClick={handleArtistClick}
+                  />
+                </div>
+
+                <div className={`timetable__timelist ${currentView === 'list' ? 'active' : ''}`}>
+                  <div className="timetable__list" id="timetable__list">
+                    {currentDayData.stages.length === 0 ? (
+                      <div style={{ 
+                        textAlign: 'center', 
+                        padding: '2rem',
+                        color: '#666',
+                        fontSize: '1.1rem'
+                      }}>
+                        No acts scheduled for this day
+                      </div>
+                    ) : (
+                      currentDayData.stages.map((stage, stageIndex) => (
+                        <div 
+                          key={stage.name} 
+                          className="list__stage"
+                          style={{
+                            opacity: 1,
+                            transform: 'translateY(0px)',
+                            animationDelay: `${stageIndex * 0.1}s`,
+                            transition: '0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                          }}
+                        >
+                          <div className="list__stage-name">{stage.name}</div>
+                          <div className="list__acts">
+                            {stage.acts.length === 0 ? (
+                              <div style={{ 
+                                padding: '1rem',
+                                color: '#999',
+                                fontStyle: 'italic'
+                              }}>
+                                No acts scheduled for this stage
+                              </div>
+                            ) : (
+                              stage.acts.map((act, actIndex) => {
+                                // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
+                                const isRecommended = act.artist && act.artist.spotify_id && flattenedRecommendations.some(rec => {
+                                  // rec.artist.id is from Spotify API, act.artist.spotify_id is from Supabase
+                                  return rec.artist.id === act.artist.spotify_id
+                                })
+                                const recommendation = isRecommended ? flattenedRecommendations.find(rec => rec.artist.id === act.artist.spotify_id) : null
+                                
+                                // Debug logging
+                                if (act.artist) {
+                                  console.log(`Checking act: ${act.name} (Supabase spotify_id: ${act.artist.spotify_id})`)
+                                  console.log(`Flattened recommendations count: ${flattenedRecommendations.length}`)
+                                  console.log(`Sample recommendation artist.id: ${flattenedRecommendations[0]?.artist?.id}`)
+                                  console.log(`Is recommended: ${isRecommended}`)
+                                  if (isRecommended) {
+                                    console.log(`Recommendation found:`, recommendation)
+                                  }
+                                }
+                                
+                                return (
+                                  <div 
+                                    key={act.id} 
+                                    className={`list__act ${isRecommended ? 'list__act--recommended' : ''}`}
+                                    style={{ 
+                                      animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
+                                      backgroundColor: isRecommended ? '#e8f5e8' : undefined,
+                                      borderLeft: isRecommended ? '4px solid #1DB954' : undefined
+                                    }}
+                                    data-artist={act.name}
+                                    onClick={() => handleArtistClick(act)}
+                                  >
+                                    <div className="list__act-name">
+                                      {act.name}
+                                      {isRecommended && (
+                                        <span style={{ 
+                                          fontSize: '0.8em', 
+                                          color: '#1DB954', 
+                                          marginLeft: '8px',
+                                          fontWeight: 'bold'
+                                        }}>
+                                          ★ RECOMMENDED
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="list__act-time">{act.start_time} - {act.end_time}</div>
+                                    {isRecommended && recommendation && (
+                                      <div style={{ 
+                                        fontSize: '0.8em', 
+                                        color: '#666', 
+                                        fontStyle: 'italic',
+                                        marginTop: '4px'
+                                      }}>
+                                        {recommendation.reason}
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>
