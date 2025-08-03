@@ -1,11 +1,26 @@
 import { useState } from 'react'
 import { useFestivalData } from './hooks/useFestivalData'
+import { ArtistDialog } from './components/ArtistDialog'
 import './App.css'
 
 function App() {
-  const { festivalDays, times, acts, artists, loading, error } = useFestivalData()
+  const { 
+    festival, 
+    festivalDays, 
+    stages, 
+    artists, 
+    acts, 
+    timetableEntries, 
+    loading, 
+    error, 
+    getActsByDayAndStage, 
+    getArtistByName 
+  } = useFestivalData()
+  
   const [currentDay, setCurrentDay] = useState(0)
   const [currentView, setCurrentView] = useState('list')
+  const [selectedArtist, setSelectedArtist] = useState(null)
+  const [isArtistDialogOpen, setIsArtistDialogOpen] = useState(false)
 
   if (loading) {
     return (
@@ -26,29 +41,31 @@ function App() {
     )
   }
 
-  // Group acts by day and stage
-  const actsByDay = festivalDays.map(day => {
-    const dayActs = acts.filter(act => act.festival_days?.id === day.id)
-    const actsByStage = {}
-    
-    dayActs.forEach(act => {
-      const stageName = act.stage_name || 'Unknown Stage'
-      if (!actsByStage[stageName]) {
-        actsByStage[stageName] = []
-      }
-      actsByStage[stageName].push(act)
-    })
-    
-    return {
-      day,
-      stages: Object.entries(actsByStage).map(([stageName, stageActs]) => ({
-        name: stageName,
-        acts: stageActs
-      }))
-    }
-  })
+  if (!festival) {
+    return (
+      <div className="error">
+        <h2>No Festival Found</h2>
+        <p>No current festival is configured. Please set up a festival in the database.</p>
+      </div>
+    )
+  }
 
+  // Get acts grouped by day and stage
+  const actsByDay = getActsByDayAndStage()
   const currentDayData = actsByDay[currentDay] || { day: {}, stages: [] }
+
+  const handleArtistClick = (artistName) => {
+    const artist = getArtistByName(artistName)
+    if (artist) {
+      setSelectedArtist(artist)
+      setIsArtistDialogOpen(true)
+    }
+  }
+
+  const closeArtistDialog = () => {
+    setIsArtistDialogOpen(false)
+    setSelectedArtist(null)
+  }
 
   return (
     <div className="main__app">
@@ -58,7 +75,7 @@ function App() {
             <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
           </div>
           <div className="header__title font__size--sub">
-            HtC Personal Timetable 2025
+            {festival.name} - Personal Timetable 2025
           </div>
           <div className="nav__type--header">
             <button className="btn__second">
@@ -114,6 +131,10 @@ function App() {
                 <div className="timeline-placeholder">
                   <h3>Timeline View</h3>
                   <p>Timeline view will be implemented here</p>
+                  <div className="timeline-data-preview">
+                    <h4>Current Day Data:</h4>
+                    <pre>{JSON.stringify(currentDayData, null, 2)}</pre>
+                  </div>
                 </div>
               </div>
             </div>
@@ -125,9 +146,14 @@ function App() {
                     <div className="list__stage-name">{stage.name}</div>
                     <div className="list__acts">
                       {stage.acts.map((act, actIndex) => (
-                        <div key={act.id} className="list__act">
+                        <div 
+                          key={act.id} 
+                          className="list__act"
+                          onClick={() => handleArtistClick(act.name)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className="list__act-name">
-                            {act.artists?.name || act.name || 'Unknown Artist'}
+                            {act.name}
                           </div>
                           <div className="list__act-time">
                             {act.start_time} - {act.end_time}
@@ -157,6 +183,13 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Artist Dialog */}
+      <ArtistDialog 
+        artist={selectedArtist}
+        isOpen={isArtistDialogOpen}
+        onClose={closeArtistDialog}
+      />
     </div>
   )
 }
