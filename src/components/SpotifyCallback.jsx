@@ -1,12 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
 
 export function SpotifyCallback() {
   const { handleCallback, loading, error } = useSpotifyAuth()
   const [status, setStatus] = useState('Processing...')
+  const hasProcessed = useRef(false)
 
   useEffect(() => {
     const processCallback = async () => {
+      // Prevent multiple executions
+      if (hasProcessed.current) {
+        console.log('Callback already processed, skipping')
+        return
+      }
+      
+      hasProcessed.current = true
+      
       try {
         // Get the authorization code from URL parameters
         const urlParams = new URLSearchParams(window.location.search)
@@ -18,7 +27,7 @@ export function SpotifyCallback() {
           
           // Handle specific Spotify errors
           if (error === 'invalid_scope') {
-            setStatus('Error: Invalid scope requested. Please check your Spotify app configuration.')
+            setStatus('Error: Invalid scope requested. The scope "user-top-read" is required. Please check your Spotify app configuration.')
           } else if (error === 'invalid_client') {
             setStatus('Error: Invalid client ID. Please check your Spotify app configuration.')
           } else if (error === 'invalid_redirect_uri') {
@@ -35,13 +44,19 @@ export function SpotifyCallback() {
         }
 
         setStatus('Connecting to Spotify...')
-        await handleCallback(code)
-        setStatus('Success! Redirecting...')
+        try {
+          await handleCallback(code)
+          setStatus('Success! Redirecting...')
+        } catch (error) {
+          console.error('Callback error:', error)
+          setStatus(`Error: ${error.message}`)
+          return
+        }
 
         // Redirect back to main page after successful authentication
-        setTimeout(() => {
-          window.location.href = '/'
-        }, 2000)
+        // setTimeout(() => {
+        //   window.location.href = '/'
+        // }, 2000)
 
       } catch (err) {
         console.error('Error processing callback:', err)
@@ -50,7 +65,7 @@ export function SpotifyCallback() {
     }
 
     processCallback()
-  }, [handleCallback])
+  }, []) // Remove handleCallback from dependencies since we're using useRef to prevent multiple executions
 
   if (loading) {
     return (
@@ -136,6 +151,20 @@ export function SpotifyCallback() {
       }}>
         <span style={{ color: 'white', fontSize: '24px' }}>✓</span>
       </div>
+      <button 
+        onClick={() => window.location.href = '/'}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#1DB954',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          marginTop: '20px'
+        }}
+      >
+        Go to Main Page
+      </button>
     </div>
   )
 } 
