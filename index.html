@@ -1,160 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>HIT THE CITY - Personal Timetable</title>
-
-	<link rel="stylesheet" href="_assets/main.css">
-	<link rel="stylesheet" href="_assets/timetable.css">
-	<link rel="stylesheet" href="_assets/artist--dialog.css">
-
-	<script src="https://kit.fontawesome.com/0c4756b1c3.js" crossorigin="anonymous"></script>
-
-</head>
-<body>
-
-<div class="main__app">
-
-	<header class="header__fixed bg--white">
-
-		<div class="section__margin">
-
-			<div class="festival__logo--header">
-
-				<img src="_assets/_images/logo-hitthecity.png">
-
-			</div>
-
-			<div class="header__title font__size--sub">
-
-				HtC Personal Timetable 2025
-
-			</div>
-
-			<div class="nav__type--header">
-			
-				<button class="btn__second">
-					<span>Options</span>
-				</button>
-
-				<button class="btn__second">
-					<span>Share your timetable</span>
-				</button>
-
-			</div>
-
-			<div class="nav__type--header--mobile">
-
-				<button class="btn__second">
-					<span>Options</span>
-				</button>
-
-				<button class="btn__second">
-					<span>Share</span>
-				</button>
-
-			</div>
-
-		</div>
-
-	</header>
-
-	<main class="timetable__main">
-
-		<div class="section__margin">
-
-			<div class="sticky__helper"></div>
-
-			<div class="timetable__nav">
-
-				<div class="timetable__nav--head">
-
-					<nav class="nav__type--days">
-
-						<button class="btn__day selected" data-day-id="0">
-							<span>28 Aug</span>
-						</button>
-
-						<button class="btn__day" data-day-id="1">
-							<span>29 Aug</span>
-						</button>
-
-						<button class="btn__day" data-day-id="2">
-							<span>30 Aug</span>
-						</button>
-
-						<button class="btn__day" data-day-id="3">
-							<span>31 Aug</span>
-						</button>
-
-					</nav>
-
-					<button class="btn__second" id="view-toggle">
-
-						<span>Timeline view</span>
-					</button>
-
-				</div>
-
-				<div class="timetable__nav--currentday font__size--head">
-
-					Friday 29 Augustus
-
-				</div>
-
-			</div>
-
-			<div class="timetable__timeline">
-
-    			<div class="timetable__grid" id="timetable"></div>
-
-			</div>
-
-			<div class="timetable__timelist">
-
-				<div class="timetable__list" id="timetable__list">
-
-
-				</div>
-
-			</div>
-
-		</div>
-
-	</main>
-
-	<footer class="font__size--label">
-
-		<div class="section__margin">
-
-			<div class="footer__row--left">
-
-				<a href="btn__type--link">
-
-					Privacy policy
-
-				</a>
-
-			</div>
-
-			<div class="footer__row--right">
-
-				<a href="btn__type--link">
-
-					User agreement
-
-				</a>
-
-			</div>
-
-		</div>
-
-	</footer>
-
-</div>
-
-<script src="_assets/timetable.js"></script>
-
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HIT THE CITY - Personal Timetable</title>
+    
+    <!-- Existing CSS files -->
+    <link rel="stylesheet" href="/_assets/main.css">
+    <link rel="stylesheet" href="/_assets/timetable.css">
+    <link rel="stylesheet" href="/_assets/artist--dialog.css">
+    
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/0c4756b1c3.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
