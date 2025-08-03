@@ -362,6 +362,43 @@ function App() {
                 <span>Connect with Spotify</span>
               </button>
             )}
+            
+            {/* Debug/Test Navigation Links */}
+            <div style={{ marginLeft: '20px', display: 'flex', gap: '10px' }}>
+              <a href="/test-recommendations" style={{
+                color: '#007bff',
+                textDecoration: 'none',
+                fontSize: '0.8em',
+                padding: '4px 8px',
+                border: '1px solid #007bff',
+                borderRadius: '4px',
+                background: 'transparent'
+              }}>
+                🧪 Test
+              </a>
+              <a href="/api" style={{
+                color: '#6c757d',
+                textDecoration: 'none',
+                fontSize: '0.8em',
+                padding: '4px 8px',
+                border: '1px solid #6c757d',
+                borderRadius: '4px',
+                background: 'transparent'
+              }}>
+                📊 API
+              </a>
+              <a href="/cache" style={{
+                color: '#28a745',
+                textDecoration: 'none',
+                fontSize: '0.8em',
+                padding: '4px 8px',
+                border: '1px solid #28a745',
+                borderRadius: '4px',
+                background: 'transparent'
+              }}>
+                💾 Cache
+              </a>
+            </div>
           </div>
         </div>
       </header>
