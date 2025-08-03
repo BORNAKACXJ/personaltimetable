@@ -85,6 +85,18 @@ CREATE TABLE IF NOT EXISTS timetable_entries (
   updated_at timestamptz DEFAULT now()
 );
 
+-- Create related_artists table for Spotify recommendations
+CREATE TABLE IF NOT EXISTS related_artists (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  artist_id uuid REFERENCES artists(id) ON DELETE CASCADE,
+  related_spotify_id text NOT NULL,
+  related_artist_name text NOT NULL,
+  similarity_score numeric(3,2) DEFAULT 0.0,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(artist_id, related_spotify_id)
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_festival_days_festival_id ON festival_days(festival_id);
 CREATE INDEX IF NOT EXISTS idx_stages_festival_id ON stages(festival_id);
@@ -96,6 +108,8 @@ CREATE INDEX IF NOT EXISTS idx_timetable_entries_act_id ON timetable_entries(act
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_stage_id ON timetable_entries(stage_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_day_id ON timetable_entries(day_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_festival_id ON timetable_entries(festival_id);
+CREATE INDEX IF NOT EXISTS idx_related_artists_artist_id ON related_artists(artist_id);
+CREATE INDEX IF NOT EXISTS idx_related_artists_related_spotify_id ON related_artists(related_spotify_id);
 
 -- Enable Row Level Security
 ALTER TABLE festivals ENABLE ROW LEVEL SECURITY;
@@ -105,6 +119,7 @@ ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE acts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE act_artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE timetable_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE related_artists ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for public read access
 CREATE POLICY "Allow public read access to festivals" ON festivals FOR SELECT USING (true);

@@ -321,6 +321,16 @@
 	opacity: 0.8;
 }
 
+.list__act--recommended {
+	position: relative;
+	transition: all 0.3s ease;
+}
+
+.list__act--recommended:hover {
+	transform: translateX(4px);
+	box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
+}
+
 @media screen and (max-width: 768px){
 
 	.section__margin {

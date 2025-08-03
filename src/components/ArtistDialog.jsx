@@ -3,11 +3,19 @@ import { X } from 'lucide-react'
 
 export function ArtistDialog({ artist, isOpen, onClose }) {
   const [isVisible, setIsVisible] = useState(false)
+  const [animationStep, setAnimationStep] = useState(0)
 
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true)
+      // Start staggered animation sequence
+      setAnimationStep(0)
+      const steps = [1, 2, 3, 4, 5, 6, 7, 8]
+      steps.forEach((step, index) => {
+        setTimeout(() => setAnimationStep(step), index * 10)
+      })
     } else {
+      setAnimationStep(0)
       setTimeout(() => setIsVisible(false), 300)
     }
   }, [isOpen])
@@ -20,7 +28,14 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
       <div className="artist-dialog__content">
         <div className="artist-dialog__header">
           <div className="artist-dialog__artist-info">
-            <div className="artist-dialog__image">
+            <div 
+              className="artist-dialog__image"
+              style={{
+                transform: animationStep >= 1 ? 'scale(1)' : 'scale(0.8)',
+                opacity: animationStep >= 1 ? 1 : 0,
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
               <img 
                 src={artist.image_url || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face'} 
                 alt={artist.name}
@@ -28,9 +43,28 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               />
             </div>
             <div className="artist-dialog__name-section">
-              <h2 id="dialog-artist-name">{artist.name}</h2>
+              <h2 
+                id="dialog-artist-name"
+                style={{
+                  transform: animationStep >= 2 ? 'translateY(0)' : 'translateY(20px)',
+                  opacity: animationStep >= 2 ? 1 : 0,
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {artist.name}
+              </h2>
               {artist.spotify_url && (
-                <a href={artist.spotify_url} className="artist-dialog__spotify-link" target="_blank" rel="noopener noreferrer">
+                <a 
+                  href={artist.spotify_url} 
+                  className="artist-dialog__spotify-link" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
+                    opacity: animationStep >= 3 ? 1 : 0,
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
                   <i className="fa-brands fa-spotify"></i>
                   LISTEN ON SPOTIFY
                 </a>
@@ -39,9 +73,22 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
           </div>
         </div>
         
-        <div className="artist-dialog__recommendation">
+        <div 
+          className="artist-dialog__recommendation"
+          style={{
+            transform: animationStep >= 4 ? 'translateY(0)' : 'translateY(30px)',
+            opacity: animationStep >= 4 ? 1 : 0,
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
           <div className="artist-dialog__recommendation-content">
-            <div className="artist-dialog__album-art">
+            <div 
+              className="artist-dialog__album-art"
+              style={{
+                transform: animationStep >= 5 ? 'scale(1)' : 'scale(0.9)',
+                transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
               <img 
                 src={artist.image_url || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop'} 
                 alt="Artist"
@@ -60,7 +107,14 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
           </div>
         </div>
         
-        <div className="artist-dialog__about">
+        <div 
+          className="artist-dialog__about"
+          style={{
+            transform: animationStep >= 6 ? 'translateY(0)' : 'translateY(30px)',
+            opacity: animationStep >= 6 ? 1 : 0,
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
           <h3>ABOUT THIS ARTIST</h3>
           <p id="dialog-artist-about">
             {artist.about || 'No description available for this artist.'}
@@ -68,7 +122,14 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         </div>
         
         {artist.followers && (
-          <div className="artist-dialog__stats">
+          <div 
+            className="artist-dialog__stats"
+            style={{
+              transform: animationStep >= 7 ? 'translateY(0)' : 'translateY(30px)',
+              opacity: animationStep >= 7 ? 1 : 0,
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
             <div className="artist-dialog__stat">
               <span className="stat-label">Followers</span>
               <span className="stat-value">{artist.followers.toLocaleString()}</span>
@@ -76,7 +137,15 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
           </div>
         )}
         
-        <button className="artist-dialog__close-btn" onClick={onClose}>
+        <button 
+          className="artist-dialog__close-btn" 
+          onClick={onClose}
+          style={{
+            transform: animationStep >= 8 ? 'translateY(0)' : 'translateY(30px)',
+            opacity: animationStep >= 8 ? 1 : 0,
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
           <X className="h-4 w-4 mr-2" />
           BACK TO TIMETABLE
         </button>
