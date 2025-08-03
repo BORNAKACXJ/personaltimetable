@@ -173,6 +173,12 @@
 }
 
 .event-card {
+	background: var(--white);
+	border-radius: 8px;
+	padding: 8px 12px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
+	position: relative;
 	overflow: hidden;
 	filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.1));
 	width: 100%;
@@ -181,6 +187,32 @@
 	opacity: 0;
 	transform: translateY(20px);
 	animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Recommended event card styles */
+.event-card--recommended {
+	background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+	border: 2px solid #1DB954;
+	box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
+	position: relative;
+	animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+.event-card--recommended::before {
+	content: '★';
+	position: absolute;
+	top: 4px;
+	right: 8px;
+	color: #1DB954;
+	font-size: 12px;
+	font-weight: bold;
+	animation: star-twinkle 1.5s ease-in-out infinite;
+}
+
+.event-card--recommended:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(29, 185, 84, 0.3);
+	background: linear-gradient(135deg, #d4f0d4 0%, #e8f5e8 100%);
 }
 
 @keyframes fadeInUp {
@@ -319,6 +351,64 @@
 .list__act-time {
 	font-size: 12px;
 	opacity: 0.8;
+}
+
+/* List view recommended acts */
+.list__act--recommended {
+	background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%) !important;
+	border-left: 4px solid #1DB954 !important;
+	box-shadow: 0 2px 8px rgba(29, 185, 84, 0.15);
+	position: relative;
+	animation: slide-in-recommended 0.6s ease-out;
+}
+
+.list__act--recommended::before {
+	content: '★';
+	position: absolute;
+	top: 8px;
+	right: 12px;
+	color: #1DB954;
+	font-size: 14px;
+	font-weight: bold;
+	animation: star-twinkle 1.5s ease-in-out infinite;
+}
+
+.list__act--recommended:hover {
+	background: linear-gradient(135deg, #d4f0d4 0%, #e8f5e8 100%) !important;
+	box-shadow: 0 4px 12px rgba(29, 185, 84, 0.25);
+	transform: translateX(4px);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+	0% {
+		box-shadow: 0 4px 12px rgba(29, 185, 84, 0.2);
+	}
+	100% {
+		box-shadow: 0 4px 16px rgba(29, 185, 84, 0.4);
+	}
+}
+
+@keyframes star-twinkle {
+	0%, 100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.7;
+		transform: scale(1.1);
+	}
+}
+
+@keyframes slide-in-recommended {
+	0% {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 @media screen and (max-width: 768px){

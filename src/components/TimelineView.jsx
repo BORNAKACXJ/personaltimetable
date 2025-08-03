@@ -43,7 +43,7 @@ function timeToColumnIndex(time, startTime, timeMarkers) {
   return (index === -1 ? timeMarkerMinutes.length - 1 : index) + 1
 }
 
-export function TimelineView({ currentDayData, onArtistClick }) {
+export function TimelineView({ currentDayData, recommendations = [], onArtistClick }) {
   const [timeMarkers, setTimeMarkers] = useState([])
   const [totalColumns, setTotalColumns] = useState(0)
   const timelineRef = useRef(null)
@@ -150,21 +150,53 @@ export function TimelineView({ currentDayData, onArtistClick }) {
             const endCol = timeToColumnIndex(act.end_time, timeRange.start, timeMarkers)
             const actsRow = stageRow + 1
 
+            // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
+            const isRecommended = act.artist && act.artist.spotify_id && recommendations.some(rec => {
+              // rec.artist.id is from Spotify API, act.artist.spotify_id is from Supabase
+              return rec.artist.id === act.artist.spotify_id
+            })
+            const recommendation = isRecommended ? recommendations.find(rec => rec.artist.id === act.artist.spotify_id) : null
+
             return (
               <div
                 key={act.id}
-                className="event-card"
+                className={`event-card ${isRecommended ? 'event-card--recommended' : ''}`}
                 style={{
                   gridArea: `${actsRow} / ${startCol} / auto / ${endCol}`,
                   animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  backgroundColor: isRecommended ? '#e8f5e8' : undefined,
+                  border: isRecommended ? '2px solid #1DB954' : undefined,
+                  boxShadow: isRecommended ? '0 2px 8px rgba(29, 185, 84, 0.3)' : undefined
                 }}
                 onClick={() => onArtistClick(act)}
               >
                 <div className="act__wrapper">
                   <div className="act__info">
-                    <div className="act__name">{act.name}</div>
+                    <div className="act__name">
+                      {act.name}
+                      {isRecommended && (
+                        <span style={{ 
+                          fontSize: '0.7em', 
+                          color: '#1DB954', 
+                          marginLeft: '4px',
+                          fontWeight: 'bold'
+                        }}>
+                          ★
+                        </span>
+                      )}
+                    </div>
                     <div className="act__time">{act.start_time} - {act.end_time}</div>
+                    {isRecommended && recommendation && (
+                      <div style={{ 
+                        fontSize: '0.7em', 
+                        color: '#666', 
+                        fontStyle: 'italic',
+                        marginTop: '2px'
+                      }}>
+                        {recommendation.reason}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
