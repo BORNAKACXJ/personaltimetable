@@ -8,6 +8,7 @@ import { SpotifyCallback } from './components/SpotifyCallback'
 import { Api } from './pages/Api'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
+import './App.css'
 
 function App() {
   // ALL HOOKS MUST BE CALLED IN THE SAME ORDER EVERY TIME
