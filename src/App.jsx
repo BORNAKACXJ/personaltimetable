@@ -8,10 +8,11 @@ import { SpotifyCallback } from './components/SpotifyCallback'
 import { Api } from './pages/Api'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
-import DebugInfo from './components/DebugInfo'
 import './App.css'
 
 function App() {
+  console.log('App.jsx: Component starting')
+  
   // ALL HOOKS MUST BE CALLED IN THE SAME ORDER EVERY TIME
   // 1. Custom hooks first
   const { 
@@ -293,9 +294,9 @@ function App() {
     
     // Convert times to minutes for easier comparison
     const slotStartMinutes = parseInt(slotStart.split(':')[0]) * 60 + parseInt(slotStart.split(':')[1])
-    const slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
+    let slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
     const actStartMinutes = parseInt(actStart.split(':')[0]) * 60 + parseInt(actStart.split(':')[1])
-    const actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
+    let actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
     
     // Handle overnight acts
     if (actEndMinutes < actStartMinutes) {
@@ -323,51 +324,15 @@ function App() {
     setSelectedArtist(null)
   }
 
-  // Add error handling for missing data
-  if (error) {
-    return (
-      <div className="error">
-        <h2>Error Loading App</h2>
-        <p>{error.message || 'An error occurred while loading the application.'}</p>
-        <button onClick={() => window.location.reload()}>Reload Page</button>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="loading-spinner"></div>
-        <p>Loading Hit The City...</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="main__app" style={{ minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
-      <DebugInfo 
-        data={data}
-        loading={loading}
-        error={error}
-        spotifyAuthenticated={spotifyAuthenticated}
-        spotifyLoading={spotifyLoading}
-      />
-      <header className="header__fixed bg--white" style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        background: 'white', 
-        zIndex: 1000,
-        padding: '10px 0',
-        borderBottom: '1px solid #eee'
-      }}>
+    <div className="main__app">
+      <header className="header__fixed bg--white">
         <div className="section__margin">
           <div className="festival__logo--header">
             <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
           </div>
           <div className="header__title font__size--sub">
-            {festival?.name || 'Hit The City'} - Personal Timetable 2025
+            {festival.name} - Personal Timetable 2025
           </div>
           <div className="nav__type--header">
             {spotifyAuthenticated ? (

@@ -17,6 +17,7 @@ const ConfigCheck = ({ children }) => {
   }
 
   if (missingVars.length > 0) {
+    console.log('Missing environment variables:', missingVars)
     return (
       <div style={{
         display: 'flex',
