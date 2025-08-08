@@ -19,6 +19,34 @@ function formatTimeForDisplay(timeStr) {
   return timeStr
 }
 
+// Convert time to minutes for sorting (handles overnight events)
+function timeToMinutes(timeStr) {
+  if (!timeStr) return 0
+  const [hours, minutes] = timeStr.split(':').map(Number)
+  return hours * 60 + minutes
+}
+
+// Sort acts by start time (handles overnight events)
+function sortActsByTime(acts) {
+  return [...acts].sort((a, b) => {
+    const aMinutes = timeToMinutes(a.start_time)
+    const bMinutes = timeToMinutes(b.start_time)
+    
+    // Handle overnight events - if one act starts after midnight and the other before
+    // We assume acts starting after midnight (like 01:00) should come after acts starting before midnight (like 23:00)
+    if (aMinutes < 6 * 60 && bMinutes > 18 * 60) {
+      // a is early morning (before 6 AM), b is evening (after 6 PM)
+      return 1 // a comes after b
+    } else if (aMinutes > 18 * 60 && bMinutes < 6 * 60) {
+      // a is evening (after 6 PM), b is early morning (before 6 AM)
+      return -1 // a comes before b
+    } else {
+      // Both acts are in the same time period (day or night)
+      return aMinutes - bMinutes
+    }
+  })
+}
+
 function App() {
   // ALL HOOKS MUST BE CALLED IN THE SAME ORDER EVERY TIME
   // 1. Custom hooks first
@@ -340,7 +368,7 @@ function App() {
             <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
           </div>
           <div className="header__title font__size--sub">
-            {festival.name} - Personal Timetable 2025
+            {festival.name} - Timetable 2025
           </div>
           <div className="nav__type--header">
             {/* Empty - ready for future content */}
@@ -586,7 +614,7 @@ function App() {
                             No acts scheduled for this stage
                           </div>
                         ) : (
-                          stage.acts.map((act, actIndex) => {
+                          sortActsByTime(stage.acts).map((act, actIndex) => {
                             // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
                             const isRecommended = act.artist && act.artist.spotify_id && flattenedRecommendations.some(rec => {
                               // rec.artist.id is from Spotify API, act.artist.spotify_id is from Supabase
