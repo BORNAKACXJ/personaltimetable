@@ -7,14 +7,6 @@ const SPOTIFY_SCOPES = [
   'user-top-read'       // Access to user's top artists and tracks
 ].join(' ')
 
-// Check if Spotify environment variables are available
-if (!SPOTIFY_CLIENT_ID) {
-  console.warn('Spotify Client ID is missing. Please set VITE_SPOTIFY_CLIENT_ID in your environment variables.')
-}
-if (!import.meta.env.VITE_SPOTIFY_CLIENT_SECRET) {
-  console.warn('Spotify Client Secret is missing. Please set VITE_SPOTIFY_CLIENT_SECRET in your environment variables.')
-}
-
 export function useSpotifyAuth() {
   const [user, setUser] = useState(null)
   const [topTracks, setTopTracks] = useState([])

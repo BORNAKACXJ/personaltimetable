@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 
-export function ArtistDialog({ artist, isOpen, onClose }) {
+// Format time to display format (remove seconds if present)
+function formatTimeForDisplay(timeStr) {
+  if (!timeStr) return ''
+  // If time is in format "HH:MM:SS", convert to "HH:MM"
+  if (timeStr.includes(':') && timeStr.split(':').length === 3) {
+    return timeStr.substring(0, 5)
+  }
+  return timeStr
+}
+
+export function ArtistDialog({ artist, isOpen, onClose, currentDayData }) {
   const [isVisible, setIsVisible] = useState(false)
   const [animationStep, setAnimationStep] = useState(0)
 
@@ -73,39 +83,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
           </div>
         </div>
         
-        <div 
-          className="artist-dialog__recommendation"
-          style={{
-            transform: animationStep >= 4 ? 'translateY(0)' : 'translateY(30px)',
-            opacity: animationStep >= 4 ? 1 : 0,
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-          }}
-        >
-          <div className="artist-dialog__recommendation-content">
-            <div 
-              className="artist-dialog__album-art"
-              style={{
-                transform: animationStep >= 5 ? 'scale(1)' : 'scale(0.9)',
-                transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              <img 
-                src={artist.image_url || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop'} 
-                alt="Artist"
-              />
-              <span>Artist Mix</span>
-            </div>
-            <div className="artist-dialog__genre-info">
-              <span id="dialog-artist-genre">
-                {artist.genres?.join(', ') || 'Various Genres'}
-              </span>
-              <div className="artist-dialog__spotify-badge">
-                <i className="fa-brands fa-spotify"></i>
-                {artist.popularity ? `POPULARITY: ${artist.popularity}/100` : 'ARTIST INFORMATION'}
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Recommendation section hidden */}
         
         <div 
           className="artist-dialog__about"
@@ -117,25 +95,72 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         >
           <h3>ABOUT THIS ARTIST</h3>
           <p id="dialog-artist-about">
-            {artist.about || 'No description available for this artist.'}
+            {artist.bio || 'No description available for this artist.'}
           </p>
         </div>
         
-        {artist.followers && (
+        {/* Performance Times */}
+        {artist.actData && (
           <div 
-            className="artist-dialog__stats"
             style={{
               transform: animationStep >= 7 ? 'translateY(0)' : 'translateY(30px)',
               opacity: animationStep >= 7 ? 1 : 0,
-              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              
+             
+              padding: '16px',
+              
+              
+             
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start'
             }}
           >
-            <div className="artist-dialog__stat">
-              <span className="stat-label">Followers</span>
-              <span className="stat-value">{artist.followers.toLocaleString()}</span>
+            {/* Left side - Day and Stage */}
+            <div style={{ flex: 1 }}>
+              <div style={{ 
+                fontSize: '16px', 
+                color: '#333', 
+                fontWeight: 'bold',
+                marginBottom: '4px'
+              }}>
+                {currentDayData?.day?.date || 'Saturday 31 Augustus'}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#666'
+              }}>
+                {artist.actData.stage?.name || 'EFFENAAR KLEINE ZAAL'}
+              </div>
+            </div>
+            
+            {/* Right side - Times */}
+            <div style={{ 
+              textAlign: 'right',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end'
+            }}>
+              <div style={{ 
+                fontSize: '18px', 
+                color: '#333', 
+                fontWeight: 'bold',
+                marginBottom: '2px'
+              }}>
+                {formatTimeForDisplay(artist.actData.start_time)}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: '#666'
+              }}>
+                {formatTimeForDisplay(artist.actData.end_time)}
+              </div>
             </div>
           </div>
         )}
+        
+        {/* Followers section hidden */}
         
         <button 
           className="artist-dialog__close-btn" 
@@ -146,7 +171,6 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
-          <X className="h-4 w-4 mr-2" />
           BACK TO TIMETABLE
         </button>
       </div>

@@ -52,9 +52,9 @@ export function Api() {
     
     // Convert times to minutes for easier comparison
     const slotStartMinutes = parseInt(slotStart.split(':')[0]) * 60 + parseInt(slotStart.split(':')[1])
-    let slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
+    const slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
     const actStartMinutes = parseInt(actStart.split(':')[0]) * 60 + parseInt(actStart.split(':')[1])
-    let actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
+    const actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
     
     // Handle overnight acts
     if (actEndMinutes < actStartMinutes) {

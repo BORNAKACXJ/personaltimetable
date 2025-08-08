@@ -8,11 +8,18 @@ import { SpotifyCallback } from './components/SpotifyCallback'
 import { Api } from './pages/Api'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
-import './App.css'
+
+// Format time to display format (remove seconds if present)
+function formatTimeForDisplay(timeStr) {
+  if (!timeStr) return ''
+  // If time is in format "HH:MM:SS", convert to "HH:MM"
+  if (timeStr.includes(':') && timeStr.split(':').length === 3) {
+    return timeStr.substring(0, 5)
+  }
+  return timeStr
+}
 
 function App() {
-  console.log('App.jsx: Component starting')
-  
   // ALL HOOKS MUST BE CALLED IN THE SAME ORDER EVERY TIME
   // 1. Custom hooks first
   const { 
@@ -294,9 +301,9 @@ function App() {
     
     // Convert times to minutes for easier comparison
     const slotStartMinutes = parseInt(slotStart.split(':')[0]) * 60 + parseInt(slotStart.split(':')[1])
-    let slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
+    const slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
     const actStartMinutes = parseInt(actStart.split(':')[0]) * 60 + parseInt(actStart.split(':')[1])
-    let actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
+    const actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
     
     // Handle overnight acts
     if (actEndMinutes < actStartMinutes) {
@@ -312,7 +319,8 @@ function App() {
 
   const handleArtistClick = (act) => {
     if (act.artist) {
-      setSelectedArtist(act.artist)
+      // Pass both artist and act data to include performance times
+      setSelectedArtist({ ...act.artist, actData: act })
       setIsArtistDialogOpen(true)
     } else {
       console.log('No artist found for:', act)
@@ -335,73 +343,7 @@ function App() {
             {festival.name} - Personal Timetable 2025
           </div>
           <div className="nav__type--header">
-            {spotifyAuthenticated ? (
-              <>
-                <button className="btn__second" onClick={() => setShowOptionsDialog(true)}>
-                  <span>Options</span>
-                </button>
-                <button className="btn__second">
-                  <span>Share your timetable</span>
-                </button>
-                {currentDayRecommendations.length > 0 && (
-                  <div style={{
-                    background: '#1DB954',
-                    color: 'white',
-                    borderRadius: '12px',
-                    padding: '4px 8px',
-                    fontSize: '0.8em',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    <span>★</span>
-                    <span>{currentDayRecommendations.length} recommended</span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <button className="btn__second" onClick={spotifyLogin}>
-                <span>Connect with Spotify</span>
-              </button>
-            )}
-            
-            {/* Debug/Test Navigation Links */}
-            <div style={{ marginLeft: '20px', display: 'flex', gap: '10px' }}>
-              <a href="/test-recommendations" style={{
-                color: '#007bff',
-                textDecoration: 'none',
-                fontSize: '0.8em',
-                padding: '4px 8px',
-                border: '1px solid #007bff',
-                borderRadius: '4px',
-                background: 'transparent'
-              }}>
-                🧪 Test
-              </a>
-              <a href="/api" style={{
-                color: '#6c757d',
-                textDecoration: 'none',
-                fontSize: '0.8em',
-                padding: '4px 8px',
-                border: '1px solid #6c757d',
-                borderRadius: '4px',
-                background: 'transparent'
-              }}>
-                📊 API
-              </a>
-              <a href="/cache" style={{
-                color: '#28a745',
-                textDecoration: 'none',
-                fontSize: '0.8em',
-                padding: '4px 8px',
-                border: '1px solid #28a745',
-                borderRadius: '4px',
-                background: 'transparent'
-              }}>
-                💾 Cache
-              </a>
-            </div>
+            {/* Empty - ready for future content */}
           </div>
         </div>
       </header>
@@ -688,7 +630,7 @@ function App() {
                                     </span>
                                   )}
                                 </div>
-                                <div className="list__act-time">{act.start_time} - {act.end_time}</div>
+                                <div className="list__act-time">{formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}</div>
                                 {isRecommended && recommendation && (
                                   <div style={{ 
                                     fontSize: '0.8em', 
@@ -800,11 +742,12 @@ function App() {
       )}
 
       {/* Artist Dialog */}
-      <ArtistDialog 
-        artist={selectedArtist}
-        isOpen={isArtistDialogOpen}
-        onClose={closeArtistDialog}
-      />
+                  <ArtistDialog 
+              artist={selectedArtist} 
+              isOpen={isArtistDialogOpen} 
+              onClose={closeArtistDialog}
+              currentDayData={currentDayData}
+            />
     </div>
   )
 }

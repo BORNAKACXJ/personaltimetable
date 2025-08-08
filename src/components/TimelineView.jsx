@@ -43,6 +43,64 @@ function timeToColumnIndex(time, startTime, timeMarkers) {
   return (index === -1 ? timeMarkerMinutes.length - 1 : index) + 1
 }
 
+// Format time to display format (remove seconds if present)
+function formatTimeForDisplay(timeStr) {
+  if (!timeStr) return ''
+  // If time is in format "HH:MM:SS", convert to "HH:MM"
+  if (timeStr.includes(':') && timeStr.split(':').length === 3) {
+    return timeStr.substring(0, 5)
+  }
+  return timeStr
+}
+
+// Check if two acts overlap in time
+function actsOverlap(act1, act2) {
+  const start1 = timeToMinutes(act1.start_time)
+  const end1 = timeToMinutes(act1.end_time)
+  const start2 = timeToMinutes(act2.start_time)
+  const end2 = timeToMinutes(act2.end_time)
+  
+  // Handle overnight acts
+  const adjustedEnd1 = end1 < start1 ? end1 + 24 * 60 : end1
+  const adjustedEnd2 = end2 < start2 ? end2 + 24 * 60 : end2
+  const adjustedStart1 = start1
+  const adjustedStart2 = start2
+  
+  return adjustedStart1 < adjustedEnd2 && adjustedStart2 < adjustedEnd1
+}
+
+// Organize acts into rows to avoid overlaps
+function organizeActsIntoRows(acts) {
+  if (!acts || acts.length === 0) return []
+  
+  const rows = []
+  
+  acts.forEach(act => {
+    let placed = false
+    let rowIndex = 0
+    
+    // Try to place the act in an existing row
+    while (rowIndex < rows.length && !placed) {
+      const row = rows[rowIndex]
+      const hasOverlap = row.some(existingAct => actsOverlap(act, existingAct))
+      
+      if (!hasOverlap) {
+        row.push(act)
+        placed = true
+      } else {
+        rowIndex++
+      }
+    }
+    
+    // If couldn't place in existing rows, create a new row
+    if (!placed) {
+      rows.push([act])
+    }
+  })
+  
+  return rows
+}
+
 export function TimelineView({ currentDayData, recommendations = [], onArtistClick }) {
   const [timeMarkers, setTimeMarkers] = useState([])
   const [totalColumns, setTotalColumns] = useState(0)
@@ -129,26 +187,43 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
 
       {/* Stages and events - no wrapper div */}
       {currentDayData.stages.map((stage, stageIndex) => {
-        const stageRow = stageIndex * 2 + 2 // Row 1 = time markers, then stage name, then acts
+        // Organize acts into rows to handle overlaps
+        const actRows = organizeActsIntoRows(stage.acts)
+        const totalActRows = actRows.length
         
-        return [
-          // Stage name
+        // Calculate starting row for this stage
+        let currentStageRow = stageIndex * 2 + 2 // Row 1 = time markers, then stage name, then acts
+        
+        // If previous stages had multiple act rows, adjust the starting row
+        for (let i = 0; i < stageIndex; i++) {
+          const prevStage = currentDayData.stages[i]
+          const prevActRows = organizeActsIntoRows(prevStage.acts)
+          currentStageRow += prevActRows.length
+        }
+        
+        const stageElements = []
+        
+        // Add stage name
+        stageElements.push(
           <div 
             key={`stage-${stage.name}`}
             className="stage-name"
             style={{
-              gridArea: `${stageRow} / 1 / auto / ${totalColumns + 1}`,
+              gridArea: `${currentStageRow} / 1 / auto / ${totalColumns + 1}`,
               animationDelay: `${stageIndex * 0.1}s`
             }}
           >
             <span>{stage.name}</span>
-          </div>,
+          </div>
+        )
+        
+        // Add acts organized in rows
+        actRows.forEach((actRow, rowIndex) => {
+          const actsRow = currentStageRow + 1 + rowIndex
           
-          // Stage acts
-          ...stage.acts.map((act, actIndex) => {
+          actRow.forEach((act, actIndex) => {
             const startCol = timeToColumnIndex(act.start_time, timeRange.start, timeMarkers)
             const endCol = timeToColumnIndex(act.end_time, timeRange.start, timeMarkers)
-            const actsRow = stageRow + 1
 
             // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
             const isRecommended = act.artist && act.artist.spotify_id && recommendations.some(rec => {
@@ -157,7 +232,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
             })
             const recommendation = isRecommended ? recommendations.find(rec => rec.artist.id === act.artist.spotify_id) : null
 
-            return (
+            stageElements.push(
               <div
                 key={act.id}
                 className={`event-card ${isRecommended ? 'event-card--recommended' : ''}`}
@@ -186,7 +261,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                         </span>
                       )}
                     </div>
-                    <div className="act__time">{act.start_time} - {act.end_time}</div>
+                    <div className="act__time">{formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}</div>
                     {isRecommended && recommendation && (
                       <div style={{ 
                         fontSize: '0.7em', 
@@ -202,7 +277,9 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
               </div>
             )
           })
-        ]
+        })
+        
+        return stageElements
       }).flat()}
     </div>
   )

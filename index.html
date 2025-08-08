@@ -11,52 +11,11 @@
     <link rel="stylesheet" href="/_assets/timetable.css">
     <link rel="stylesheet" href="/_assets/artist--dialog.css">
     
-    <!-- Debug: Add a simple test to see if the page loads -->
-    <style>
-      body { 
-        font-family: Arial, sans-serif; 
-        margin: 0; 
-        padding: 20px; 
-        background: #f0f0f0; 
-      }
-      #root { 
-        background: white; 
-        padding: 20px; 
-        border-radius: 8px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-      }
-      .debug-message { 
-        color: #007bff; 
-        font-weight: bold; 
-        margin-bottom: 10px; 
-      }
-    </style>
-    
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/0c4756b1c3.js" crossorigin="anonymous"></script>
   </head>
   <body>
-    <div id="root">
-      <div class="debug-message">Loading Hit The City app...</div>
-      <p>If you see this message, the React app is not loading properly. Check the browser console for errors.</p>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // Simple fallback to show if React doesn't load
-      setTimeout(() => {
-        const root = document.getElementById('root');
-        if (root && root.children.length <= 2) {
-          root.innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-              <h1 style="color: #dc3545;">App Failed to Load</h1>
-              <p>Please check the browser console for error messages.</p>
-              <button onclick="window.location.reload()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                Reload Page
-              </button>
-            </div>
-          `;
-        }
-      }, 5000);
-    </script>
   </body>
 </html>

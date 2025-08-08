@@ -403,6 +403,115 @@ export function TestRecommendations() {
     <div style={{ backgroundColor: 'white', minHeight: '100vh', padding: '20px' }}>
       <h1>Test Recommendations </h1>
       
+      {/* Top 5 Artists Section */}
+      {isAuthenticated && topArtists && topArtists.length > 0 && (
+        <div style={{ marginTop: '40px', marginBottom: '40px' }}>
+          <h2>🎵 Your Top 5 Artists</h2>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '20px',
+            marginTop: '20px'
+          }}>
+            {topArtists.slice(0, 5).map((artist, index) => (
+              <div key={artist.id} style={{ 
+                backgroundColor: '#f8f9fa', 
+                padding: '20px', 
+                borderRadius: '12px', 
+                border: '2px solid #e9ecef',
+                textAlign: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                transition: 'transform 0.2s ease-in-out',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-5px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+              >
+                {artist.images && artist.images.length > 0 ? (
+                  <img 
+                    src={artist.images[0].url} 
+                    alt={artist.name}
+                    style={{
+                      width: '120px',
+                      height: '120px',
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      marginBottom: '15px',
+                      border: '3px solid #1DB954'
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: '120px',
+                    height: '120px',
+                    borderRadius: '50%',
+                    backgroundColor: '#e9ecef',
+                    margin: '0 auto 15px auto',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '24px',
+                    color: '#6c757d'
+                  }}>
+                    🎵
+                  </div>
+                )}
+                <h3 style={{ 
+                  margin: '0 0 10px 0', 
+                  fontSize: '18px', 
+                  fontWeight: 'bold',
+                  color: '#212529'
+                }}>
+                  #{index + 1} {artist.name}
+                </h3>
+                {artist.genres && artist.genres.length > 0 && (
+                  <div style={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap', 
+                    gap: '4px', 
+                    justifyContent: 'center',
+                    marginTop: '10px'
+                  }}>
+                    {artist.genres.slice(0, 2).map((genre, genreIndex) => (
+                      <span key={genreIndex} style={{ 
+                        backgroundColor: '#1DB954', 
+                        color: 'white',
+                        padding: '4px 8px', 
+                        borderRadius: '12px', 
+                        fontSize: '10px',
+                        fontWeight: '500'
+                      }}>
+                        {genre}
+                      </span>
+                    ))}
+                    {artist.genres.length > 2 && (
+                      <span style={{ 
+                        fontSize: '10px', 
+                        color: '#6c757d',
+                        alignSelf: 'center'
+                      }}>
+                        +{artist.genres.length - 2} more
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div style={{ 
+            marginTop: '20px', 
+            padding: '15px', 
+            backgroundColor: '#e8f5e8', 
+            borderRadius: '8px',
+            border: '1px solid #4caf50'
+          }}>
+            <p style={{ margin: '0', fontSize: '14px', color: '#2e7d32' }}>
+              🎯 These are your top artists based on your Spotify listening history. We'll use this data to find festival artists that match your taste!
+            </p>
+          </div>
+        </div>
+      )}
+      
       {/* User Spotify IDs Section */}
       <div style={{ marginTop: '40px', marginBottom: '40px' }}>
         <h2>👤 Your Spotify IDs ({getUserSpotifyIds().length})</h2>
