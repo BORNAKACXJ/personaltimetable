@@ -347,8 +347,19 @@ function App() {
 
   const handleArtistClick = (act) => {
     if (act.artist) {
-      // Pass both artist and act data to include performance times
-      setSelectedArtist({ ...act.artist, actData: act })
+      // Find the day that contains this act
+      const actDay = data?.days?.find(day => 
+        day.stages?.some(stage => 
+          stage.acts?.some(actInStage => actInStage.id === act.id)
+        )
+      )
+      
+      // Pass both artist and act data to include performance times, plus the day info
+      setSelectedArtist({ 
+        ...act.artist, 
+        actData: act,
+        dayData: actDay
+      })
       setIsArtistDialogOpen(true)
     } else {
       console.log('No artist found for:', act)
@@ -540,7 +551,7 @@ function App() {
                 </nav>
                 
                 <button 
-                  className={`btn__second ${currentView === 'list' ? 'active' : ''}`}
+                  className={`btn__second btn__second--desktop ${currentView === 'list' ? 'active' : ''}`}
                   id="view-toggle"
                   onClick={() => setCurrentView(currentView === 'timeline' ? 'list' : 'timeline')}
                 >
@@ -552,20 +563,34 @@ function App() {
               </div>
               
               <div className="timetable__nav--currentday font__size--head">
-                {currentDayData.date ? (
-                  new Date(currentDayData.date).toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long'
-                  })
-                ) : (
-                  days[currentDay] ? 
-                  new Date(days[currentDay].date).toLocaleDateString('en-US', { 
-                    weekday: 'long',
-                    day: 'numeric', 
-                    month: 'long'
-                  }) : 'Loading...'
-                )}
+                <div className="timetable__nav--currentday-content">
+                  <div className="timetable__nav--currentday-text">
+                    {currentDayData.date ? (
+                      new Date(currentDayData.date).toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long'
+                      })
+                    ) : (
+                      days[currentDay] ? 
+                      new Date(days[currentDay].date).toLocaleDateString('en-US', { 
+                        weekday: 'long',
+                        day: 'numeric', 
+                        month: 'long'
+                      }) : 'Loading...'
+                    )}
+                  </div>
+                  
+                  <button 
+                    className={`btn__second btn__second--mobile ${currentView === 'list' ? 'active' : ''}`}
+                    onClick={() => setCurrentView(currentView === 'timeline' ? 'list' : 'timeline')}
+                  >
+                    <span>
+                      <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
+                      {currentView === 'timeline' ? 'list view' : 'timeline view'}
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -774,7 +799,6 @@ function App() {
               artist={selectedArtist} 
               isOpen={isArtistDialogOpen} 
               onClose={closeArtistDialog}
-              currentDayData={currentDayData}
             />
     </div>
   )

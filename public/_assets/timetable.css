@@ -1,6 +1,6 @@
 
 :root {
-	--timeline-grid-width: 80px;
+	--timeline-grid-width: 88px;
 }
 
 .timetable__nav {
@@ -59,6 +59,22 @@
 
 .nav__type--header--mobile {
 	display: none;
+}
+
+/* Show desktop button on desktop, hide mobile button on desktop */
+.btn__second--desktop {
+	display: block !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+	position: relative !important;
+	left: auto !important;
+	width: auto !important;
+	height: auto !important;
+	overflow: visible !important;
+}
+
+.btn__second--mobile {
+	/* Mobile button will be controlled by media queries */
 }
 
 .timetable__main {
@@ -122,6 +138,7 @@
 	height: 100%;
 
 	margin-left: -50%;
+	color: rgba(255, 255, 255, 0.6);
 }
 
 .time-marker:after {
@@ -223,7 +240,7 @@
 
 .act__name {
 	font-weight: bold;
-	font-size: 16px;
+	font-size: 15px;
 	text-transform: uppercase;
 	letter-spacing: 0.01em;
 	width: max-content;
@@ -357,7 +374,7 @@
 	.timetable__nav {
 		padding-left: 16px;
 		padding-right: 16px;
-		width: 100%;
+		width: calc(100% - 32px);
 
 		top: 72px;
 	}
@@ -384,6 +401,8 @@
 
 	.timetable__list {
 		width: calc(100% - 16px - 16px);
+		padding-left: 16px;
+		padding-right: 16px;
 	}
 
 	.list__stage-name {
@@ -414,6 +433,47 @@
 
 	.act__info {
 		padding: 12px;
+	}
+
+	.timetable__content {
+		position: relative;
+		width: 100%;
+	}
+
+	/* Hide desktop button on mobile */
+	.btn__second--desktop {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		position: absolute !important;
+		left: -9999px !important;
+		width: 0 !important;
+		height: 0 !important;
+		overflow: hidden !important;
+	}
+
+	/* Show mobile button on mobile */
+	.btn__second--mobile {
+		display: block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		position: relative !important;
+		left: auto !important;
+		width: auto !important;
+		height: auto !important;
+		overflow: visible !important;
+	}
+
+	.timetable__nav--currentday-text {
+		width: 50%;
+	}
+
+	.timetable__nav--currentday-content {
+		display: flex;
+			flex-direction: row;
+			align-content: center;
+			align-items: flex-start;
+			justify-content: space-between;
 	}
 
 }

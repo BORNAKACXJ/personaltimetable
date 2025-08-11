@@ -465,6 +465,29 @@ main {
 	padding: 128px 0;
 }
 
+/* Show desktop button on desktop, hide mobile button on desktop */
+.btn__second--desktop {
+	display: block !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+	position: relative !important;
+	left: auto !important;
+	width: auto !important;
+	height: auto !important;
+	overflow: visible !important;
+}
+
+.btn__second--mobile {
+	display: none !important;
+	visibility: hidden !important;
+	opacity: 0 !important;
+	position: absolute !important;
+	left: -9999px !important;
+	width: 0 !important;
+	height: 0 !important;
+	overflow: hidden !important;
+}
+
 /* TIMETABLE */
 
 /*.timetable__main .section__margin {
@@ -541,6 +564,29 @@ main {
 
 	.nav__type--header {
 		display: none;
+	}
+
+	/* Show mobile button on mobile, hide desktop button on mobile */
+	.btn__second--desktop {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		position: absolute !important;
+		left: -9999px !important;
+		width: 0 !important;
+		height: 0 !important;
+		overflow: hidden !important;
+	}
+
+	.btn__second--mobile {
+		display: block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		position: relative !important;
+		left: auto !important;
+		width: auto !important;
+		height: auto !important;
+		overflow: visible !important;
 	}
 
 }

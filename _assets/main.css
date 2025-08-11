@@ -465,6 +465,23 @@ main {
 	padding: 128px 0;
 }
 
+/* Hide all timeline view buttons globally */
+#view-toggle,
+.btn__second--desktop,
+.btn__second--mobile,
+.timetable__nav--head .btn__second--desktop,
+.timetable__nav--head #view-toggle,
+.timetable__nav--head button.btn__second {
+	display: none !important;
+	visibility: hidden !important;
+	opacity: 0 !important;
+	position: absolute !important;
+	left: -9999px !important;
+	width: 0 !important;
+	height: 0 !important;
+	overflow: hidden !important;
+}
+
 /* TIMETABLE */
 
 /*.timetable__main .section__margin {
@@ -542,5 +559,33 @@ main {
 	.nav__type--header {
 		display: none;
 	}
+
+	/* Hide desktop view toggle on mobile */
+	.timetable__nav--head .btn__second--desktop,
+	.timetable__nav--head #view-toggle,
+	.timetable__nav--head button.btn__second {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		position: absolute !important;
+		left: -9999px !important;
+		width: 0 !important;
+		height: 0 !important;
+		overflow: hidden !important;
+	}
+
+	/* Hide mobile view toggle on mobile */
+	.btn__second--mobile {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		position: absolute !important;
+		left: -9999px !important;
+		width: 0 !important;
+		height: 0 !important;
+		overflow: hidden !important;
+	}
+
+
 
 }
