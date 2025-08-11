@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, Heart } from 'lucide-react'
 import './ArtistDialog.css'
+import { isFavorited, toggleFavorite } from '../utils/favorites'
+import { trackFavorite } from '../utils/tracking'
 
 // Format time to display format (remove seconds if present)
 function formatTimeForDisplay(timeStr) {
@@ -41,6 +43,32 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
   const [animationStep, setAnimationStep] = useState(0)
   const [showFullBio, setShowFullBio] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [favoriteStatus, setFavoriteStatus] = useState(false)
+
+  // Check favorite status when artist changes
+  useEffect(() => {
+    if (artist?.actData) {
+      setFavoriteStatus(isFavorited(artist.actData))
+    }
+  }, [artist])
+
+  const handleFavoriteToggle = () => {
+    if (artist?.actData) {
+      const newStatus = !favoriteStatus
+      toggleFavorite(artist.actData)
+      setFavoriteStatus(newStatus)
+      
+      // Track the favorite action
+      trackFavorite(
+        artist.actData.name, 
+        artist.actData.stage_name, 
+        newStatus,
+        artist.actData.id,
+        artist.actData.stage?.id,
+        artist.actData.artist?.id
+      )
+    }
+  }
 
   useEffect(() => {
     // Check if mobile on mount and resize
@@ -189,16 +217,30 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         
         {/* Followers section hidden */}
         
-        <button 
-          className="artist-dialog__close-btn artist-dialog__close--animate" 
-          onClick={onClose}
-          style={{
-            transform: animationStep >= 8 ? 'translateY(0)' : 'translateY(30px)',
-            opacity: animationStep >= 8 ? 1 : 0
-          }}
-        >
-          BACK TO TIMETABLE
-        </button>
+        <div className="artist-dialog__actions">
+          <button 
+            className={`artist-dialog__favorite-btn artist-dialog__favorite--animate ${favoriteStatus ? 'favorited' : ''}`}
+            onClick={handleFavoriteToggle}
+            style={{
+              transform: animationStep >= 8 ? 'translateY(0)' : 'translateY(30px)',
+              opacity: animationStep >= 8 ? 1 : 0
+            }}
+          >
+            <Heart size={20} fill={favoriteStatus ? '#ff4757' : 'none'} />
+            {favoriteStatus ? 'FAVORITED' : 'FAVORITE'}
+          </button>
+          
+          <button 
+            className="artist-dialog__close-btn artist-dialog__close--animate" 
+            onClick={onClose}
+            style={{
+              transform: animationStep >= 8 ? 'translateY(0)' : 'translateY(30px)',
+              opacity: animationStep >= 8 ? 1 : 0
+            }}
+          >
+            BACK TO TIMETABLE
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -229,8 +229,48 @@
   letter-spacing: 0.02em;
 }
 
+.artist-dialog__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.artist-dialog__favorite-btn {
+  flex: 1;
+  padding: 16px 24px;
+  background: #f8f9fa;
+  color: #495057;
+  border: 2px solid #e9ecef;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.artist-dialog__favorite-btn:hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+}
+
+.artist-dialog__favorite-btn.favorited {
+  background: #ff4757;
+  color: white;
+  border-color: #ff4757;
+}
+
+.artist-dialog__favorite-btn.favorited:hover {
+  background: #ff3742;
+  border-color: #ff3742;
+}
+
 .artist-dialog__close-btn {
-  width: 100%;
+  flex: 2;
   background: #4D1F54;
   color: white;
   border: none;
@@ -239,7 +279,6 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  margin-top: 16px;
   letter-spacing: 0.1em;
 }
 

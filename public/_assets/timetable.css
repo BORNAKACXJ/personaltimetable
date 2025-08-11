@@ -73,9 +73,7 @@
 	overflow: visible !important;
 }
 
-.btn__second--mobile {
-	/* Mobile button will be controlled by media queries */
-}
+
 
 .timetable__main {
 	height: 100%;

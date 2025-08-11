@@ -8,6 +8,7 @@ import { SpotifyCallback } from './components/SpotifyCallback'
 import { Api } from './pages/Api'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
+import { trackDayClick, trackViewChange, trackPageView, trackActPopup } from './utils/tracking'
 
 // Format time to display format (remove seconds if present)
 function formatTimeForDisplay(timeStr) {
@@ -83,6 +84,9 @@ function App() {
 
   // 3. All useEffect hooks
   useEffect(() => {
+    // Track page view on app load
+    trackPageView('Hit the City Timetable');
+    
     // Function to setup sticky navigation
     const setupSticky = () => {
       const sentinel = document.querySelector('.sticky__helper');
@@ -354,6 +358,16 @@ function App() {
         )
       )
       
+      // Track the popup open
+      trackActPopup(
+        act.name, 
+        act.stage_name, 
+        `${act.start_time} - ${act.end_time}`,
+        act.id,
+        act.stage?.id,
+        act.artist?.id
+      );
+      
       // Pass both artist and act data to include performance times, plus the day info
       setSelectedArtist({ 
         ...act.artist, 
@@ -540,7 +554,15 @@ function App() {
                       key={day.id}
                       className={`btn__day ${index === currentDay ? 'selected' : ''}`}
                       data-day-id={index}
-                      onClick={() => setCurrentDay(index)}
+                      onClick={() => {
+                        setCurrentDay(index);
+                        const dayName = new Date(day.date).toLocaleDateString('en-US', { 
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'long'
+                        });
+                        trackDayClick(dayName, day.date, day.id);
+                      }}
                     >
                       <span>{new Date(day.date).toLocaleDateString('en-US', { 
                         month: 'short', 
@@ -553,7 +575,11 @@ function App() {
                 <button 
                   className={`btn__second btn__second--desktop ${currentView === 'list' ? 'active' : ''}`}
                   id="view-toggle"
-                  onClick={() => setCurrentView(currentView === 'timeline' ? 'list' : 'timeline')}
+                  onClick={() => {
+                    const newView = currentView === 'timeline' ? 'list' : 'timeline';
+                    setCurrentView(newView);
+                    trackViewChange(newView);
+                  }}
                 >
                   <span>
                     <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
@@ -583,7 +609,11 @@ function App() {
                   
                   <button 
                     className={`btn__second btn__second--mobile ${currentView === 'list' ? 'active' : ''}`}
-                    onClick={() => setCurrentView(currentView === 'timeline' ? 'list' : 'timeline')}
+                    onClick={() => {
+                      const newView = currentView === 'timeline' ? 'list' : 'timeline';
+                      setCurrentView(newView);
+                      trackViewChange(newView);
+                    }}
                   >
                     <span>
                       <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
