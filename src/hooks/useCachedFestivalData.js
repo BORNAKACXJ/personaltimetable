@@ -55,6 +55,7 @@ export function useCachedFestivalData() {
     stages, 
     artists, 
     acts, 
+    actArtists, 
     timetableEntries, 
     loading: festivalLoading, 
     error: festivalError,
