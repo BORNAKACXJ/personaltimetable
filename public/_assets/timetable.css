@@ -94,6 +94,7 @@
 	position: relative;
 	width: calc(100% - 77px);
 	padding-left: 77px;
+	padding-top: 8px;
 	/*padding-right: 128px;*/
 
 	height: 100%;
@@ -260,6 +261,7 @@
 	display: none;
 	width: 100%;
 	padding-bottom: 80px;
+	padding-top: 8px;
 }
 
 .timetable__timelist.active {
