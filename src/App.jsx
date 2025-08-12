@@ -9,6 +9,7 @@ import { Api } from './pages/Api'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
 import { trackDayClick, trackViewChange, trackPageView, trackActPopup } from './utils/tracking'
+import { isFavorited } from './utils/favorites'
 
 // Format time to display format (remove seconds if present)
 function formatTimeForDisplay(timeStr) {
@@ -183,7 +184,7 @@ function App() {
     return (
       <div className="loading">
         <div className="loading-spinner"></div>
-        <p>Loading festival data...</p>
+        <p>Loading timetable...</p>
       </div>
     )
   }
@@ -396,7 +397,14 @@ function App() {
             {festival.name} - Timetable 2025
           </div>
           <div className="nav__type--header">
-            {/* Empty - ready for future content */}
+            <a 
+              href="https://hitthecity-festival.nl/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="nav__home-link"
+            >
+              Go to Home
+            </a>
           </div>
         </div>
       </header>
@@ -701,17 +709,27 @@ function App() {
                                 onClick={() => handleArtistClick(act)}
                               >
                                 <div className="list__act-name">
-                                  {act.name}
-                                  {isRecommended && (
-                                    <span style={{ 
-                                      fontSize: '0.8em', 
-                                      color: '#1DB954', 
-                                      marginLeft: '8px',
-                                      fontWeight: 'bold'
-                                    }}>
-                                      ★ RECOMMENDED
-                                    </span>
-                                  )}
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {isFavorited(act) && (
+                                      <span style={{ 
+                                        color: '#ff4757',
+                                        fontSize: '1.1em'
+                                      }}>
+                                        ❤️
+                                      </span>
+                                    )}
+                                    <span>{act.name}</span>
+                                    {isRecommended && (
+                                      <span style={{ 
+                                        fontSize: '0.8em', 
+                                        color: '#1DB954', 
+                                        marginLeft: '8px',
+                                        fontWeight: 'bold'
+                                      }}>
+                                        ★ RECOMMENDED
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="list__act-time">{formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}</div>
                                 {isRecommended && recommendation && (

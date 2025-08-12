@@ -48,6 +48,15 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
+  background: linear-gradient(180deg, var(--color--purple) 0%, var(--color--black) 100%);
+  color: white;
+}
+
+.loading p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.05em;
 }
 
 .loading-spinner {

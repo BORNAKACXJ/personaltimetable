@@ -275,7 +275,7 @@
 	flex-direction: column;
 	gap: 24px;
 
-	width: calc(100% - 72px - 72px);
+	width: calc(100% - 180px - 72px);
 	margin: 0 auto;
 }
 

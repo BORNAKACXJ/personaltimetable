@@ -41,7 +41,6 @@ function truncateBio(bio, maxLength = 320) {
 export function ArtistDialog({ artist, isOpen, onClose }) {
   const [isVisible, setIsVisible] = useState(false)
   const [animationStep, setAnimationStep] = useState(0)
-  const [showFullBio, setShowFullBio] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [favoriteStatus, setFavoriteStatus] = useState(false)
 
@@ -85,7 +84,6 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true)
-      setShowFullBio(false) // Reset bio state when dialog opens
       // Start staggered animation sequence
       setAnimationStep(0)
       const steps = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -159,28 +157,10 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
           }}
         >
           <h3>ABOUT THIS ARTIST</h3>
-          <div className={`artist-dialog__bio-container ${showFullBio ? 'artist-dialog__bio-container--expanded' : ''}`}>
+          <div className="artist-dialog__bio-container">
             <p id="dialog-artist-about">
               {artist.bio || 'No description available for this artist.'}
             </p>
-            {isMobile && artist.bio && artist.bio.length > 320 && !showFullBio && (
-              <div className="artist-dialog__bio-fade">
-                <button 
-                  className="artist-dialog__show-more-btn"
-                  onClick={() => setShowFullBio(true)}
-                >
-                  Show More
-                </button>
-              </div>
-            )}
-            {isMobile && artist.bio && artist.bio.length > 320 && showFullBio && (
-              <button 
-                className="artist-dialog__show-more-btn artist-dialog__show-more-btn--top"
-                onClick={() => setShowFullBio(false)}
-              >
-                Show Less
-              </button>
-            )}
           </div>
         </div>
         

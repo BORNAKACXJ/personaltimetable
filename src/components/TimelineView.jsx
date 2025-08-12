@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { isFavorited } from '../utils/favorites'
 
 // Utility: "12:00" → 720
 function timeToMinutes(timeStr) {
@@ -249,17 +250,27 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                 <div className="act__wrapper">
                   <div className="act__info">
                     <div className="act__name">
-                      {act.name}
-                      {isRecommended && (
-                        <span style={{ 
-                          fontSize: '0.7em', 
-                          color: '#1DB954', 
-                          marginLeft: '4px',
-                          fontWeight: 'bold'
-                        }}>
-                          ★
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {isFavorited(act) && (
+                          <span style={{ 
+                            color: '#ff4757',
+                            fontSize: '0.9em'
+                          }}>
+                            ❤️
+                          </span>
+                        )}
+                        <span>{act.name}</span>
+                        {isRecommended && (
+                          <span style={{ 
+                            fontSize: '0.7em', 
+                            color: '#1DB954', 
+                            marginLeft: '4px',
+                            fontWeight: 'bold'
+                          }}>
+                            ★
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="act__time">{formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}</div>
                     {isRecommended && recommendation && (

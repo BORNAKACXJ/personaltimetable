@@ -123,14 +123,30 @@
 
 .artist-dialog__bio-container {
   position: relative;
-  max-height: 200px;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
 }
 
-.artist-dialog__bio-container--expanded {
-  max-height: none;
-  overflow: visible;
+.artist-dialog__bio-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.artist-dialog__bio-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.artist-dialog__bio-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.artist-dialog__bio-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .artist-dialog__about p {
@@ -139,51 +155,15 @@
   line-height: 1.5;
 }
 
-.artist-dialog__bio-fade {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: linear-gradient(to bottom, transparent, white);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 8px;
-}
 
-.artist-dialog__show-more-btn {
-  background: none;
-  border: none;
-  color: #4D1F54;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 8px 16px;
-  text-decoration: underline;
-  letter-spacing: 0.05em;
-  transition: color 0.2s ease;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-}
-
-.artist-dialog__show-more-btn:hover {
-  color: #A35C9D;
-  background: rgba(255, 255, 255, 1);
-}
-
-.artist-dialog__show-more-btn--top {
-  margin-top: 8px;
-  background: none;
-  backdrop-filter: none;
-}
 
 .artist-dialog__performance-info {
   padding: 16px 24px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border-top: 1px solid #e9ecef;
+  margin-top: 8px;
 }
 
 .artist-dialog__performance-left {
