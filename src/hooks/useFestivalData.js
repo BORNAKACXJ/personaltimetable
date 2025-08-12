@@ -40,11 +40,11 @@ export function useFestivalData() {
         setFestival(festivalData)
       }
 
-      // Fetch festival days using edition_id
+      // Fetch festival days using festival_id
       const { data: daysData, error: daysError } = await supabase
         .from('festival_days')
         .select('*')
-        .eq('edition_id', EDITION_ID)
+        .eq('festival_id', FESTIVAL_ID)
         .order('date')
 
       if (daysError) {
@@ -54,11 +54,11 @@ export function useFestivalData() {
         setFestivalDays(daysData || [])
       }
 
-      // Fetch stages using edition_id
+      // Fetch stages using festival_id
       const { data: stagesData, error: stagesError } = await supabase
         .from('stages')
         .select('*')
-        .eq('edition_id', EDITION_ID)
+        .eq('festival_id', FESTIVAL_ID)
         .order('order')
 
       if (stagesError) {
@@ -81,11 +81,11 @@ export function useFestivalData() {
         setStageDays(stageDaysData || [])
       }
 
-      // Fetch artists using edition_id
+      // Fetch artists using festival_id
       const { data: artistsData, error: artistsError } = await supabase
         .from('artists')
         .select('*')
-        .eq('edition_id', EDITION_ID)
+        .eq('festival_id', FESTIVAL_ID)
         .order('name')
 
       if (artistsError) {
@@ -95,11 +95,11 @@ export function useFestivalData() {
         setArtists(artistsData || [])
       }
 
-      // Fetch acts using edition_id
+      // Fetch acts using festival_id
       const { data: actsData, error: actsError } = await supabase
         .from('acts')
         .select('*')
-        .eq('edition_id', EDITION_ID)
+        .eq('festival_id', FESTIVAL_ID)
         .order('name')
 
       if (actsError) {
@@ -109,7 +109,7 @@ export function useFestivalData() {
         setActs(actsData || [])
       }
 
-      // Fetch timetable entries with artist information using festival_id
+      // Fetch timetable entries with artist information using edition_id
       const { data: entriesData, error: entriesError } = await supabase
         .from('timetable_entries')
         .select(`
@@ -129,7 +129,7 @@ export function useFestivalData() {
             youtube_embed
           )
         `)
-        .eq('festival_id', FESTIVAL_ID)
+        .eq('edition_id', EDITION_ID)
         .order('start_time')
 
       if (entriesError) {

@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS timetable_entries (
   stage_id uuid REFERENCES stages(id) ON DELETE CASCADE,
   day_id uuid REFERENCES festival_days(id) ON DELETE CASCADE,
   festival_id uuid REFERENCES festivals(id) ON DELETE CASCADE,
+  edition_id uuid REFERENCES editions(id) ON DELETE CASCADE,
   start_time time NOT NULL,
   end_time time NOT NULL,
   created_at timestamptz DEFAULT now(),
@@ -110,6 +111,7 @@ CREATE INDEX IF NOT EXISTS idx_timetable_entries_artist_id ON timetable_entries(
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_stage_id ON timetable_entries(stage_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_day_id ON timetable_entries(day_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_festival_id ON timetable_entries(festival_id);
+CREATE INDEX IF NOT EXISTS idx_timetable_entries_edition_id ON timetable_entries(edition_id);
 CREATE INDEX IF NOT EXISTS idx_related_artists_artist_id ON related_artists(artist_id);
 CREATE INDEX IF NOT EXISTS idx_related_artists_related_spotify_id ON related_artists(related_spotify_id);
 
