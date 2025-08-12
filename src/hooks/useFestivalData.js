@@ -11,7 +11,6 @@ export function useFestivalData() {
   const [stages, setStages] = useState([])
   const [stageDays, setStageDays] = useState([])
   const [artists, setArtists] = useState([])
-  const [acts, setActs] = useState([])
   const [timetableEntries, setTimetableEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -95,21 +94,7 @@ export function useFestivalData() {
         setArtists(artistsData || [])
       }
 
-      // Fetch acts using edition_id
-      const { data: actsData, error: actsError } = await supabase
-        .from('acts')
-        .select('*')
-        .eq('edition_id', EDITION_ID)
-        .order('name')
-
-      if (actsError) {
-        console.error('Error fetching acts:', actsError)
-        setActs([])
-      } else {
-        setActs(actsData || [])
-      }
-
-      // Fetch timetable entries with artist information using edition_id
+      // Fetch timetable entries with artist information using festival_id
       const { data: entriesData, error: entriesError } = await supabase
         .from('timetable_entries')
         .select(`
@@ -129,7 +114,7 @@ export function useFestivalData() {
             youtube_embed
           )
         `)
-        .eq('edition_id', EDITION_ID)
+        .eq('festival_id', FESTIVAL_ID)
         .order('start_time')
 
       if (entriesError) {
@@ -145,7 +130,6 @@ export function useFestivalData() {
         stages: stagesData?.length || 0,
         stageDays: stageDaysData?.length || 0,
         artists: artistsData?.length || 0,
-        acts: actsData?.length || 0,
         entries: entriesData?.length || 0
       })
 
@@ -182,13 +166,10 @@ export function useFestivalData() {
           actsByStage[stageName] = []
         }
         
-        // Get the act for this entry (if needed)
-        const act = acts.find(a => a.id === entry.act_id)
-        
         // Get artist directly from the timetable entry
         const artist = entry.artists
         
-        const actName = artist?.name || act?.name || 'Unknown Artist'
+        const actName = artist?.name || 'Unknown Artist'
         
         actsByStage[stageName].push({
           id: entry.id,
@@ -196,7 +177,6 @@ export function useFestivalData() {
           start_time: entry.start_time,
           end_time: entry.end_time,
           artist: artist,
-          act: act,
           stage: stage,
           artist_id: artist?.id || null
         })
@@ -252,7 +232,6 @@ export function useFestivalData() {
     stages,
     stageDays,
     artists,
-    acts,
     timetableEntries,
     loading,
     error,
