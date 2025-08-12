@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS act_artists (
 CREATE TABLE IF NOT EXISTS timetable_entries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   act_id uuid REFERENCES acts(id) ON DELETE CASCADE,
+  artist_id uuid REFERENCES artists(id) ON DELETE CASCADE,
   stage_id uuid REFERENCES stages(id) ON DELETE CASCADE,
   day_id uuid REFERENCES festival_days(id) ON DELETE CASCADE,
   festival_id uuid REFERENCES festivals(id) ON DELETE CASCADE,
@@ -105,6 +106,7 @@ CREATE INDEX IF NOT EXISTS idx_acts_festival_id ON acts(festival_id);
 CREATE INDEX IF NOT EXISTS idx_act_artists_act_id ON act_artists(act_id);
 CREATE INDEX IF NOT EXISTS idx_act_artists_artist_id ON act_artists(artist_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_act_id ON timetable_entries(act_id);
+CREATE INDEX IF NOT EXISTS idx_timetable_entries_artist_id ON timetable_entries(artist_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_stage_id ON timetable_entries(stage_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_day_id ON timetable_entries(day_id);
 CREATE INDEX IF NOT EXISTS idx_timetable_entries_festival_id ON timetable_entries(festival_id);

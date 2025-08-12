@@ -12,7 +12,6 @@ export function useFestivalData() {
   const [stageDays, setStageDays] = useState([])
   const [artists, setArtists] = useState([])
   const [acts, setActs] = useState([])
-  const [actArtists, setActArtists] = useState([])
   const [timetableEntries, setTimetableEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -110,22 +109,26 @@ export function useFestivalData() {
         setActs(actsData || [])
       }
 
-      // Fetch act_artists relationships
-      const { data: actArtistsData, error: actArtistsError } = await supabase
-        .from('act_artists')
-        .select('*')
-
-      if (actArtistsError) {
-        console.error('Error fetching act_artists:', actArtistsError)
-        setActArtists([])
-      } else {
-        setActArtists(actArtistsData || [])
-      }
-
-      // Fetch timetable entries using edition_id
+      // Fetch timetable entries with artist information using edition_id
       const { data: entriesData, error: entriesError } = await supabase
         .from('timetable_entries')
-        .select('*')
+        .select(`
+          *,
+          artists (
+            id,
+            name,
+            spotify_id,
+            image_url,
+            spotify_url,
+            genres,
+            popularity,
+            followers,
+            about,
+            bio,
+            social_links,
+            youtube_embed
+          )
+        `)
         .eq('edition_id', EDITION_ID)
         .order('start_time')
 
@@ -143,7 +146,6 @@ export function useFestivalData() {
         stageDays: stageDaysData?.length || 0,
         artists: artistsData?.length || 0,
         acts: actsData?.length || 0,
-        actArtists: actArtistsData?.length || 0,
         entries: entriesData?.length || 0
       })
 
@@ -153,17 +155,6 @@ export function useFestivalData() {
     } finally {
       setLoading(false)
     }
-  }
-
-  // Helper function to get artist for an act
-  const getArtistForAct = (actId) => {
-    // Find the act_artist relationship
-    const actArtist = actArtists.find(aa => aa.act_id === actId)
-    if (!actArtist) return null
-    
-    // Find the artist
-    const artist = artists.find(a => a.id === actArtist.artist_id)
-    return artist
   }
 
   // Helper function to get stage order for a specific day
@@ -191,11 +182,11 @@ export function useFestivalData() {
           actsByStage[stageName] = []
         }
         
-        // Get the act for this entry
+        // Get the act for this entry (if needed)
         const act = acts.find(a => a.id === entry.act_id)
         
-        // Get artist for this act
-        const artist = act ? getArtistForAct(act.id) : null
+        // Get artist directly from the timetable entry
+        const artist = entry.artists
         
         const actName = artist?.name || act?.name || 'Unknown Artist'
         
@@ -262,7 +253,6 @@ export function useFestivalData() {
     stageDays,
     artists,
     acts,
-    actArtists,
     timetableEntries,
     loading,
     error,
