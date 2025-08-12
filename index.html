@@ -28,9 +28,9 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     
-    <!-- Block hitthecity-festival.nl domain -->
+    <!-- Block hitthecity-festival.nl domain and subdomains -->
     <script>
-      if (window.location.hostname === 'hitthecity-festival.nl') {
+      if (window.location.hostname === 'hitthecity-festival.nl' || window.location.hostname.includes('hitthecity-festival.nl')) {
         document.body.innerHTML = '';
         document.body.style.backgroundColor = 'black';
         document.body.style.margin = '0';

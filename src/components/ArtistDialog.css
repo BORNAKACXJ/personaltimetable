@@ -123,30 +123,8 @@
 
 .artist-dialog__bio-container {
   position: relative;
-  max-height: 120px;
+  max-height: 256px;
   overflow-y: auto;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  padding: 12px;
-  margin-bottom: 16px;
-}
-
-.artist-dialog__bio-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.artist-dialog__bio-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.artist-dialog__bio-container::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-.artist-dialog__bio-container::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
 }
 
 .artist-dialog__about p {
