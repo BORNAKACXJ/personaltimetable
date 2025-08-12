@@ -94,26 +94,10 @@ export function useFestivalData() {
         setArtists(artistsData || [])
       }
 
-      // Fetch timetable entries with artist information using edition_id
+      // Fetch timetable entries using edition_id
       const { data: entriesData, error: entriesError } = await supabase
         .from('timetable_entries')
-        .select(`
-          *,
-          artists (
-            id,
-            name,
-            spotify_id,
-            image_url,
-            spotify_url,
-            genres,
-            popularity,
-            followers,
-            about,
-            bio,
-            social_links,
-            youtube_embed
-          )
-        `)
+        .select('*')
         .eq('edition_id', EDITION_ID)
         .order('start_time')
 
@@ -166,8 +150,11 @@ export function useFestivalData() {
           actsByStage[stageName] = []
         }
         
-        // Get artist directly from the timetable entry
-        const artist = entry.artists
+        // Get the act for this entry
+        const act = null // No acts state, so no act object
+        
+        // Get artist directly from the timetable entry's artist_id
+        const artist = getArtistFromTimetableEntry(entry)
         
         const actName = artist?.name || 'Unknown Artist'
         
@@ -224,6 +211,19 @@ export function useFestivalData() {
   // Helper function to get artist data by name
   const getArtistByName = (artistName) => {
     return artists.find(artist => artist.name === artistName) || null
+  }
+
+  // Helper function to get artist for an act
+  const getArtistForAct = (actId) => {
+    // No acts state, so no act object
+    return null
+  }
+
+  // Helper function to get artist directly from timetable entry
+  const getArtistFromTimetableEntry = (entry) => {
+    // Get artist directly from the timetable entry's artist_id
+    const artist = artists.find(a => a.id === entry.artist_id)
+    return artist
   }
 
   return {
