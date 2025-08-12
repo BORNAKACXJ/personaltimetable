@@ -109,7 +109,7 @@ export function useFestivalData() {
         setActs(actsData || [])
       }
 
-      // Fetch timetable entries with artist information using edition_id
+      // Fetch timetable entries with artist information using festival_id
       const { data: entriesData, error: entriesError } = await supabase
         .from('timetable_entries')
         .select(`
@@ -129,7 +129,7 @@ export function useFestivalData() {
             youtube_embed
           )
         `)
-        .eq('edition_id', EDITION_ID)
+        .eq('festival_id', FESTIVAL_ID)
         .order('start_time')
 
       if (entriesError) {
@@ -169,8 +169,15 @@ export function useFestivalData() {
 
   // Helper function to get acts grouped by day and stage
   const getActsByDayAndStage = () => {
+    console.log('getActsByDayAndStage called with:', {
+      festivalDays: festivalDays?.length || 0,
+      timetableEntries: timetableEntries?.length || 0,
+      stages: stages?.length || 0
+    })
+    
     const actsByDay = festivalDays.map(day => {
       const dayEntries = timetableEntries.filter(entry => entry.day_id === day.id)
+      console.log(`Day ${day.name} (${day.id}): ${dayEntries.length} entries`)
       
       const actsByStage = {}
       
@@ -189,6 +196,8 @@ export function useFestivalData() {
         const artist = entry.artists
         
         const actName = artist?.name || act?.name || 'Unknown Artist'
+        
+        console.log(`Entry: ${actName} on ${stageName} at ${entry.start_time}`)
         
         actsByStage[stageName].push({
           id: entry.id,
@@ -226,6 +235,8 @@ export function useFestivalData() {
           })
           .filter(Boolean) // Remove null entries
       }
+      
+      console.log(`Day ${day.name} result: ${orderedStages.length} stages`)
       
       return {
         day,
