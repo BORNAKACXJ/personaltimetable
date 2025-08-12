@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Heart } from 'lucide-react'
 import { isFavorited } from '../utils/favorites'
 
 // Utility: "12:00" → 720
@@ -252,12 +253,12 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                     <div className="act__name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {isFavorited(act) && (
-                          <span style={{ 
-                            color: '#ff4757',
-                            fontSize: '0.9em'
-                          }}>
-                            ❤️
-                          </span>
+                          <Heart 
+                            size={14} 
+                            fill="#ff4757" 
+                            color="#ff4757"
+                            style={{ flexShrink: 0 }}
+                          />
                         )}
                         <span>{act.name}</span>
                         {isRecommended && (

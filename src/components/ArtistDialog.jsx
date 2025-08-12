@@ -207,7 +207,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
             }}
           >
             <Heart size={20} fill={favoriteStatus ? '#ff4757' : 'none'} />
-            {favoriteStatus ? 'FAVORITED' : 'FAVORITE'}
+            {!isMobile && (favoriteStatus ? 'FAVORITED' : 'FAVORITE')}
           </button>
           
           <button 

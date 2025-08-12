@@ -317,6 +317,10 @@
     line-height: 1.3;
   }
 
+  .artist-dialog__bio-container {
+    max-height: 240px;
+  }
+
   .artist-dialog__about h3 {
     display: none;
   }

@@ -10,6 +10,7 @@ import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
 import { trackDayClick, trackViewChange, trackPageView, trackActPopup } from './utils/tracking'
 import { isFavorited } from './utils/favorites'
+import { Heart } from 'lucide-react'
 
 // Format time to display format (remove seconds if present)
 function formatTimeForDisplay(timeStr) {
@@ -711,12 +712,12 @@ function App() {
                                 <div className="list__act-name">
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     {isFavorited(act) && (
-                                      <span style={{ 
-                                        color: '#ff4757',
-                                        fontSize: '1.1em'
-                                      }}>
-                                        ❤️
-                                      </span>
+                                      <Heart 
+                                        size={16} 
+                                        fill="#ff4757" 
+                                        color="#ff4757"
+                                        style={{ flexShrink: 0 }}
+                                      />
                                     )}
                                     <span>{act.name}</span>
                                     {isRecommended && (
