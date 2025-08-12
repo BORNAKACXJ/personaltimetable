@@ -94,7 +94,7 @@ export function useFestivalData() {
         setArtists(artistsData || [])
       }
 
-      // Fetch timetable entries with artist information using festival_id
+      // Fetch timetable entries with artist information using edition_id
       const { data: entriesData, error: entriesError } = await supabase
         .from('timetable_entries')
         .select(`
@@ -114,7 +114,7 @@ export function useFestivalData() {
             youtube_embed
           )
         `)
-        .eq('festival_id', FESTIVAL_ID)
+        .eq('edition_id', EDITION_ID)
         .order('start_time')
 
       if (entriesError) {
