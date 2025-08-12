@@ -128,21 +128,33 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               >
                 {artist.name}
               </h2>
-              {artist.spotify_url && (
-                <a 
-                  href={artist.spotify_url} 
-                  className="artist-dialog__spotify-link artist-dialog__spotify--animate" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+              <div className="artist-dialog__name-actions">
+                {artist.spotify_url && (
+                  <a 
+                    href={artist.spotify_url} 
+                    className="artist-dialog__spotify-link artist-dialog__spotify--animate" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
+                      opacity: animationStep >= 3 ? 1 : 0
+                    }}
+                  >
+                    <i className="fa-brands fa-spotify"></i>
+                    LISTEN ON SPOTIFY
+                  </a>
+                )}
+                <button 
+                  className={`artist-dialog__favorite-btn artist-dialog__favorite--animate ${favoriteStatus ? 'favorited' : ''}`}
+                  onClick={handleFavoriteToggle}
                   style={{
                     transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
                     opacity: animationStep >= 3 ? 1 : 0
                   }}
                 >
-                  <i className="fa-brands fa-spotify"></i>
-                  LISTEN ON SPOTIFY
-                </a>
-              )}
+                  <Heart size={20} fill={favoriteStatus ? '#ff4757' : 'none'} stroke={favoriteStatus ? '#ff4757' : '#666'} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -198,18 +210,6 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         {/* Followers section hidden */}
         
         <div className="artist-dialog__actions">
-          <button 
-            className={`artist-dialog__favorite-btn artist-dialog__favorite--animate ${favoriteStatus ? 'favorited' : ''}`}
-            onClick={handleFavoriteToggle}
-            style={{
-              transform: animationStep >= 8 ? 'translateY(0)' : 'translateY(30px)',
-              opacity: animationStep >= 8 ? 1 : 0
-            }}
-          >
-            <Heart size={20} fill={favoriteStatus ? '#ff4757' : 'none'} />
-            {!isMobile && (favoriteStatus ? 'FAVORITED' : 'FAVORITE')}
-          </button>
-          
           <button 
             className="artist-dialog__close-btn artist-dialog__close--animate" 
             onClick={onClose}
