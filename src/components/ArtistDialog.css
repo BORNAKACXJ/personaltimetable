@@ -194,21 +194,20 @@
 }
 
 .artist-dialog__favorite-btn {
-  flex: 1;
-  padding: 16px 24px;
-  background: #f8f9fa;
-  color: #495057;
-  border: 2px solid #e9ecef;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+	padding: 16px 24px;
+	background: #f8f9fa;
+	color: #495057;
+	border: 2px solid #e9ecef;
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 }
 
 .artist-dialog__favorite-btn:hover {
@@ -319,6 +318,16 @@
 
   .artist-dialog__bio-container {
     max-height: 240px;
+  }
+
+  .artist-dialog__favorite-btn {
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+
+  .artist-dialog__close-btn {
+    padding: 12px 16px;
+    font-size: 12px;
   }
 
   .artist-dialog__about h3 {
