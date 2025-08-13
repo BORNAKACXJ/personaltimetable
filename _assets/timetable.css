@@ -43,6 +43,36 @@
 	color: var(--white);
 }
 
+.timetable__nav--pdf-download {
+	padding-top: 12px;
+	padding-left: 24px;
+}
+
+.btn__pdf-download {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 16px;
+	background: rgba(255, 255, 255, 0.1);
+	color: white;
+	text-decoration: none;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn__pdf-download:hover {
+	background: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.3);
+	transform: translateY(-1px);
+}
+
+.btn__pdf-download i {
+	font-size: 12px;
+}
+
 .timetable__nav--currentday-content {
 	display: flex;
 	align-items: center;

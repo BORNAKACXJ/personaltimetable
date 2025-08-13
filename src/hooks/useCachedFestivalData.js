@@ -51,6 +51,7 @@ export function useCachedFestivalData() {
   // Use the same festival data hook as the main app
   const { 
     festival, 
+    edition,
     festivalDays, 
     stages, 
     artists, 
@@ -95,6 +96,12 @@ export function useCachedFestivalData() {
               name: festival.name,
               description: festival.description
             },
+            edition: edition ? {
+              id: edition.id,
+              name: edition.name,
+              pdf_cta_text: edition.pdf_cta_text,
+              pdf_download_link: edition.pdf_download_link
+            } : null,
             days: festivalDays.map(day => {
               // Use the same logic as the main app to get acts for this day
               const dayData = actsByDay.find(d => d.day.id === day.id)

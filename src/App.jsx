@@ -211,6 +211,7 @@ function App() {
 
   // 6. Component logic (after all hooks and conditional returns)
   const festival = data.festival
+  const edition = data.edition
   const days = data.days
   const currentDayData = days[currentDay] || { stages: [] }
 
@@ -600,37 +601,29 @@ function App() {
               <div className="timetable__nav--currentday font__size--head">
                 <div className="timetable__nav--currentday-content">
                   <div className="timetable__nav--currentday-text">
-                    {currentDayData.date ? (
-                      new Date(currentDayData.date).toLocaleDateString('en-US', { 
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long'
-                      })
-                    ) : (
-                      days[currentDay] ? 
-                      new Date(days[currentDay].date).toLocaleDateString('en-US', { 
-                        weekday: 'long',
-                        day: 'numeric', 
-                        month: 'long'
-                      }) : 'Loading...'
-                    )}
+                    {new Date(currentDayData.date).toLocaleDateString('en-US', { 
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long'
+                    })}
                   </div>
-                  
-                  <button 
-                    className={`btn__second btn__second--mobile ${currentView === 'list' ? 'active' : ''}`}
-                    onClick={() => {
-                      const newView = currentView === 'timeline' ? 'list' : 'timeline';
-                      setCurrentView(newView);
-                      trackViewChange(newView);
-                    }}
-                  >
-                    <span>
-                      <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
-                      {currentView === 'timeline' ? 'list view' : 'timeline view'}
-                    </span>
-                  </button>
                 </div>
               </div>
+              
+              {/* PDF Download Link */}
+              {edition && edition.pdf_download_link && (
+                <div className="timetable__nav--pdf-download">
+                  <a 
+                    href={edition.pdf_download_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn__pdf-download"
+                  >
+                    <i className="fa-solid fa-download"></i>
+                    {edition.pdf_cta_text || 'Download PDF'}
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className={`timetable__timeline ${currentView === 'timeline' ? '' : 'hidden'}`}>

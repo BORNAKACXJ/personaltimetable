@@ -7,6 +7,7 @@ const EDITION_ID = 'a2a26ced-06df-47e2-9745-2b708f2d6a0a'
 
 export function useFestivalData() {
   const [festival, setFestival] = useState(null)
+  const [edition, setEdition] = useState(null)
   const [festivalDays, setFestivalDays] = useState([])
   const [stages, setStages] = useState([])
   const [stageDays, setStageDays] = useState([])
@@ -37,6 +38,20 @@ export function useFestivalData() {
         setFestival({ id: FESTIVAL_ID, name: 'Hit the City 2025' })
       } else {
         setFestival(festivalData)
+      }
+
+      // Get edition by hardcoded ID
+      const { data: editionData, error: editionError } = await supabase
+        .from('editions')
+        .select('*')
+        .eq('id', EDITION_ID)
+        .single()
+
+      if (editionError) {
+        console.error('Edition error:', editionError)
+        setEdition(null)
+      } else {
+        setEdition(editionData)
       }
 
       // Fetch festival days using edition_id
@@ -228,6 +243,7 @@ export function useFestivalData() {
 
   return {
     festival,
+    edition,
     festivalDays,
     stages,
     stageDays,
