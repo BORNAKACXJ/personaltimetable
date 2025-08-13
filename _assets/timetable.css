@@ -60,15 +60,18 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 12px 24px;
-	background: rgba(255, 255, 255, 0.1);
+	padding: 3px 0px;
+	/* background: rgba(255, 255, 255, 0.1); */
 	color: white;
 	text-decoration: none;
-	border-radius: 6px;
-	font-size: 16px;
+	border-radius: 0;
+	font-size: 12px;
 	font-weight: 500;
 	transition: all 0.2s ease;
 	border: none;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border-bottom: 1px solid currentColor;
 }
 
 .btn__pdf-download:hover {
