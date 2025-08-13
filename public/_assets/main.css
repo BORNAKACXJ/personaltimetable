@@ -345,6 +345,7 @@ footer {
 		bottom: 0;
 
 	width: 100%;
+	display: none;
 }
 
 footer .section__margin {

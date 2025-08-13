@@ -55,6 +55,7 @@
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  position: relative;
 }
 
 .artist-dialog__image {
@@ -200,6 +201,9 @@
 }
 
 .artist-dialog__favorite-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
   padding: 8px;
   background: transparent;
   border: none;
@@ -209,6 +213,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  z-index: 10;
 }
 
 .artist-dialog__favorite-btn:hover {

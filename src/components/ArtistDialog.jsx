@@ -104,6 +104,18 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
       <div className="artist-dialog__content">
         <div className="artist-dialog__header">
           <div className="artist-dialog__artist-info">
+            {/* Favorite button positioned in top right */}
+            <button 
+              className={`artist-dialog__favorite-btn artist-dialog__favorite--animate ${favoriteStatus ? 'favorited' : ''}`}
+              onClick={handleFavoriteToggle}
+              style={{
+                transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
+                opacity: animationStep >= 3 ? 1 : 0
+              }}
+            >
+              <Heart size={20} fill={favoriteStatus ? '#ff4757' : 'none'} stroke={favoriteStatus ? '#ff4757' : '#666'} />
+            </button>
+            
             <div 
               className={`artist-dialog__image artist-dialog__image--animate`}
               style={{
@@ -144,16 +156,6 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                     LISTEN ON SPOTIFY
                   </a>
                 )}
-                <button 
-                  className={`artist-dialog__favorite-btn artist-dialog__favorite--animate ${favoriteStatus ? 'favorited' : ''}`}
-                  onClick={handleFavoriteToggle}
-                  style={{
-                    transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
-                    opacity: animationStep >= 3 ? 1 : 0
-                  }}
-                >
-                  <Heart size={20} fill={favoriteStatus ? '#ff4757' : 'none'} stroke={favoriteStatus ? '#ff4757' : '#666'} />
-                </button>
               </div>
             </div>
           </div>
