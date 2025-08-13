@@ -607,6 +607,21 @@ function App() {
                       month: 'long'
                     })}
                   </div>
+                  
+                  {/* Mobile view toggle button */}
+                  <button 
+                    className={`btn__second btn__second--mobile ${currentView === 'list' ? 'active' : ''}`}
+                    onClick={() => {
+                      const newView = currentView === 'timeline' ? 'list' : 'timeline';
+                      setCurrentView(newView);
+                      trackViewChange(newView);
+                    }}
+                  >
+                    <span>
+                      <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
+                      {currentView === 'timeline' ? 'list' : 'timeline'}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
