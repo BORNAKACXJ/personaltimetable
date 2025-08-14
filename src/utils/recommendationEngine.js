@@ -252,7 +252,7 @@ export class RecommendationEngine {
     return recommendations
   }
 
-  // Find matches through related artists
+  // Find matches through related artists (festival artist's related artists matching user's artists)
   async findRelatedArtistMatches(userData, festivalArtists, timetableEntries, recommendations, processedArtists) {
     try {
       // Get all user's artist IDs (from both top artists and top tracks)

@@ -155,21 +155,9 @@ export function TestRecommendations() {
     })
     
     // Step 3: Check related artists of user's Spotify artists (if we have the data)
-    console.log('🔍 Step 3: Checking related artists of your Spotify artists...')
+    // REMOVED: No longer checking if festival artists are related to user's Spotify artists
+    console.log('🔍 Step 3: Skipped - related artists of user\'s Spotify artists (removed as requested)')
     const userArtistRelatedMatches = []
-    
-    userSpotifyArtists.forEach(userArtist => {
-      allFestivalArtists.forEach(festivalArtist => {
-        if (userArtist.relatedSpotifyIds.includes(festivalArtist.spotify_id)) {
-          userArtistRelatedMatches.push({
-            festivalArtist: festivalArtist,
-            userArtist: userArtist,
-            matchType: 'related_to_user',
-            reason: `This festival artist is related to your Spotify artist ${userArtist.name}`
-          })
-        }
-      })
-    })
     
     // Step 4: Check genre matches
     console.log('🔍 Step 4: Checking genre matches...')
@@ -217,8 +205,8 @@ export function TestRecommendations() {
         const existingIndex = uniqueMatches.findIndex(m => m.festivalArtist.id === festivalArtistId)
         if (existingIndex !== -1) {
           const existing = uniqueMatches[existingIndex]
-          // Prioritize: direct_festival > direct > related_to_user > genre
-          const priority = { 'direct_festival': 4, 'direct': 3, 'related_to_user': 2, 'genre': 1 }
+                  // Prioritize: direct_festival > direct > genre (related_to_user removed)
+        const priority = { 'direct_festival': 3, 'direct': 2, 'genre': 1 }
           if (priority[match.matchType] > priority[existing.matchType]) {
             uniqueMatches[existingIndex] = match
           }
@@ -232,7 +220,7 @@ export function TestRecommendations() {
     console.log('📊 Match breakdown:', {
       direct: foundMatches.length,
       directFestival: directFestivalMatches.length,
-      relatedToUser: userArtistRelatedMatches.length,
+      relatedToUser: userArtistRelatedMatches.length, // Always 0 now (removed)
       genre: genreMatches.length,
       unique: uniqueMatches.length
     })
