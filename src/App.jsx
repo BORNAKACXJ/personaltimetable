@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCachedFestivalData } from './hooks/useCachedFestivalData'
 import { useSpotifyAuth } from './hooks/useSpotifyAuth'
-import { useSpotifyRecommendations } from './hooks/useSpotifyRecommendations'
+import { useRecommendations } from './hooks/useRecommendations'
 import { ArtistDialog } from './components/ArtistDialog'
 import { TimelineView } from './components/TimelineView'
 import { SpotifyCallback } from './components/SpotifyCallback'
@@ -38,9 +38,13 @@ function App() {
 
   const { 
     recommendations, 
-    getRecommendations, 
-    loading: recommendationsLoading 
-  } = useSpotifyRecommendations()
+    generateRecommendations, 
+    loading: recommendationsLoading,
+    error: recommendationsError,
+    totalCount: recommendationsCount,
+    directMatchCount,
+    relatedArtistCount
+  } = useRecommendations(spotifyUser?.id, data?.festival?.id)
   
   // 2. All useState hooks
   const [currentDay, setCurrentDay] = useState(0)
@@ -101,25 +105,28 @@ function App() {
     console.log('App useEffect - topTracks:', topTracks?.length || 0)
     console.log('App useEffect - data:', !!data)
     console.log('App useEffect - data.days:', data?.days?.length || 0)
+    console.log('App useEffect - spotifyUser?.id:', spotifyUser?.id)
+    console.log('App useEffect - data?.festival?.id:', data?.festival?.id)
     
-    if (spotifyAuthenticated && data && ((topArtists && topArtists.length > 0) || (topTracks && topTracks.length > 0))) {
-      console.log('Calling getRecommendations with:', {
+    if (spotifyAuthenticated && spotifyUser?.id && data?.festival?.id && 
+        ((topArtists && topArtists.length > 0) || (topTracks && topTracks.length > 0))) {
+      console.log('🎯 Generating recommendations with:', {
+        spotifyUserId: spotifyUser.id,
+        festivalId: data.festival.id,
         topArtists: topArtists?.length || 0,
-        topTracks: topTracks?.length || 0,
-        festivalDays: data.days?.length || 0
+        topTracks: topTracks?.length || 0
       })
-      console.log('Sample topArtists:', topArtists?.slice(0, 2))
-      console.log('Sample topTracks:', topTracks?.slice(0, 2))
-      getRecommendations(topArtists, topTracks, data)
+      generateRecommendations()
     } else {
-      console.log('Not calling getRecommendations because:', {
+      console.log('Not generating recommendations because:', {
         spotifyAuthenticated,
-        hasData: !!data,
+        hasSpotifyUserId: !!spotifyUser?.id,
+        hasFestivalId: !!data?.festival?.id,
         hasTopArtists: !!(topArtists && topArtists.length > 0),
         hasTopTracks: !!(topTracks && topTracks.length > 0)
       })
     }
-  }, [spotifyAuthenticated, topArtists, topTracks, data])
+  }, [spotifyAuthenticated, spotifyUser?.id, data?.festival?.id, topArtists, topTracks, generateRecommendations])
 
   // 4. Route checking (after all hooks)
   const currentPath = window.location.pathname
@@ -189,31 +196,24 @@ function App() {
     }
     
     const flattened = []
-    recommendations.forEach(dayRec => {
-      console.log('Processing dayRec:', dayRec)
-      if (dayRec.timeSlots) {
-        dayRec.timeSlots.forEach(slot => {
-          console.log('Processing slot:', slot)
-          if (slot.acts) {
-            slot.acts.forEach(act => {
-              console.log('Processing act:', act)
-              if (act.isRecommended && act.recommendation) {
-                console.log('Adding recommendation:', act.recommendation)
-                flattened.push(act.recommendation)
-              }
-            })
-          }
+    
+    recommendations.forEach(recommendation => {
+      if (recommendation.timetable_entry) {
+        const entry = recommendation.timetable_entry
+        flattened.push({
+          ...recommendation,
+          startTime: entry.start_time,
+          endTime: entry.end_time,
+          stage: entry.stages,
+          day: entry.festival_days,
+          act: entry.acts,
+          artist: entry.artists
         })
       }
     })
     
-    // Remove duplicates based on Spotify ID (rec.artist.id from Spotify API)
-    const unique = flattened.filter((rec, index, self) => 
-      index === self.findIndex(r => r.artist.id === rec.artist.id)
-    )
-    
-    console.log('Final flattened recommendations:', unique)
-    return unique
+    console.log('Final flattened recommendations:', flattened)
+    return flattened
   }
 
   const flattenedRecommendations = getFlattenedRecommendations()
@@ -271,6 +271,12 @@ function App() {
               <RecommendationsPanel 
                 topArtists={topArtists}
                 topTracks={topTracks}
+                recommendations={flattenedRecommendations}
+                recommendationsCount={recommendationsCount}
+                directMatchCount={directMatchCount}
+                relatedArtistCount={relatedArtistCount}
+                recommendationsLoading={recommendationsLoading}
+                recommendationsError={recommendationsError}
                 festivalData={data}
                 currentDayData={currentDayData}
                 onArtistClick={handleArtistClick}

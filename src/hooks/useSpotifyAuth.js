@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { UserDataManager } from '../utils/userDataManager'
+import { getSpotifyRedirectUri, getSpotifyClientId, getSpotifyClientSecret, logSpotifyConfig } from '../utils/spotifyConfig'
 
 // Spotify API configuration
-const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
-const SPOTIFY_REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://localhost:5173/callback'
+const SPOTIFY_CLIENT_ID = getSpotifyClientId()
+const SPOTIFY_REDIRECT_URI = getSpotifyRedirectUri()
 const SPOTIFY_SCOPES = [
   'user-top-read'       // Access to user's top artists and tracks
 ].join(' ')
@@ -58,6 +59,9 @@ export function useSpotifyAuth() {
   }, [])
 
   const login = () => {
+    // Log current Spotify configuration
+    logSpotifyConfig()
+    
     // Debug logging
     console.log('SPOTIFY_CLIENT_ID:', SPOTIFY_CLIENT_ID)
     console.log('SPOTIFY_REDIRECT_URI:', SPOTIFY_REDIRECT_URI)
