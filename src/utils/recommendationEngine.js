@@ -133,6 +133,20 @@ export class RecommendationEngine {
       }
 
       console.log(`📅 Found ${entries.length} timetable entries`)
+      
+      // Debug: Check if artists data is properly joined
+      if (entries && entries.length > 0) {
+        const sampleEntry = entries[0]
+        console.log('Sample timetable entry:', {
+          id: sampleEntry.id,
+          artist_id: sampleEntry.artist_id,
+          artist_name: sampleEntry.artists?.name,
+          artist_spotify_id: sampleEntry.artists?.spotify_id,
+          start_time: sampleEntry.start_time,
+          end_time: sampleEntry.end_time
+        })
+      }
+      
       return entries || []
     } catch (error) {
       console.error('Error getting timetable entries:', error)
@@ -171,7 +185,12 @@ export class RecommendationEngine {
 
     // Check for direct matches
     for (const festivalArtist of festivalArtists) {
-      if (!festivalArtist.spotify_id) continue
+      if (!festivalArtist.spotify_id) {
+        console.log(`⚠️ Festival artist ${festivalArtist.name} has no spotify_id`)
+        continue
+      }
+
+      console.log(`🔍 Checking festival artist: ${festivalArtist.name} (spotify_id: ${festivalArtist.spotify_id})`)
 
       let score = 0
       let reason = ''
@@ -183,7 +202,7 @@ export class RecommendationEngine {
         score = this.directMatchScore + this.topArtistBonus
         reason = `Direct match with your #${userArtist.rank} top artist: ${userArtist.artist_name}`
         recommendationType = 'direct_match'
-        console.log(`🎯 Direct match found: ${festivalArtist.name} (${userArtist.artist_name})`)
+        console.log(`🎯 Direct match found: ${festivalArtist.name} (${userArtist.artist_name}) - Score: ${score}`)
       }
       // Check if user has this artist in top tracks
       else {
@@ -192,7 +211,7 @@ export class RecommendationEngine {
           score = this.directMatchScore + this.topTrackBonus
           reason = `Direct match with artist from your #${userTrackArtist.rank} top track: ${userTrackArtist.artist_name}`
           recommendationType = 'direct_match'
-          console.log(`🎯 Direct match found: ${festivalArtist.name} (${userTrackArtist.artist_name})`)
+          console.log(`🎯 Direct match found: ${festivalArtist.name} (${userTrackArtist.artist_name}) - Score: ${score}`)
         }
       }
 
@@ -200,6 +219,7 @@ export class RecommendationEngine {
       if (score > 0) {
         const timetableEntry = timetableEntries.find(entry => entry.artist_id === festivalArtist.id)
         if (timetableEntry) {
+          console.log(`✅ Found timetable entry for ${festivalArtist.name}: ${timetableEntry.start_time} - ${timetableEntry.end_time}`)
           recommendations.push({
             artist_id: festivalArtist.id,
             artist_name: festivalArtist.name,
@@ -209,7 +229,11 @@ export class RecommendationEngine {
             timetable_entry: timetableEntry
           })
           processedArtists.add(festivalArtist.id)
+        } else {
+          console.log(`❌ No timetable entry found for ${festivalArtist.name}`)
         }
+      } else {
+        console.log(`❌ No match found for ${festivalArtist.name}`)
       }
     }
 
