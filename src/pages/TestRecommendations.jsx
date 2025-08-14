@@ -1,229 +1,68 @@
 import { useState, useEffect } from 'react'
-import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
-import { useCachedFestivalData } from '../hooks/useCachedFestivalData'
 import { supabase } from '../lib/supabase'
 
-export function TestRecommendations() {
-  console.log('🎵 TestRecommendations component rendering...')
-  
-  // Add both hooks
-  const { user: spotifyUser, topArtists, topTracks, isAuthenticated } = useSpotifyAuth()
-  const { data: festivalData, loading: festivalLoading, error: festivalError } = useCachedFestivalData()
-  
-  const [testState, setTestState] = useState('Hello World')
+const TestRecommendations = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [topArtists, setTopArtists] = useState(null)
+  const [topTracks, setTopTracks] = useState(null)
   const [userSpotifyArtists, setUserSpotifyArtists] = useState([])
-  const [allFestivalArtists, setAllFestivalArtists] = useState([])
+  const [festivalArtists, setFestivalArtists] = useState([])
+  const [relatedArtists, setRelatedArtists] = useState([])
+  const [timetableEntries, setTimetableEntries] = useState([])
   const [loading, setLoading] = useState(false)
-  const [loadingFestival, setLoadingFestival] = useState(false)
   const [matches, setMatches] = useState([])
-  const [showMatches, setShowMatches] = useState(false)
-  const [loadingMatches, setLoadingMatches] = useState(false)
-  
-  // Get user's Spotify IDs
+  const [expandedSections, setExpandedSections] = useState({
+    userArtists: false,
+    festivalArtists: false,
+    relatedArtists: false,
+    timetableEntries: false,
+    matches: false
+  })
+
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('spotify_access_token')
+    setIsAuthenticated(!!token)
+    
+    if (token) {
+      // Load cached data
+      const cachedTopArtists = localStorage.getItem('spotify_top_artists')
+      const cachedTopTracks = localStorage.getItem('spotify_top_tracks')
+      
+      if (cachedTopArtists) setTopArtists(JSON.parse(cachedTopArtists))
+      if (cachedTopTracks) setTopTracks(JSON.parse(cachedTopTracks))
+      
+      // Load cached user artists data
+      const cachedUserData = localStorage.getItem('user_spotify_artists_direct')
+      const userTimestamp = localStorage.getItem('user_spotify_artists_timestamp')
+      
+      if (cachedUserData && userTimestamp) {
+        const age = Date.now() - parseInt(userTimestamp)
+        if (age < 60 * 60 * 1000) {
+          console.log('📊 Loading cached user artists data...')
+          setUserSpotifyArtists(JSON.parse(cachedUserData))
+        }
+      }
+    }
+  }, [])
+
+  // Get unique Spotify IDs from user data
   const getUserSpotifyIds = () => {
-    const artistIds = topArtists ? topArtists.map(artist => artist.id) : []
-    const trackArtistIds = topTracks ? topTracks.map(track => track.artists[0].id) : []
-    const allIds = [...new Set([...artistIds, ...trackArtistIds])]
-    return allIds
-  }
-
-  // Get all festival artists from festival data
-  const getFestivalArtists = () => {
-    if (!festivalData?.days) return []
+    const ids = new Set()
     
-    const allArtists = []
-    festivalData.days.forEach(day => {
-      day.stages?.forEach(stage => {
-        stage.acts?.forEach(act => {
-          if (act.artist) {
-            allArtists.push(act.artist)
-          }
-        })
-      })
-    })
-    
-    // Remove duplicates based on id
-    return allArtists.filter((artist, index, self) => 
-      index === self.findIndex(a => a.id === artist.id)
-    )
-  }
-
-  // Load festival artists with their related artists from Supabase
-  const loadFestivalArtists = async () => {
-    if (!festivalData) {
-      console.log('❌ No festival data available')
-      return
-    }
-
-    setLoadingFestival(true)
-    console.log('🔄 Loading festival artists with related artists from Supabase...')
-    
-    const festivalArtists = getFestivalArtists()
-    console.log('📊 Total festival artists found:', festivalArtists.length)
-    
-    const artistsWithRelated = []
-    
-    for (const artist of festivalArtists) {
-      try {
-        // Add sleep to avoid rate limiting (100ms between requests)
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
-        const { data: relatedData, error } = await supabase
-          .from('related_artists')
-          .select('spotify_id')
-          .eq('artist_id', artist.id)
-        
-        if (error) {
-          console.error(`❌ Error for ${artist.name}:`, error)
-        }
-        
-        const relatedSpotifyIds = relatedData ? relatedData.map(r => r.spotify_id) : []
-        
-        if (relatedSpotifyIds.length > 0) {
-          console.log(`✅ ${artist.name}: ${relatedSpotifyIds.length} related artists`)
-        } else {
-          console.log(`❌ ${artist.name}: NO related artists (ID: ${artist.id})`)
-        }
-        
-        artistsWithRelated.push({
-          ...artist,
-          relatedSpotifyIds: relatedSpotifyIds
-        })
-      } catch (error) {
-        console.error(`❌ Error processing festival artist ${artist.name}:`, error)
-      }
+    if (topArtists) {
+      topArtists.forEach(artist => ids.add(artist.id))
     }
     
-    setAllFestivalArtists(artistsWithRelated)
-    
-    // Save to localStorage
-    localStorage.setItem('festival_artists_with_related', JSON.stringify(artistsWithRelated))
-    localStorage.setItem('festival_artists_timestamp', Date.now().toString())
-    
-    console.log('📊 All festival artists loaded and saved to localStorage:', artistsWithRelated.length)
-    setLoadingFestival(false)
-  }
-
-  // Check for matches between user's Spotify artists and festival artists
-  const checkMatches = async () => {
-    if (userSpotifyArtists.length === 0 || allFestivalArtists.length === 0) {
-      console.log('❌ Need both user artists and festival artists data')
-      return
-    }
-
-    setLoadingMatches(true)
-    setShowMatches(true)
-    console.log('🔍 Checking for matches...')
-    
-    const foundMatches = []
-    
-    // Step 1: Direct matches (festival artist's related artists match user's Spotify artists)
-    console.log('🔍 Step 1: Checking direct matches...')
-    allFestivalArtists.forEach(festivalArtist => {
-      const matchingUserIds = userSpotifyArtists.filter(userArtist => 
-        festivalArtist.relatedSpotifyIds.includes(userArtist.spotify_id)
-      )
-      
-      if (matchingUserIds.length > 0) {
-        foundMatches.push({
-          festivalArtist: festivalArtist,
-          matchingUserArtists: matchingUserIds,
-          matchCount: matchingUserIds.length,
-          matchType: 'direct',
-          reason: `Your Spotify artists directly match this festival artist's related artists`
-        })
-      }
-    })
-    
-    // Step 2: Check if user's Spotify artists are directly in the festival
-    console.log('🔍 Step 2: Checking if your Spotify artists are directly in the festival...')
-    const directFestivalMatches = []
-    
-    userSpotifyArtists.forEach(userArtist => {
-      const matchingFestivalArtist = allFestivalArtists.find(festivalArtist => 
-        festivalArtist.spotify_id === userArtist.spotify_id
-      )
-      
-      if (matchingFestivalArtist) {
-        directFestivalMatches.push({
-          festivalArtist: matchingFestivalArtist,
-          userArtist: userArtist,
-          matchType: 'direct_festival',
-          reason: `You listen to this artist and they're performing at the festival!`
-        })
-      }
-    })
-    
-    // Step 3: Check related artists of user's Spotify artists (if we have the data)
-    // REMOVED: No longer checking if festival artists are related to user's Spotify artists
-    console.log('🔍 Step 3: Skipped - related artists of user\'s Spotify artists (removed as requested)')
-    const userArtistRelatedMatches = []
-    
-    // Step 4: Check genre matches
-    console.log('🔍 Step 4: Checking genre matches...')
-    const genreMatches = []
-    
-    userSpotifyArtists.forEach(userArtist => {
-      allFestivalArtists.forEach(festivalArtist => {
-        if (userArtist.genres && festivalArtist.genres) {
-          const commonGenres = userArtist.genres.filter(genre => 
-            festivalArtist.genres.includes(genre)
-          )
-          
-          if (commonGenres.length > 0) {
-            genreMatches.push({
-              festivalArtist: festivalArtist,
-              userArtist: userArtist,
-              matchType: 'genre',
-              reason: `Shared genres: ${commonGenres.join(', ')}`,
-              commonGenres: commonGenres
-            })
-          }
+    if (topTracks) {
+      topTracks.forEach(track => {
+        if (track.artists && track.artists.length > 0) {
+          ids.add(track.artists[0].id)
         }
       })
-    })
+    }
     
-    // Combine all matches and remove duplicates
-    const allMatches = [
-      ...foundMatches,
-      ...directFestivalMatches,
-      ...userArtistRelatedMatches,
-      ...genreMatches
-    ]
-    
-    // Remove duplicates based on festival artist ID and keep the best match type
-    const uniqueMatches = []
-    const seenFestivalArtistIds = new Set()
-    
-    allMatches.forEach(match => {
-      const festivalArtistId = match.festivalArtist.id
-      if (!seenFestivalArtistIds.has(festivalArtistId)) {
-        seenFestivalArtistIds.add(festivalArtistId)
-        uniqueMatches.push(match)
-      } else {
-        // If we already have this artist, update with better match type
-        const existingIndex = uniqueMatches.findIndex(m => m.festivalArtist.id === festivalArtistId)
-        if (existingIndex !== -1) {
-          const existing = uniqueMatches[existingIndex]
-                  // Prioritize: direct_festival > direct > genre (related_to_user removed)
-        const priority = { 'direct_festival': 3, 'direct': 2, 'genre': 1 }
-          if (priority[match.matchType] > priority[existing.matchType]) {
-            uniqueMatches[existingIndex] = match
-          }
-        }
-      }
-    })
-    
-    setMatches(uniqueMatches)
-    setLoadingMatches(false)
-    console.log('🎯 Total unique matches found:', uniqueMatches.length)
-    console.log('📊 Match breakdown:', {
-      direct: foundMatches.length,
-      directFestival: directFestivalMatches.length,
-      relatedToUser: userArtistRelatedMatches.length, // Always 0 now (removed)
-      genre: genreMatches.length,
-      unique: uniqueMatches.length
-    })
+    return Array.from(ids)
   }
 
   // Load user artists directly from Spotify data (no related artists)
@@ -292,373 +131,529 @@ export function TestRecommendations() {
     setLoading(false)
   }
 
-  // Load cached data on component mount
-  useEffect(() => {
-    // Load cached user artists data
-    const cachedUserData = localStorage.getItem('user_spotify_artists_direct')
-    const userTimestamp = localStorage.getItem('user_spotify_artists_timestamp')
+  // Load festival artists from Supabase
+  const loadFestivalArtists = async () => {
+    setLoading(true)
+    console.log('🎪 Loading festival artists from Supabase...')
     
-    if (cachedUserData && userTimestamp) {
-      const age = Date.now() - parseInt(userTimestamp)
-      // Cache for 1 hour
-      if (age < 60 * 60 * 1000) {
-        console.log('📊 Loading cached user artists data...')
-        setUserSpotifyArtists(JSON.parse(cachedUserData))
+    try {
+      const { data, error } = await supabase
+        .from('artists')
+        .select('*')
+        .order('name')
+      
+      if (error) {
+        console.error('❌ Error loading festival artists:', error)
+        return
       }
+      
+      setFestivalArtists(data || [])
+      console.log('✅ Festival artists loaded:', data?.length || 0)
+    } catch (error) {
+      console.error('❌ Error loading festival artists:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load related artists from Supabase
+  const loadRelatedArtists = async () => {
+    setLoading(true)
+    console.log('🔗 Loading related artists from Supabase...')
+    
+    try {
+      const { data, error } = await supabase
+        .from('related_artists')
+        .select('*')
+        .order('spotify_id')
+      
+      if (error) {
+        console.error('❌ Error loading related artists:', error)
+        return
+      }
+      
+      setRelatedArtists(data || [])
+      console.log('✅ Related artists loaded:', data?.length || 0)
+    } catch (error) {
+      console.error('❌ Error loading related artists:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load timetable entries from Supabase for specific edition
+  const loadTimetableEntries = async () => {
+    setLoading(true)
+    console.log('📅 Loading timetable entries for edition...')
+    
+    const editionId = 'a2a26ced-06df-47e2-9745-2b708f2d6a0a'
+    
+    try {
+      const { data, error } = await supabase
+        .from('timetable_entries')
+        .select(`
+          *,
+          artist:artists(name, spotify_id, genres)
+        `)
+        .eq('edition_id', editionId)
+        .order('start_time')
+      
+      if (error) {
+        console.error('❌ Error loading timetable entries:', error)
+        return
+      }
+      
+      setTimetableEntries(data || [])
+      console.log(`✅ Timetable entries loaded for edition ${editionId}:`, data?.length || 0)
+    } catch (error) {
+      console.error('❌ Error loading timetable entries:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Create personal timetable based on user preferences
+  const createPersonalTimetable = async () => {
+    if (!userSpotifyArtists.length || !timetableEntries.length) {
+      console.log('❌ Need both user artists and timetable entries')
+      return
     }
 
-    // Load cached festival artists data
-    const cachedFestivalData = localStorage.getItem('festival_artists_with_related')
-    const festivalTimestamp = localStorage.getItem('festival_artists_timestamp')
+    setLoading(true)
+    console.log('🎵 Creating personal timetable...')
     
-    if (cachedFestivalData && festivalTimestamp) {
-      const age = Date.now() - parseInt(festivalTimestamp)
-      // Cache for 1 hour
-      if (age < 60 * 60 * 1000) {
-        console.log('📊 Loading cached festival artists data...')
-        setAllFestivalArtists(JSON.parse(cachedFestivalData))
+    const userSpotifyIds = new Set(userSpotifyArtists.map(a => a.spotify_id))
+    const personalTimetable = []
+    
+    // Step 1: Direct matches (user artists match timetable acts)
+    console.log('Step 1: Adding direct matches to personal timetable...')
+    timetableEntries.forEach(entry => {
+      if (entry.artist && entry.artist.spotify_id && userSpotifyIds.has(entry.artist.spotify_id)) {
+        const userArtist = userSpotifyArtists.find(u => u.spotify_id === entry.artist.spotify_id)
+        personalTimetable.push({
+          type: 'direct',
+          strength: 'high',
+          userArtist: userArtist,
+          timetableEntry: entry,
+          score: 100,
+          reason: `You listen to ${userArtist?.name} - they're performing!`,
+          priority: 1
+        })
       }
+    })
+    
+    // Step 2: Related artist matches (timetable acts' related artists match user artists)
+    console.log('Step 2: Adding related artist matches to personal timetable...')
+    timetableEntries.forEach(entry => {
+      if (!entry.artist || !entry.artist.spotify_id) return
+      
+      // Find related artists for this timetable artist
+      const artistRelated = relatedArtists.filter(ra => ra.artist_id === entry.artist_id)
+      
+      // Debug: Check for Daft Punk related artists
+      if (entry.artist.name.toLowerCase().includes('daft punk')) {
+        console.log(`🔍 Checking related artists for ${entry.artist.name}:`, artistRelated)
+      }
+      
+      artistRelated.forEach(related => {
+        if (userSpotifyIds.has(related.spotify_id)) {
+          const userArtist = userSpotifyArtists.find(u => u.spotify_id === related.spotify_id)
+          
+          // Debug: Log Daft Punk matches
+          if (userArtist?.name?.toLowerCase().includes('daft punk') || entry.artist?.name?.toLowerCase().includes('daft punk')) {
+            console.log(`🎵 Daft Punk match found: ${userArtist?.name} related to ${entry.artist?.name}`)
+          }
+          
+          personalTimetable.push({
+            type: 'related',
+            strength: 'medium',
+            userArtist: userArtist,
+            timetableEntry: entry,
+            relatedArtist: related,
+            score: 75,
+            reason: `${entry.artist?.name} is similar to ${userArtist?.name} (you listen to)`,
+            priority: 2
+          })
+        }
+      })
+    })
+    
+    // Step 3: Genre matches (shared genres between user and timetable artists)
+    console.log('Step 3: Adding genre matches to personal timetable...')
+    userSpotifyArtists.forEach(userArtist => {
+      if (!userArtist.genres || userArtist.genres.length === 0) return
+      
+      timetableEntries.forEach(entry => {
+        if (!entry.artist || !entry.artist.genres || entry.artist.genres.length === 0) return
+        
+        const sharedGenres = userArtist.genres.filter(genre => 
+          entry.artist.genres.includes(genre)
+        )
+        
+        if (sharedGenres.length > 0) {
+          personalTimetable.push({
+            type: 'genre',
+            strength: 'low',
+            userArtist: userArtist,
+            timetableEntry: entry,
+            sharedGenres: sharedGenres,
+            score: 25 + (sharedGenres.length * 10),
+            reason: `Shared genres with ${userArtist?.name}: ${sharedGenres.join(', ')}`,
+            priority: 3
+          })
+        }
+      })
+    })
+    
+    // Remove duplicates and keep best matches per timetable entry
+    const uniqueTimetable = []
+    const seenEntries = new Set()
+    
+    personalTimetable.forEach(item => {
+      const entryId = item.timetableEntry.id
+      if (!seenEntries.has(entryId)) {
+        seenEntries.add(entryId)
+        uniqueTimetable.push(item)
+      } else {
+        // If we already have this entry, keep the one with higher priority
+        const existingIndex = uniqueTimetable.findIndex(t => t.timetableEntry.id === entryId)
+        if (existingIndex !== -1) {
+          if (item.priority < uniqueTimetable[existingIndex].priority) {
+            uniqueTimetable[existingIndex] = item
+          }
+        }
+      }
+    })
+    
+    // Sort by priority and score
+    uniqueTimetable.sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority - b.priority
+      return b.score - a.score
+    })
+    
+    setMatches(uniqueTimetable)
+    
+    console.log('🎵 Personal timetable created:', {
+      direct: personalTimetable.filter(t => t.type === 'direct').length,
+      related: personalTimetable.filter(t => t.type === 'related').length,
+      genre: personalTimetable.filter(t => t.type === 'genre').length,
+      unique: uniqueTimetable.length
+    })
+    
+    // Debug: Show all user artists
+    console.log('🔍 All user artists:', userSpotifyArtists.map(a => ({ name: a.name, spotify_id: a.spotify_id, source: a.source })))
+    
+    // Debug: Show related artist matches specifically
+    const daftPunkMatches = personalTimetable.filter(t => 
+      t.userArtist?.name?.toLowerCase().includes('daft punk') || 
+      t.timetableEntry?.artist?.name?.toLowerCase().includes('daft punk')
+    )
+    if (daftPunkMatches.length > 0) {
+      console.log('🎵 Daft Punk matches found:', daftPunkMatches)
+    } else {
+      console.log('❌ No Daft Punk matches found')
     }
-  }, [])
-  
-  useEffect(() => {
-    console.log('🔄 useEffect triggered')
-    console.log('🔍 Spotify auth state:', { isAuthenticated, hasTopArtists: !!topArtists, hasTopTracks: !!topTracks })
-    console.log('🔍 Festival data state:', { hasFestivalData: !!festivalData, festivalLoading, festivalError })
-    setTestState('Component loaded!')
-  }, [isAuthenticated, topArtists, topTracks, festivalData, festivalLoading, festivalError])
-  
+    
+    setLoading(false)
+  }
+
+  // Toggle section expansion
+  const toggleSection = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
+  // Get strength color
+  const getStrengthColor = (strength) => {
+    switch (strength) {
+      case 'high': return '#22c55e'
+      case 'medium': return '#f59e0b'
+      case 'low': return '#ef4444'
+      default: return '#6b7280'
+    }
+  }
+
+  // Get strength emoji
+  const getStrengthEmoji = (strength) => {
+    switch (strength) {
+      case 'high': return '🔥'
+      case 'medium': return '⚡'
+      case 'low': return '💡'
+      default: return '❓'
+    }
+  }
+
   return (
-    <div style={{ backgroundColor: 'white', minHeight: '100vh', padding: '20px' }}>
-      <h1>Test Recommendations </h1>
-      
-      {/* Top 5 Artists Section */}
-      {isAuthenticated && topArtists && topArtists.length > 0 && (
-        <div style={{ marginTop: '40px', marginBottom: '40px' }}>
-          <h2>🎵 Your Top 5 Artists</h2>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '20px',
-            marginTop: '20px'
-          }}>
-            {topArtists.slice(0, 5).map((artist, index) => (
-              <div key={artist.id} style={{ 
-                backgroundColor: '#f8f9fa', 
-                padding: '20px', 
-                borderRadius: '12px', 
-                border: '2px solid #e9ecef',
-                textAlign: 'center',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                transition: 'transform 0.2s ease-in-out',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-              >
-                {artist.images && artist.images.length > 0 ? (
-                  <img 
-                    src={artist.images[0].url} 
-                    alt={artist.name}
-                    style={{
-                      width: '120px',
-                      height: '120px',
-                      borderRadius: '50%',
-                      objectFit: 'cover',
-                      marginBottom: '15px',
-                      border: '3px solid #1DB954'
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    width: '120px',
-                    height: '120px',
-                    borderRadius: '50%',
-                    backgroundColor: '#e9ecef',
-                    margin: '0 auto 15px auto',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '24px',
-                    color: '#6c757d'
-                  }}>
-                    🎵
-                  </div>
-                )}
-                <h3 style={{ 
-                  margin: '0 0 10px 0', 
-                  fontSize: '18px', 
-                  fontWeight: 'bold',
-                  color: '#212529'
-                }}>
-                  #{index + 1} {artist.name}
-                </h3>
-                {artist.genres && artist.genres.length > 0 && (
-                  <div style={{ 
-                    display: 'flex', 
-                    flexWrap: 'wrap', 
-                    gap: '4px', 
-                    justifyContent: 'center',
-                    marginTop: '10px'
-                  }}>
-                    {artist.genres.slice(0, 2).map((genre, genreIndex) => (
-                      <span key={genreIndex} style={{ 
-                        backgroundColor: '#1DB954', 
-                        color: 'white',
-                        padding: '4px 8px', 
-                        borderRadius: '12px', 
-                        fontSize: '10px',
-                        fontWeight: '500'
-                      }}>
-                        {genre}
-                      </span>
-                    ))}
-                    {artist.genres.length > 2 && (
-                      <span style={{ 
-                        fontSize: '10px', 
-                        color: '#6c757d',
-                        alignSelf: 'center'
-                      }}>
-                        +{artist.genres.length - 2} more
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-          <div style={{ 
-            marginTop: '20px', 
-            padding: '15px', 
-            backgroundColor: '#e8f5e8', 
-            borderRadius: '8px',
-            border: '1px solid #4caf50'
-          }}>
-            <p style={{ margin: '0', fontSize: '14px', color: '#2e7d32' }}>
-              🎯 These are your top artists based on your Spotify listening history. We'll use this data to find festival artists that match your taste!
-            </p>
-          </div>
-        </div>
-      )}
-      
-      {/* User Spotify IDs Section */}
-      <div style={{ marginTop: '40px', marginBottom: '40px' }}>
-        <h2>👤 Your Spotify IDs ({getUserSpotifyIds().length})</h2>
-        {isAuthenticated ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px' }}>
-            {getUserSpotifyIds().map((spotifyId, index) => (
-              <div key={index} style={{ 
-                backgroundColor: '#f0f0f0', 
-                padding: '8px', 
-                borderRadius: '4px', 
-                fontSize: '12px',
-                border: '1px solid #ccc'
-              }}>
-                {spotifyId}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
-            <p>Please connect your Spotify account to see your artist IDs.</p>
-          </div>
-        )}
-      </div>
+    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '30px', color: '#1f2937' }}>
+        🎵 Recommendation System Test
+      </h1>
 
-      {/* Load User Artists Button */}
-      {isAuthenticated && (
-        <div style={{ marginBottom: '40px' }}>
-          <button 
-            onClick={loadUserArtists}
-            disabled={loading}
-            style={{
-              padding: '15px 30px',
-              backgroundColor: loading ? '#ccc' : '#1DB954',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              marginRight: '20px'
-            }}
-          >
-            {loading ? '🔄 Loading User Artists...' : '👤 Load User Artists from Spotify Data'}
-          </button>
-          <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-            This will load your top artists and track artists directly from your Spotify data (no API calls).
-          </p>
-        </div>
-      )}
-
-      {/* User Artists Section */}
-      <div style={{ marginBottom: '40px' }}>
-        <h2>👤 Your Spotify Artists ({userSpotifyArtists.length})</h2>
-        {userSpotifyArtists.length > 0 ? (
-          <div>
-            {userSpotifyArtists.map(artist => (
-              <div key={artist.id} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '8px' }}>
-                <h3>{artist.name} - {artist.spotify_id}</h3>
-                <p><strong>Source:</strong> {artist.source} {artist.rank && `(#${artist.rank})`}</p>
-                {artist.genres && artist.genres.length > 0 && (
-                  <div>
-                    <p><strong>Genres ({artist.genres.length}):</strong></p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
-                      {artist.genres.map((genre, index) => (
-                        <span key={index} style={{ 
-                          backgroundColor: '#e8f5e8', 
-                          padding: '4px 8px', 
-                          borderRadius: '12px', 
-                          fontSize: '11px',
-                          border: '1px solid #4caf50'
-                        }}>
-                          {genre}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
-            <p>No user artists loaded yet. Click the button above to load them from your Spotify data.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Check for Matches Button */}
-      {userSpotifyArtists.length > 0 && allFestivalArtists.length > 0 && (
-        <div style={{ marginBottom: '40px' }}>
-          <button 
-            onClick={checkMatches}
-            disabled={loadingMatches}
-            style={{
-              padding: '15px 30px',
-              backgroundColor: loadingMatches ? '#ccc' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: loadingMatches ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }}
-          >
-            {loadingMatches ? '🔄 Checking Matches...' : '🎯 Check for Matches'}
-          </button>
-          <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-            Find festival artists that match your Spotify listening data.
-          </p>
-        </div>
-      )}
-
-      {/* Matches Section */}
-      {showMatches && (
-        <div style={{ marginBottom: '40px' }}>
-          <h2>🎯 Matches Found ({matches.length})</h2>
-          {loadingMatches ? (
-            <div style={{ padding: '20px', backgroundColor: '#e3f2fd', borderRadius: '8px' }}>
-              <p>🔄 Checking for matches...</p>
-            </div>
-          ) : matches.length > 0 ? (
-            <div>
-              {matches.map((match, index) => (
-                <div key={index} style={{ 
-                  marginBottom: '15px', 
-                  padding: '15px', 
-                  border: '2px solid',
-                  borderColor: match.matchType === 'direct_festival' ? '#28a745' : 
-                             match.matchType === 'direct' ? '#007bff' : 
-                             match.matchType === 'genre' ? '#6f42c1' : '#fd7e14',
+      {/* Always Visible Action Buttons */}
+      <div style={{ 
+        position: 'sticky', 
+        top: '0', 
+        backgroundColor: 'white', 
+        padding: '20px 0', 
+        borderBottom: '2px solid #e5e7eb',
+        zIndex: 10,
+        marginBottom: '30px'
+      }}>
+        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {isAuthenticated ? (
+            <>
+              <button 
+                onClick={loadUserArtists}
+                disabled={loading}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: loading ? '#d1d5db' : '#1DB954',
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '8px',
-                  backgroundColor: match.matchType === 'direct_festival' ? '#d4edda' : 
-                                 match.matchType === 'direct' ? '#d1ecf1' : 
-                                 match.matchType === 'genre' ? '#f3e5f5' : '#fff3cd'
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? '🔄 Loading...' : '👤 Load User Artists'}
+              </button>
+              
+              <button 
+                onClick={loadFestivalArtists}
+                disabled={loading}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: loading ? '#d1d5db' : '#8b5cf6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? '🔄 Loading...' : '🎪 Load Festival Artists'}
+              </button>
+              
+              <button 
+                onClick={loadRelatedArtists}
+                disabled={loading}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: loading ? '#d1d5db' : '#06b6d4',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? '🔄 Loading...' : '🔗 Load Related Artists'}
+              </button>
+              
+                             <button 
+                 onClick={loadTimetableEntries}
+                 disabled={loading}
+                 style={{
+                   padding: '12px 24px',
+                   backgroundColor: loading ? '#d1d5db' : '#10b981',
+                   color: 'white',
+                   border: 'none',
+                   borderRadius: '8px',
+                   cursor: loading ? 'not-allowed' : 'pointer',
+                   fontSize: '14px',
+                   fontWeight: 'bold'
+                 }}
+               >
+                 {loading ? '🔄 Loading...' : '📅 Load Festival Timetable'}
+               </button>
+              
+              <button 
+                onClick={createPersonalTimetable}
+                disabled={loading || !userSpotifyArtists.length || !timetableEntries.length}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: loading || !userSpotifyArtists.length || !timetableEntries.length ? '#d1d5db' : '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: loading || !userSpotifyArtists.length || !timetableEntries.length ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {loading ? '🔄 Creating...' : '🎵 Create Personal Timetable'}
+              </button>
+            </>
+          ) : (
+            <div style={{ padding: '20px', backgroundColor: '#fef3c7', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+              <p style={{ margin: 0, color: '#92400e' }}>🔐 Please connect to Spotify first</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Data Overview Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ 
+          padding: '20px', 
+          backgroundColor: '#f0f9ff', 
+          borderRadius: '12px', 
+          border: '2px solid #0ea5e9',
+          cursor: 'pointer'
+        }} onClick={() => toggleSection('userArtists')}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h3 style={{ margin: '0 0 10px 0', color: '#0c4a6e' }}>👤 Your Spotify Artists</h3>
+              <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#0ea5e9' }}>
+                {userSpotifyArtists.length}
+              </p>
+              <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#64748b' }}>
+                {expandedSections.userArtists ? 'Click to collapse' : 'Click to expand'}
+              </p>
+            </div>
+            <div style={{ fontSize: '24px' }}>{expandedSections.userArtists ? '📂' : '📁'}</div>
+          </div>
+        </div>
+
+        <div style={{ 
+          padding: '20px', 
+          backgroundColor: '#fdf4ff', 
+          borderRadius: '12px', 
+          border: '2px solid #a855f7',
+          cursor: 'pointer'
+        }} onClick={() => toggleSection('festivalArtists')}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h3 style={{ margin: '0 0 10px 0', color: '#581c87' }}>🎪 Festival Artists</h3>
+              <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#a855f7' }}>
+                {festivalArtists.length}
+              </p>
+              <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#64748b' }}>
+                {expandedSections.festivalArtists ? 'Click to collapse' : 'Click to expand'}
+              </p>
+            </div>
+            <div style={{ fontSize: '24px' }}>{expandedSections.festivalArtists ? '📂' : '📁'}</div>
+          </div>
+        </div>
+
+                 <div style={{ 
+           padding: '20px', 
+           backgroundColor: '#f0fdf4', 
+           borderRadius: '12px', 
+           border: '2px solid #10b981',
+           cursor: 'pointer'
+         }} onClick={() => toggleSection('relatedArtists')}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <div>
+               <h3 style={{ margin: '0 0 10px 0', color: '#064e3b' }}>🔗 Related Artists</h3>
+               <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>
+                 {relatedArtists.length}
+               </p>
+               <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#64748b' }}>
+                 {expandedSections.relatedArtists ? 'Click to collapse' : 'Click to expand'}
+               </p>
+             </div>
+             <div style={{ fontSize: '24px' }}>{expandedSections.relatedArtists ? '📂' : '📁'}</div>
+           </div>
+         </div>
+
+         <div style={{ 
+           padding: '20px', 
+           backgroundColor: '#fef7ed', 
+           borderRadius: '12px', 
+           border: '2px solid #f97316',
+           cursor: 'pointer'
+         }} onClick={() => toggleSection('timetableEntries')}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <div>
+               <h3 style={{ margin: '0 0 10px 0', color: '#7c2d12' }}>📅 Festival Timetable</h3>
+               <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#f97316' }}>
+                 {timetableEntries.length}
+               </p>
+               <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#64748b' }}>
+                 {expandedSections.timetableEntries ? 'Click to collapse' : 'Click to expand'}
+               </p>
+             </div>
+             <div style={{ fontSize: '24px' }}>{expandedSections.timetableEntries ? '📂' : '📁'}</div>
+           </div>
+         </div>
+
+                 <div style={{ 
+           padding: '20px', 
+           backgroundColor: '#fef2f2', 
+           borderRadius: '12px', 
+           border: '2px solid #ef4444',
+           cursor: 'pointer'
+         }} onClick={() => toggleSection('matches')}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <div>
+               <h3 style={{ margin: '0 0 10px 0', color: '#7f1d1d' }}>🎵 Personal Timetable</h3>
+               <p style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#ef4444' }}>
+                 {matches.length}
+               </p>
+               <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#64748b' }}>
+                 {expandedSections.matches ? 'Click to collapse' : 'Click to expand'}
+               </p>
+             </div>
+             <div style={{ fontSize: '24px' }}>{expandedSections.matches ? '📂' : '📁'}</div>
+           </div>
+         </div>
+      </div>
+
+      {/* Expandable Sections */}
+      
+      {/* User Artists Section */}
+      {expandedSections.userArtists && (
+        <div style={{ marginBottom: '30px' }}>
+          <h2 style={{ color: '#0c4a6e', borderBottom: '2px solid #0ea5e9', paddingBottom: '10px' }}>
+            👤 Your Spotify Artists ({userSpotifyArtists.length})
+          </h2>
+          {userSpotifyArtists.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
+              {userSpotifyArtists.map(artist => (
+                <div key={artist.id} style={{ 
+                  padding: '15px', 
+                  border: '1px solid #e5e7eb', 
+                  borderRadius: '8px',
+                  backgroundColor: 'white'
                 }}>
-                  <h3>{match.festivalArtist.name} - {match.festivalArtist.spotify_id}</h3>
-                  <p><strong>Match Type:</strong> {match.matchType}</p>
-                  <p><strong>Reason:</strong> {match.reason}</p>
-                  
-                  {/* Festival Artist Genres */}
-                  {match.festivalArtist.genres && match.festivalArtist.genres.length > 0 && (
-                    <div style={{ marginBottom: '10px' }}>
-                      <p><strong>Festival Artist Genres:</strong></p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                        {match.festivalArtist.genres.map((genre, index) => (
-                          <span key={index} style={{ 
-                            backgroundColor: '#e3f2fd', 
-                            padding: '4px 8px', 
-                            borderRadius: '12px', 
-                            fontSize: '11px',
-                            border: '1px solid #2196f3'
-                          }}>
-                            {genre}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {match.matchingUserArtists && (
-                    <div>
-                      <p><strong>Matching Your Artists ({match.matchCount}):</strong></p>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginTop: '10px' }}>
-                        {match.matchingUserArtists.map(userArtist => (
-                          <div key={userArtist.id} style={{ 
-                            backgroundColor: '#f0f0f0', 
-                            padding: '8px', 
-                            borderRadius: '4px', 
-                            fontSize: '12px',
-                            border: '1px solid #ccc'
-                          }}>
-                            {userArtist.name} - {userArtist.spotify_id}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {match.userArtist && (
-                    <div>
-                      <p><strong>Your Artist:</strong> {match.userArtist.name} - {match.userArtist.spotify_id}</p>
-                      
-                      {/* User Artist Genres */}
-                      {match.userArtist.genres && match.userArtist.genres.length > 0 && (
-                        <div style={{ marginTop: '10px' }}>
-                          <p><strong>Your Artist Genres:</strong></p>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                            {match.userArtist.genres.map((genre, index) => (
-                              <span key={index} style={{ 
-                                backgroundColor: '#e8f5e8', 
-                                padding: '4px 8px', 
-                                borderRadius: '12px', 
-                                fontSize: '11px',
-                                border: '1px solid #4caf50'
-                              }}>
-                                {genre}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {match.commonGenres && match.commonGenres.length > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                    <h3 style={{ margin: 0, fontSize: '16px', color: '#1f2937' }}>{artist.name}</h3>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      padding: '4px 8px', 
+                      borderRadius: '12px',
+                      backgroundColor: artist.source === 'top_artists' ? '#dbeafe' : '#fef3c7',
+                      color: artist.source === 'top_artists' ? '#1e40af' : '#92400e'
+                    }}>
+                      {artist.source === 'top_artists' ? '🎵 Top Artist' : '🎧 Track Artist'} #{artist.rank}
+                    </span>
+                  </div>
+                  <p style={{ margin: '5px 0', fontSize: '12px', color: '#6b7280' }}>ID: {artist.spotify_id}</p>
+                  {artist.genres && artist.genres.length > 0 && (
                     <div style={{ marginTop: '10px' }}>
-                      <p><strong>Shared Genres:</strong></p>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                        {match.commonGenres.map((genre, index) => (
+                        {artist.genres.slice(0, 3).map((genre, index) => (
                           <span key={index} style={{ 
-                            backgroundColor: '#f3e5f5', 
-                            padding: '4px 8px', 
-                            borderRadius: '12px', 
-                            fontSize: '11px',
-                            border: '1px solid #6f42c1',
-                            fontWeight: 'bold'
+                            backgroundColor: '#e8f5e8', 
+                            padding: '2px 6px', 
+                            borderRadius: '8px', 
+                            fontSize: '10px',
+                            border: '1px solid #4caf50'
                           }}>
                             {genre}
                           </span>
                         ))}
+                        {artist.genres.length > 3 && (
+                          <span style={{ fontSize: '10px', color: '#6b7280' }}>
+                            +{artist.genres.length - 3} more
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -667,104 +662,322 @@ export function TestRecommendations() {
             </div>
           ) : (
             <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
-              <p>No matches found. Your Spotify data doesn't match any festival artists.</p>
+              <p style={{ margin: 0, color: '#92400e' }}>No user artists loaded yet. Click "Load User Artists" above.</p>
             </div>
           )}
         </div>
       )}
-      
-      {/* Load Festival Artists Button */}
-      {festivalData && (
-        <div style={{ marginBottom: '40px' }}>
-          <button 
-            onClick={loadFestivalArtists}
-            disabled={loadingFestival}
-            style={{
-              padding: '15px 30px',
-              backgroundColor: loadingFestival ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: loadingFestival ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }}
-          >
-            {loadingFestival ? '🔄 Loading Festival Artists...' : '🎪 Load Festival Artists from Supabase'}
-          </button>
-          <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-            This will fetch related artists for all festival artists from the database with 100ms delays.
-          </p>
+
+      {/* Festival Artists Section */}
+      {expandedSections.festivalArtists && (
+        <div style={{ marginBottom: '30px' }}>
+          <h2 style={{ color: '#581c87', borderBottom: '2px solid #a855f7', paddingBottom: '10px' }}>
+            🎪 Festival Artists ({festivalArtists.length})
+          </h2>
+          {festivalArtists.length > 0 ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px' }}>
+              {festivalArtists.map(artist => (
+                <div key={artist.id} style={{ 
+                  padding: '15px', 
+                  border: '1px solid #e5e7eb', 
+                  borderRadius: '8px',
+                  backgroundColor: 'white'
+                }}>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#1f2937' }}>{artist.name}</h3>
+                  <p style={{ margin: '5px 0', fontSize: '12px', color: '#6b7280' }}>
+                    {artist.spotify_id ? `Spotify ID: ${artist.spotify_id}` : 'No Spotify ID'}
+                  </p>
+                  {artist.genres && artist.genres.length > 0 && (
+                    <div style={{ marginTop: '10px' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {artist.genres.slice(0, 3).map((genre, index) => (
+                          <span key={index} style={{ 
+                            backgroundColor: '#f3e8ff', 
+                            padding: '2px 6px', 
+                            borderRadius: '8px', 
+                            fontSize: '10px',
+                            border: '1px solid #a855f7'
+                          }}>
+                            {genre}
+                          </span>
+                        ))}
+                        {artist.genres.length > 3 && (
+                          <span style={{ fontSize: '10px', color: '#6b7280' }}>
+                            +{artist.genres.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '20px', backgroundColor: '#f3e8ff', borderRadius: '8px', border: '1px solid #c084fc' }}>
+              <p style={{ margin: 0, color: '#581c87' }}>No festival artists loaded yet. Click "Load Festival Artists" above.</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Festival Artists with Related Artists Section */}
-      <div style={{ marginBottom: '40px' }}>
-        <h2>🎪 Festival Artists with Related Artists ({allFestivalArtists.length})</h2>
-        {allFestivalArtists.length > 0 ? (
-          <div>
-            {allFestivalArtists.map(artist => (
-              <div key={artist.id} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '8px' }}>
-                <h3>{artist.name} - {artist.spotify_id}</h3>
-                <p><strong>Database ID:</strong> {artist.id}</p>
-                {artist.genres && artist.genres.length > 0 && (
-                  <div>
-                    <p><strong>Genres ({artist.genres.length}):</strong></p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '10px' }}>
-                      {artist.genres.map((genre, index) => (
-                        <span key={index} style={{ 
-                          backgroundColor: '#e3f2fd', 
-                          padding: '4px 8px', 
-                          borderRadius: '12px', 
-                          fontSize: '11px',
-                          border: '1px solid #2196f3'
-                        }}>
-                          {genre}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <p><strong>Related Artists ({artist.relatedSpotifyIds.length}):</strong></p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginTop: '10px' }}>
-                  {artist.relatedSpotifyIds.map(relatedId => (
-                    <div key={relatedId} style={{ 
-                      backgroundColor: '#e3f2fd', 
-                      padding: '8px', 
-                      borderRadius: '4px', 
-                      fontSize: '12px',
-                      border: '1px solid #2196f3'
+             {/* Related Artists Section */}
+       {expandedSections.relatedArtists && (
+         <div style={{ marginBottom: '30px' }}>
+           <h2 style={{ color: '#064e3b', borderBottom: '2px solid #10b981', paddingBottom: '10px' }}>
+             🔗 Related Artists ({relatedArtists.length})
+           </h2>
+           {relatedArtists.length > 0 ? (
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
+               {relatedArtists.map(related => (
+                 <div key={`${related.artist_id}-${related.spotify_id}`} style={{ 
+                   padding: '12px', 
+                   border: '1px solid #e5e7eb', 
+                   borderRadius: '8px',
+                   backgroundColor: 'white'
+                 }}>
+                   <p style={{ margin: '0 0 5px 0', fontSize: '14px', fontWeight: 'bold', color: '#1f2937' }}>
+                     {related.spotify_id}
+                   </p>
+                   <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
+                     Related to: {festivalArtists.find(a => a.id === related.artist_id)?.name || 'Unknown'}
+                   </p>
+                 </div>
+               ))}
+             </div>
+           ) : (
+             <div style={{ padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #86efac' }}>
+               <p style={{ margin: 0, color: '#064e3b' }}>No related artists loaded yet. Click "Load Related Artists" above.</p>
+             </div>
+           )}
+         </div>
+       )}
+
+               {/* Timetable Entries Section */}
+        {expandedSections.timetableEntries && (
+                   <div style={{ marginBottom: '30px' }}>
+           <h2 style={{ color: '#7c2d12', borderBottom: '2px solid #f97316', paddingBottom: '10px' }}>
+             📅 Festival Timetable ({timetableEntries.length} acts)
+           </h2>
+            {timetableEntries.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '15px' }}>
+                {timetableEntries.map(entry => {
+                  // Find related artists for this timetable entry
+                  const entryRelatedArtists = relatedArtists.filter(ra => ra.artist_id === entry.artist_id)
+                  const userRelatedMatches = entryRelatedArtists.filter(ra => 
+                    userSpotifyArtists.some(ua => ua.spotify_id === ra.spotify_id)
+                  )
+                  
+                  return (
+                    <div key={entry.id} style={{ 
+                      padding: '15px', 
+                      border: userRelatedMatches.length > 0 ? '2px solid #f59e0b' : '1px solid #e5e7eb', 
+                      borderRadius: '8px',
+                      backgroundColor: userRelatedMatches.length > 0 ? '#fef7ed' : 'white'
                     }}>
-                      {relatedId}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                        <h3 style={{ margin: 0, fontSize: '16px', color: '#1f2937' }}>
+                          {entry.artist?.name || 'Unknown Artist'}
+                        </h3>
+                        <span style={{ 
+                          fontSize: '12px', 
+                          padding: '4px 8px', 
+                          borderRadius: '12px',
+                          backgroundColor: '#fef3c7',
+                          color: '#92400e'
+                        }}>
+                          {entry.start_time} - {entry.end_time}
+                        </span>
+                      </div>
+                      
+                      <div style={{ 
+                        padding: '6px 10px', 
+                        backgroundColor: '#f0fdf4', 
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        color: '#064e3b',
+                        marginBottom: '8px'
+                      }}>
+                        📅 {entry.day} | 🎪 {entry.stage}
+                      </div>
+                      
+                      {entry.artist?.spotify_id && (
+                        <p style={{ margin: '5px 0', fontSize: '12px', color: '#6b7280' }}>
+                          Spotify ID: {entry.artist.spotify_id}
+                        </p>
+                      )}
+                      
+                      {/* Show related artists that match user's Spotify artists */}
+                      {userRelatedMatches.length > 0 && (
+                        <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 'bold', color: '#92400e' }}>
+                            🔗 Related to your artists ({userRelatedMatches.length}):
+                          </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                            {userRelatedMatches.map((related, index) => {
+                              const userArtist = userSpotifyArtists.find(ua => ua.spotify_id === related.spotify_id)
+                              return (
+                                <span key={index} style={{ 
+                                  backgroundColor: '#fef3c7', 
+                                  padding: '4px 8px', 
+                                  borderRadius: '8px', 
+                                  fontSize: '11px',
+                                  border: '1px solid #f59e0b',
+                                  fontWeight: 'bold'
+                                }}>
+                                  {userArtist?.name || related.spotify_id}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Show all related artists */}
+                      {entryRelatedArtists.length > 0 && (
+                        <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 'bold', color: '#6b7280' }}>
+                            🔗 All related artists ({entryRelatedArtists.length}):
+                          </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                            {entryRelatedArtists.slice(0, 5).map((related, index) => (
+                              <span key={index} style={{ 
+                                backgroundColor: '#f3f4f6', 
+                                padding: '2px 6px', 
+                                borderRadius: '6px', 
+                                fontSize: '10px',
+                                border: '1px solid #d1d5db'
+                              }}>
+                                {related.spotify_id}
+                              </span>
+                            ))}
+                            {entryRelatedArtists.length > 5 && (
+                              <span style={{ fontSize: '10px', color: '#6b7280' }}>
+                                +{entryRelatedArtists.length - 5} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {entry.artist?.genres && entry.artist.genres.length > 0 && (
+                        <div style={{ marginTop: '10px' }}>
+                          <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 'bold', color: '#6b7280' }}>
+                            🎵 Genres:
+                          </p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                            {entry.artist.genres.slice(0, 5).map((genre, index) => (
+                              <span key={index} style={{ 
+                                backgroundColor: '#fef7ed', 
+                                padding: '2px 6px', 
+                                borderRadius: '8px', 
+                                fontSize: '10px',
+                                border: '1px solid #f97316'
+                              }}>
+                                {genre}
+                              </span>
+                            ))}
+                            {entry.artist.genres.length > 5 && (
+                              <span style={{ fontSize: '10px', color: '#6b7280' }}>
+                                +{entry.artist.genres.length - 5} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
-            <p>No festival artists loaded yet. Click the button above to load them from Supabase.</p>
+            ) : (
+              <div style={{ padding: '20px', backgroundColor: '#fef7ed', borderRadius: '8px', border: '1px solid #fbbf24' }}>
+                <p style={{ margin: 0, color: '#7c2d12' }}>No timetable entries loaded yet. Click "Load Timetable" above.</p>
+              </div>
+            )}
           </div>
         )}
-      </div>
-      
-      {/* Debug Info */}
-      <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-        <h3>🔍 Debug Info</h3>
-        <p><strong>Authenticated:</strong> {isAuthenticated ? '✅ Yes' : '❌ No'}</p>
-        <p><strong>Top Artists:</strong> {topArtists ? `✅ ${topArtists.length} artists` : '❌ Not loaded'}</p>
-        <p><strong>Top Tracks:</strong> {topTracks ? `✅ ${topTracks.length} tracks` : '❌ Not loaded'}</p>
-        <p><strong>User Spotify IDs:</strong> {getUserSpotifyIds().length}</p>
-        <p><strong>User Artists with Related:</strong> {userSpotifyArtists.length}</p>
-        <p><strong>Festival Data:</strong> {festivalData ? '✅ Loaded' : '❌ Not loaded'}</p>
-        <p><strong>Festival Artists:</strong> {getFestivalArtists().length}</p>
-        <p><strong>Festival Artists with Related:</strong> {allFestivalArtists.length}</p>
-        <p><strong>Loading:</strong> {loading ? '🔄 Yes' : '✅ No'}</p>
-        <p><strong>Loading Festival:</strong> {loadingFestival ? '🔄 Yes' : '✅ No'}</p>
-        <p><strong>Matches Found:</strong> {matches.length}</p>
-        <p><strong>Loading Matches:</strong> {loadingMatches ? '🔄 Yes' : '✅ No'}</p>
-      </div>
+
+             {/* Personal Timetable Section */}
+       {expandedSections.matches && (
+         <div style={{ marginBottom: '30px' }}>
+           <h2 style={{ color: '#7f1d1d', borderBottom: '2px solid #ef4444', paddingBottom: '10px' }}>
+             🎵 Your Personal Timetable ({matches.length} acts)
+           </h2>
+           {matches.length > 0 ? (
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '15px' }}>
+               {matches.map((match, index) => (
+                 <div key={index} style={{ 
+                   padding: '15px', 
+                   border: '2px solid',
+                   borderColor: getStrengthColor(match.strength),
+                   borderRadius: '8px',
+                   backgroundColor: 'white',
+                   position: 'relative'
+                 }}>
+                   <div style={{ 
+                     position: 'absolute', 
+                     top: '-10px', 
+                     left: '15px', 
+                     backgroundColor: 'white',
+                     padding: '0 8px',
+                     fontSize: '12px',
+                     fontWeight: 'bold',
+                     color: getStrengthColor(match.strength)
+                   }}>
+                     {getStrengthEmoji(match.strength)} {match.strength.toUpperCase()} ({match.score}pts)
+                   </div>
+                   
+                   <div style={{ marginTop: '10px' }}>
+                     <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', color: '#1f2937' }}>
+                       {match.timetableEntry?.artist?.name || 'Unknown Artist'}
+                     </h3>
+                     
+                     <div style={{ 
+                       padding: '8px 12px', 
+                       backgroundColor: '#f0fdf4', 
+                       borderRadius: '6px',
+                       fontSize: '14px',
+                       color: '#064e3b',
+                       marginBottom: '10px',
+                       fontWeight: 'bold'
+                     }}>
+                       📅 {match.timetableEntry?.day} at {match.timetableEntry?.start_time} | 🎪 {match.timetableEntry?.stage}
+                     </div>
+                     
+                     <p style={{ margin: '8px 0', fontSize: '14px', color: '#374151', fontStyle: 'italic' }}>
+                       {match.reason}
+                     </p>
+                     
+                     {match.type === 'genre' && match.sharedGenres && (
+                       <div style={{ marginTop: '10px' }}>
+                         <p style={{ margin: '5px 0', fontSize: '12px', color: '#6b7280' }}>Shared genres:</p>
+                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                           {match.sharedGenres.map((genre, idx) => (
+                             <span key={idx} style={{ 
+                               backgroundColor: '#fef3c7', 
+                               padding: '2px 6px', 
+                               borderRadius: '6px', 
+                               fontSize: '10px',
+                               border: '1px solid #f59e0b'
+                             }}>
+                               {genre}
+                             </span>
+                           ))}
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                 </div>
+               ))}
+             </div>
+           ) : (
+             <div style={{ padding: '20px', backgroundColor: '#fef2f2', borderRadius: '8px', border: '1px solid #fca5a5' }}>
+               <p style={{ margin: 0, color: '#7f1d1d' }}>No personal timetable created yet. Load data and click "Create Personal Timetable" above.</p>
+             </div>
+           )}
+         </div>
+       )}
     </div>
   )
-} 
+}
+
+export { TestRecommendations } 
