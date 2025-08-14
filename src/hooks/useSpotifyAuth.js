@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { UserDataManager } from '../utils/userDataManager'
 
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
@@ -217,9 +218,20 @@ export function useSpotifyAuth() {
       if (response.ok) {
         const data = await response.json()
         setUser(data)
-        // Save to localStorage
+        
+        // Save to localStorage (for caching)
         localStorage.setItem('spotify_user_profile', JSON.stringify(data))
         localStorage.setItem('spotify_user_profile_timestamp', Date.now().toString())
+        
+        // Save to Supabase
+        try {
+          const savedProfile = await UserDataManager.saveSpotifyProfile(data)
+          console.log('User profile saved to Supabase:', savedProfile)
+        } catch (supabaseError) {
+          console.error('Failed to save profile to Supabase:', supabaseError)
+          // Don't throw error - localStorage fallback is still available
+        }
+        
         return data
       } else {
         throw new Error('Failed to fetch user profile')
@@ -244,9 +256,22 @@ export function useSpotifyAuth() {
       if (response.ok) {
         const data = await response.json()
         setTopTracks(data.items)
-        // Save to localStorage
+        
+        // Save to localStorage (for caching)
         localStorage.setItem('spotify_top_tracks', JSON.stringify(data.items))
         localStorage.setItem('spotify_top_tracks_timestamp', Date.now().toString())
+        
+        // Save to Supabase if we have a user profile
+        if (user?.id) {
+          try {
+            const savedTracks = await UserDataManager.saveTopTracks(user.id, data.items, timeRange)
+            console.log('Top tracks saved to Supabase:', savedTracks.length)
+          } catch (supabaseError) {
+            console.error('Failed to save top tracks to Supabase:', supabaseError)
+            // Don't throw error - localStorage fallback is still available
+          }
+        }
+        
         return data.items
       } else {
         throw new Error('Failed to fetch top tracks')
@@ -258,7 +283,7 @@ export function useSpotifyAuth() {
     } finally {
       setLoading(false)
     }
-  }, [getValidAccessToken])
+  }, [getValidAccessToken, user?.id])
 
   const fetchTopArtists = useCallback(async (timeRange = 'medium_term', limit = 50) => {
     try {
@@ -273,9 +298,22 @@ export function useSpotifyAuth() {
       if (response.ok) {
         const data = await response.json()
         setTopArtists(data.items)
-        // Save to localStorage
+        
+        // Save to localStorage (for caching)
         localStorage.setItem('spotify_top_artists', JSON.stringify(data.items))
         localStorage.setItem('spotify_top_artists_timestamp', Date.now().toString())
+        
+        // Save to Supabase if we have a user profile
+        if (user?.id) {
+          try {
+            const savedArtists = await UserDataManager.saveTopArtists(user.id, data.items, timeRange)
+            console.log('Top artists saved to Supabase:', savedArtists.length)
+          } catch (supabaseError) {
+            console.error('Failed to save top artists to Supabase:', supabaseError)
+            // Don't throw error - localStorage fallback is still available
+          }
+        }
+        
         return data.items
       } else {
         throw new Error('Failed to fetch top artists')
@@ -287,7 +325,7 @@ export function useSpotifyAuth() {
     } finally {
       setLoading(false)
     }
-  }, [getValidAccessToken])
+  }, [getValidAccessToken, user?.id])
 
   const fetchUserData = useCallback(async () => {
     try {
