@@ -615,18 +615,6 @@ footer {
   display: none;
 }
 
-/* Hit The City Header Styles */
-#masthead {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
 /* Adjust main app to account for fixed header */
 .main__app {
   padding-top: 80px; /* Adjust based on header height */
@@ -642,10 +630,6 @@ footer {
 @media (max-width: 768px) {
   .main__app {
     padding-top: 60px; /* Smaller padding for mobile */
-  }
-  
-  #masthead {
-    background: rgba(255, 255, 255, 0.98);
   }
 }
 
