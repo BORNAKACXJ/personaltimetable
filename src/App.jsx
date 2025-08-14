@@ -400,27 +400,32 @@ function App() {
           <div className="nav navbar-nav navbar-main navbar-nav-first">
             <ul id="menu-hoofdmenu" className="menu-primary-inner menu-smart sm" role="menu" data-smartmenus-id="17551600275673013">
               <li role="menuitem" id="menu-item-3595" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-3595 menu-item-link">
-                <a href="https://hitthecity-festival.nl/" className="cursor-init">Home<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/" className="cursor-init">Home</a>
               </li>
               <li role="menuitem" id="menu-item-3589" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3589 menu-item-link">
-                <a href="https://hitthecity-festival.nl/line-up/" className="cursor-init">Line up<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/line-up/" className="cursor-init">Line up</a>
               </li>
               <li role="menuitem" id="menu-item-101" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-101 menu-item-link">
-                <a href="https://hitthecity-festival.nl/venues/" className="cursor-init">Venues<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/venues/" className="cursor-init">Venues</a>
               </li>
               <li role="menuitem" id="menu-item-104" className="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-86 current_page_item menu-item-104 active menu-item-link">
-                <a href="https://hitthecity-festival.nl/news/" className="cursor-init">News<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/news/" className="cursor-init">News</a>
               </li>
               <li role="menuitem" id="menu-item-3080" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3080 menu-item-link">
-                <a href="https://hitthecity-festival.nl/getting-there/" className="cursor-init">Getting there<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/getting-there/" className="cursor-init">Getting there</a>
               </li>
               <li role="menuitem" id="menu-item-3099" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3099 menu-item-link">
-                <a href="https://hitthecity-festival.nl/faq/" className="cursor-init">FAQ<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/faq/" className="cursor-init">FAQ</a>
               </li>
               <li role="menuitem" id="menu-item-833" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-833 menu-item-link">
-                <a href="https://hitthecity-festival.nl/about-us/" className="cursor-init">About us<i className="fa fa-angle-right fa-dropdown"></i></a>
+                <a href="https://hitthecity-festival.nl/about-us/" className="cursor-init">About us</a>
               </li>
             </ul>
+          </div>
+          
+          {/* Mobile-only Home Link */}
+          <div className="nav__mobile-home">
+            <a href="https://hitthecity-festival.nl/" className="nav__mobile-home-link">Go to Home</a>
           </div>
           
           {/* Social Icons - Right */}
@@ -444,20 +449,6 @@ function App() {
               <a href="https://timesquare.app.link/khPMjMyJ6jb?_p=c21530dc990261eee31c86e3e0b4" className="social-menu-link cursor-init" role="button" target="_blank">
                 <i className="fa fa-text-width" role="presentation"></i>
               </a>
-            </li>
-            <li role="menuitem" className="menu-item-link search-icon style-light dropdown">
-              <a href="#" className="trigger-overlay search-icon cursor-init highlighted" role="button" data-area="search" data-container="box-container" aria-label="Search">
-                <i className="fa fa-search3"></i>
-                <span className="desktop-hidden"><span>Search</span></span>
-                <i className="fa fa-angle-down fa-dropdown desktop-hidden"></i>
-              </a>
-              <ul role="menu" className="drop-menu desktop-hidden open-animated">
-                <li role="menuitem">
-                  <form className="search" method="get" action="https://hitthecity-festival.nl/">
-                    <input type="search" className="search-field no-livesearch" placeholder="Search…" value="" name="s" title="Search…" />
-                  </form>
-                </li>
-              </ul>
             </li>
           </ul>
         </div>

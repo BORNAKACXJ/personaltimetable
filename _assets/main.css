@@ -319,7 +319,7 @@ header .section__margin {
 	color: #333;
 	text-decoration: none;
 	font-size: 14px;
-	font-weight: 500;
+	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 	transition: color 0.2s ease;
@@ -409,6 +409,11 @@ header .section__margin {
 }
 
 .desktop-hidden {
+	display: none;
+}
+
+/* Hide mobile home link on desktop */
+.nav__mobile-home {
 	display: none;
 }
 
@@ -662,6 +667,29 @@ main {
 	/* Hide social icons on mobile */
 	.menu-smart-social {
 		display: none;
+	}
+
+	/* Show mobile home link on mobile */
+	.nav__mobile-home {
+		display: block;
+	}
+
+	.nav__mobile-home-link {
+		color: #333;
+		text-decoration: none;
+		font-size: 14px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		padding: 8px 16px;
+		border: 2px solid #333;
+		border-radius: 4px;
+		transition: all 0.2s ease;
+	}
+
+	.nav__mobile-home-link:hover {
+		background: #333;
+		color: white;
 	}
 
 	/* Hide desktop view toggle on mobile */
