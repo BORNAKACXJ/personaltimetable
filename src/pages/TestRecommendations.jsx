@@ -226,135 +226,76 @@ export function TestRecommendations() {
     })
   }
 
-  // Load related artists from Spotify API
-  const loadRelatedArtists = async () => {
+  // Load user artists directly from Spotify data (no related artists)
+  const loadUserArtists = async () => {
     if (!isAuthenticated || !topArtists || !topTracks) {
       console.log('❌ Not authenticated or no data available')
       return
     }
 
     setLoading(true)
-    console.log('📊 Loading related artists from Spotify API...')
+    console.log('📊 Loading user artists directly from Spotify data...')
     
     const userArtists = []
-    const allUserSpotifyIds = getUserSpotifyIds()
     
-    console.log(`🎵 Processing ${allUserSpotifyIds.length} Spotify artists...`)
+    // Process top artists
+    if (topArtists) {
+      topArtists.forEach((artist, index) => {
+        userArtists.push({
+          id: artist.id,
+          name: artist.name,
+          spotify_id: artist.id,
+          genres: artist.genres || [],
+          rank: index + 1,
+          source: 'top_artists'
+        })
+      })
+    }
     
-    // Process ALL user Spotify artists
-    for (const spotifyId of allUserSpotifyIds) {
-      try {
-        // Add sleep to avoid rate limiting (200ms between requests)
-        await new Promise(resolve => setTimeout(resolve, 200))
-        
-        // Get related artists from Spotify API
-        const accessToken = localStorage.getItem('spotify_access_token')
-        if (!accessToken) {
-          console.error('❌ No Spotify access token found')
-          continue
+    // Process top tracks (get unique artists)
+    if (topTracks) {
+      const trackArtists = new Map()
+      topTracks.forEach((track, index) => {
+        const artist = track.artists[0]
+        if (!trackArtists.has(artist.id)) {
+          trackArtists.set(artist.id, {
+            id: artist.id,
+            name: artist.name,
+            spotify_id: artist.id,
+            genres: artist.genres || [],
+            rank: index + 1,
+            source: 'top_tracks'
+          })
         }
-        
-        const response = await fetch(`https://api.spotify.com/v1/artists/${spotifyId}/related-artists`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-        
-        if (!response.ok) {
-          console.error(`❌ Error fetching related artists for ${spotifyId}:`, response.status, response.statusText)
-          continue
+      })
+      
+      // Add track artists that aren't already in top artists
+      trackArtists.forEach((artist) => {
+        if (!userArtists.find(a => a.spotify_id === artist.spotify_id)) {
+          userArtists.push(artist)
         }
-        
-        const relatedData = await response.json()
-        const relatedSpotifyIds = relatedData.artists ? relatedData.artists.map(a => a.id) : []
-        
-        // Get artist details to get genres
-        const artistResponse = await fetch(`https://api.spotify.com/v1/artists/${spotifyId}`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-        
-        let genres = []
-        if (artistResponse.ok) {
-          const artistData = await artistResponse.json()
-          genres = artistData.genres || []
-        }
-        
-        // Get genres for related artists too
-        const relatedArtistsWithGenres = []
-        for (const relatedId of relatedSpotifyIds) {
-          try {
-            // Add small delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 50))
-            
-            const relatedArtistResponse = await fetch(`https://api.spotify.com/v1/artists/${relatedId}`, {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`
-              }
-            })
-            
-            if (relatedArtistResponse.ok) {
-              const relatedArtistData = await relatedArtistResponse.json()
-              relatedArtistsWithGenres.push({
-                id: relatedId,
-                name: relatedArtistData.name,
-                genres: relatedArtistData.genres || []
-              })
-            }
-          } catch (error) {
-            console.error(`❌ Error fetching genres for related artist ${relatedId}:`, error)
-          }
-        }
-        
-        // Try to get artist name from topArtists or topTracks, or use ID as fallback
-        let artistName = spotifyId
-        if (topArtists) {
-          const topArtist = topArtists.find(a => a.id === spotifyId)
-          if (topArtist) artistName = topArtist.name
-        }
-        if (topTracks && artistName === spotifyId) {
-          const topTrack = topTracks.find(t => t.artists[0].id === spotifyId)
-          if (topTrack) artistName = topTrack.artists[0].name
-        }
-        
-        const artistData = {
-          id: spotifyId,
-          name: artistName,
-          spotify_id: spotifyId,
-          relatedSpotifyIds: relatedSpotifyIds,
-          relatedArtists: relatedArtistsWithGenres, // Add related artists with genres
-          genres: genres, // Add genres to the artist data
-          source: 'all_user_artists'
-        }
-        
-        userArtists.push(artistData)
-        
-        if (relatedSpotifyIds.length > 0) {
-          console.log(`✅ Artist ${artistName} (${spotifyId}): ${relatedSpotifyIds.length} related artists, ${genres.length} genres`)
-          console.log(`📊 Related artists with genres: ${relatedArtistsWithGenres.length}/${relatedSpotifyIds.length} fetched`)
-        } else {
-          console.log(`❌ Artist ${artistName} (${spotifyId}): No related artists found, ${genres.length} genres`)
-        }
-      } catch (error) {
-        console.error(`❌ Error processing artist ${spotifyId}:`, error)
-      }
+      })
     }
     
     setUserSpotifyArtists(userArtists)
     
     // Save to localStorage
-    localStorage.setItem('user_spotify_artists_with_related', JSON.stringify(userArtists))
+    localStorage.setItem('user_spotify_artists_direct', JSON.stringify(userArtists))
     localStorage.setItem('user_spotify_artists_timestamp', Date.now().toString())
     
-    console.log('📊 All user Spotify artists loaded and saved to localStorage:', userArtists.length)
+    console.log('📊 User artists loaded directly from Spotify data:', userArtists.length)
+    console.log('📊 Breakdown:', {
+      topArtists: topArtists?.length || 0,
+      topTracks: topTracks?.length || 0,
+      uniqueArtists: userArtists.length
+    })
     setLoading(false)
   }
 
   // Load cached data on component mount
   useEffect(() => {
     // Load cached user artists data
-    const cachedUserData = localStorage.getItem('user_spotify_artists_with_related')
+    const cachedUserData = localStorage.getItem('user_spotify_artists_direct')
     const userTimestamp = localStorage.getItem('user_spotify_artists_timestamp')
     
     if (cachedUserData && userTimestamp) {
@@ -524,11 +465,11 @@ export function TestRecommendations() {
         )}
       </div>
 
-      {/* Load Related Artists Button */}
+      {/* Load User Artists Button */}
       {isAuthenticated && (
         <div style={{ marginBottom: '40px' }}>
           <button 
-            onClick={loadRelatedArtists}
+            onClick={loadUserArtists}
             disabled={loading}
             style={{
               padding: '15px 30px',
@@ -542,22 +483,23 @@ export function TestRecommendations() {
               marginRight: '20px'
             }}
           >
-            {loading ? '🔄 Loading Related Artists...' : '🎵 Load Related Artists from Spotify API'}
+            {loading ? '🔄 Loading User Artists...' : '👤 Load User Artists from Spotify Data'}
           </button>
           <p style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-            This will fetch related artists and their genres for all your Spotify artists with rate limiting.
+            This will load your top artists and track artists directly from your Spotify data (no API calls).
           </p>
         </div>
       )}
 
-      {/* User Artists with Related Artists Section */}
+      {/* User Artists Section */}
       <div style={{ marginBottom: '40px' }}>
-        <h2>👤 Your Spotify Artists with Related Artists ({userSpotifyArtists.length})</h2>
+        <h2>👤 Your Spotify Artists ({userSpotifyArtists.length})</h2>
         {userSpotifyArtists.length > 0 ? (
           <div>
             {userSpotifyArtists.map(artist => (
               <div key={artist.id} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '8px' }}>
                 <h3>{artist.name} - {artist.spotify_id}</h3>
+                <p><strong>Source:</strong> {artist.source} {artist.rank && `(#${artist.rank})`}</p>
                 {artist.genres && artist.genres.length > 0 && (
                   <div>
                     <p><strong>Genres ({artist.genres.length}):</strong></p>
@@ -576,64 +518,12 @@ export function TestRecommendations() {
                     </div>
                   </div>
                 )}
-                <p><strong>Related Artists ({artist.relatedSpotifyIds.length}):</strong></p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', marginTop: '10px' }}>
-                  {artist.relatedArtists && artist.relatedArtists.length > 0 ? (
-                    artist.relatedArtists.map(relatedArtist => (
-                      <div key={relatedArtist.id} style={{ 
-                        backgroundColor: '#f0f0f0', 
-                        padding: '8px', 
-                        borderRadius: '4px', 
-                        fontSize: '12px',
-                        border: '1px solid #ccc'
-                      }}>
-                        <div><strong>{relatedArtist.name}</strong></div>
-                        <div style={{ fontSize: '10px', color: '#666' }}>{relatedArtist.id}</div>
-                        {relatedArtist.genres && relatedArtist.genres.length > 0 && (
-                          <div style={{ marginTop: '4px' }}>
-                            <div style={{ fontSize: '10px', color: '#666', marginBottom: '2px' }}>Genres:</div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px' }}>
-                              {relatedArtist.genres.slice(0, 3).map((genre, index) => (
-                                <span key={index} style={{ 
-                                  backgroundColor: '#e8f5e8', 
-                                  padding: '2px 4px', 
-                                  borderRadius: '8px', 
-                                  fontSize: '9px',
-                                  border: '1px solid #4caf50'
-                                }}>
-                                  {genre}
-                                </span>
-                              ))}
-                              {relatedArtist.genres.length > 3 && (
-                                <span style={{ fontSize: '9px', color: '#666' }}>
-                                  +{relatedArtist.genres.length - 3} more
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    artist.relatedSpotifyIds.map(relatedId => (
-                      <div key={relatedId} style={{ 
-                        backgroundColor: '#f0f0f0', 
-                        padding: '8px', 
-                        borderRadius: '4px', 
-                        fontSize: '12px',
-                        border: '1px solid #ccc'
-                      }}>
-                        {relatedId}
-                      </div>
-                    ))
-                  )}
-                </div>
               </div>
             ))}
           </div>
         ) : (
           <div style={{ padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeaa7' }}>
-            <p>No related artists loaded yet. Click the button above to load them from Spotify API.</p>
+            <p>No user artists loaded yet. Click the button above to load them from your Spotify data.</p>
           </div>
         )}
       </div>
