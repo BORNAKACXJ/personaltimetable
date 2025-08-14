@@ -112,6 +112,8 @@ export function useCachedFestivalData() {
                 date: day.date,
                 start_time: day.start_time,
                 end_time: day.end_time,
+                pdf_cta_text: day.pdf_cta_text,
+                pdf_download_link: day.pdf_download_link,
                 stages: dayData ? dayData.stages.map(stage => ({
                   id: stage.name,
                   name: stage.name,

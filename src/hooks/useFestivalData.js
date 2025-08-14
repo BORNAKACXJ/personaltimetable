@@ -57,7 +57,7 @@ export function useFestivalData() {
       // Fetch festival days using edition_id
       const { data: daysData, error: daysError } = await supabase
         .from('festival_days')
-        .select('*')
+        .select('*, pdf_cta_text, pdf_download_link')
         .eq('edition_id', EDITION_ID)
         .order('date')
 
