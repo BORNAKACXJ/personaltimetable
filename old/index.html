@@ -28,7 +28,32 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     
-
+    <!-- Block hitthecity-festival.nl domain and subdomains -->
+    <script>
+      if (window.location.hostname === 'hitthecity-festival.nl' || window.location.hostname.includes('hitthecity-festival.nl')) {
+        // Create a black overlay that covers everything
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'black';
+        overlay.style.zIndex = '999999';
+        overlay.style.pointerEvents = 'none';
+        
+        // Insert the overlay at the very beginning
+        document.documentElement.insertBefore(overlay, document.documentElement.firstChild);
+        
+        // Also make body black as backup
+        document.body.style.backgroundColor = 'black';
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.body.style.width = '100vw';
+        document.body.style.height = '100vh';
+        document.body.style.overflow = 'hidden';
+      }
+    </script>
     
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

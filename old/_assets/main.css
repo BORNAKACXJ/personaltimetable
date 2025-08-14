@@ -287,129 +287,22 @@ header.header__fixed {
 header .section__margin {
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
+	justify-content: center;
 
 	padding: 24px;
 }
 
-.festival__logo--header {
-	flex: 0 0 auto;
+.festival__logo--header,
+.nav__type--header {
+	flex: 1 1 0;
 }
 
-/* Main Navigation Styles */
-.navbar-nav {
-	display: flex;
-	align-items: center;
-}
-
-.menu-primary-inner {
-	display: flex;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	gap: 32px;
-}
-
-.menu-primary-inner li {
-	position: relative;
-}
-
-.menu-primary-inner a {
-	color: #333;
-	text-decoration: none;
-	font-size: 14px;
-	font-weight: 500;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	transition: color 0.2s ease;
-}
-
-.menu-primary-inner a:hover {
-	color: var(--purple);
-}
-
-.menu-primary-inner .fa-dropdown {
-	margin-left: 4px;
-	font-size: 12px;
-}
-
-/* Social Icons Styles */
-.menu-smart-social {
-	display: flex;
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	gap: 16px;
-	align-items: center;
-}
-
-.menu-smart-social li {
-	position: relative;
-}
-
-.social-menu-link {
-	color: #333;
-	text-decoration: none;
-	font-size: 16px;
-	transition: color 0.2s ease;
+.header__title {
+	flex: 2 1 0;
+	text-align: center;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 4px;
-}
-
-.social-menu-link:hover {
-	color: var(--purple);
-}
-
-.search-icon a {
-	color: #333;
-	text-decoration: none;
-	font-size: 16px;
-	transition: color 0.2s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 4px;
-}
-
-.search-icon a:hover {
-	color: var(--purple);
-}
-
-/* Dropdown menu styles */
-.drop-menu {
-	position: absolute;
-	top: 100%;
-	left: 0;
-	background: white;
-	border: 1px solid #eee;
-	border-radius: 4px;
-	padding: 8px 0;
-	min-width: 200px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-	z-index: 1000;
-}
-
-.drop-menu .search {
-	padding: 8px 12px;
-}
-
-.search-field {
-	width: 100%;
-	padding: 8px 12px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	font-size: 14px;
-}
-
-.desktop-hidden {
-	display: none;
 }
 
 .festival__logo--header img {
@@ -418,7 +311,13 @@ header .section__margin {
 	margin-bottom: -12px;
 }
 
-
+.nav__type--header {
+	display: flex;
+	flex-direction: row;
+	gap:8px;
+	align-items: center;
+	justify-content: flex-end;
+}
 
 /* FOOTER */
 
@@ -568,21 +467,12 @@ main {
 }
 
 /* Hide all timeline view buttons globally */
-
-
-/* Show desktop button on desktop, hide mobile button on desktop */
-.btn__second--desktop {
-	display: block !important;
-	visibility: visible !important;
-	opacity: 1 !important;
-	position: relative !important;
-	left: auto !important;
-	width: auto !important;
-	height: auto !important;
-	overflow: visible !important;
-}
-
-.btn__second--mobile {
+#view-toggle,
+.btn__second--desktop,
+.btn__second--mobile,
+.timetable__nav--head .btn__second--desktop,
+.timetable__nav--head #view-toggle,
+.timetable__nav--head button.btn__second {
 	display: none !important;
 	visibility: hidden !important;
 	opacity: 0 !important;
@@ -644,23 +534,30 @@ main {
 	}
 
 	header .section__margin {
-		flex-direction: column;
-		padding: 16px;
+		flex-direction: row;
+		padding:16px;
 		gap: 16px;
+		flex-wrap: wrap;
+	}
+
+	.festival__logo--header, .nav__type--header, .nav__type--header--mobile {
+		width: 50%;
+	}
+
+	.header__title {
+		width: 100%;
+		order: 3;
+	}
+
+	.nav__type--header--mobile {
+		display: flex;
+		flex-direction: row;
+		gap:8px;
 		align-items: center;
+		justify-content: flex-end;
 	}
 
-	.festival__logo--header {
-		width: auto;
-	}
-
-	/* Hide main navigation on mobile */
-	.navbar-nav {
-		display: none;
-	}
-
-	/* Hide social icons on mobile */
-	.menu-smart-social {
+	.nav__type--header {
 		display: none;
 	}
 
@@ -678,8 +575,8 @@ main {
 		overflow: hidden !important;
 	}
 
-	/* Show mobile button on mobile, hide desktop button on mobile */
-	.btn__second--desktop {
+	/* Hide mobile view toggle on mobile */
+	.btn__second--mobile {
 		display: none !important;
 		visibility: hidden !important;
 		opacity: 0 !important;
@@ -690,16 +587,6 @@ main {
 		overflow: hidden !important;
 	}
 
-	.btn__second--mobile {
-		display: block !important;
-		visibility: visible !important;
-		opacity: 1 !important;
-		position: relative !important;
-		left: auto !important;
-		width: auto !important;
-		height: auto !important;
-		overflow: visible !important;
-	}
 
 
 }

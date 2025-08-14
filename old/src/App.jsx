@@ -395,71 +395,19 @@ function App() {
           <div className="festival__logo--header">
             <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
           </div>
-          
-          {/* Main Navigation Menu - Center */}
-          <div className="nav navbar-nav navbar-main navbar-nav-first">
-            <ul id="menu-hoofdmenu" className="menu-primary-inner menu-smart sm" role="menu" data-smartmenus-id="17551600275673013">
-              <li role="menuitem" id="menu-item-3595" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-3595 menu-item-link">
-                <a href="https://hitthecity-festival.nl/" className="cursor-init">Home<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-              <li role="menuitem" id="menu-item-3589" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3589 menu-item-link">
-                <a href="https://hitthecity-festival.nl/line-up/" className="cursor-init">Line up<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-              <li role="menuitem" id="menu-item-101" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-101 menu-item-link">
-                <a href="https://hitthecity-festival.nl/venues/" className="cursor-init">Venues<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-              <li role="menuitem" id="menu-item-104" className="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-86 current_page_item menu-item-104 active menu-item-link">
-                <a href="https://hitthecity-festival.nl/news/" className="cursor-init">News<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-              <li role="menuitem" id="menu-item-3080" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3080 menu-item-link">
-                <a href="https://hitthecity-festival.nl/getting-there/" className="cursor-init">Getting there<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-              <li role="menuitem" id="menu-item-3099" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3099 menu-item-link">
-                <a href="https://hitthecity-festival.nl/faq/" className="cursor-init">FAQ<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-              <li role="menuitem" id="menu-item-833" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-833 menu-item-link">
-                <a href="https://hitthecity-festival.nl/about-us/" className="cursor-init">About us<i className="fa fa-angle-right fa-dropdown"></i></a>
-              </li>
-            </ul>
+          <div className="header__title font__size--sub">
+            {festival.name} - Timetable 2025
           </div>
-          
-          {/* Social Icons - Right */}
-          <ul className="menu-smart sm menu-icons menu-smart-social" role="menu" data-smartmenus-id="17551600275681838">
-            <li role="menuitem" className="menu-item-link social-icon social-124702">
-              <a href="https://www.facebook.com/hitthecity" className="social-menu-link cursor-init" role="button" target="_blank">
-                <i className="fa fa-facebook" role="presentation"></i>
-              </a>
-            </li>
-            <li role="menuitem" className="menu-item-link social-icon social-461359">
-              <a href="https://www.instagram.com/hitthecity.festival/" className="social-menu-link cursor-init" role="button" target="_blank">
-                <i className="fa fa-instagram" role="presentation"></i>
-              </a>
-            </li>
-            <li role="menuitem" className="menu-item-link social-icon social-609829">
-              <a href="https://open.spotify.com/playlist/2gLSUZTTVgiR4wgmqJAJPg?si=777cc8b187b14a40" className="social-menu-link cursor-init" role="button" target="_blank">
-                <i className="fa fa-spotify" role="presentation"></i>
-              </a>
-            </li>
-            <li role="menuitem" className="menu-item-link social-icon social-122047">
-              <a href="https://timesquare.app.link/khPMjMyJ6jb?_p=c21530dc990261eee31c86e3e0b4" className="social-menu-link cursor-init" role="button" target="_blank">
-                <i className="fa fa-text-width" role="presentation"></i>
-              </a>
-            </li>
-            <li role="menuitem" className="menu-item-link search-icon style-light dropdown">
-              <a href="#" className="trigger-overlay search-icon cursor-init highlighted" role="button" data-area="search" data-container="box-container" aria-label="Search">
-                <i className="fa fa-search3"></i>
-                <span className="desktop-hidden"><span>Search</span></span>
-                <i className="fa fa-angle-down fa-dropdown desktop-hidden"></i>
-              </a>
-              <ul role="menu" className="drop-menu desktop-hidden open-animated">
-                <li role="menuitem">
-                  <form className="search" method="get" action="https://hitthecity-festival.nl/">
-                    <input type="search" className="search-field no-livesearch" placeholder="Search…" value="" name="s" title="Search…" />
-                  </form>
-                </li>
-              </ul>
-            </li>
-          </ul>
+          <div className="nav__type--header">
+            <a 
+              href="https://hitthecity-festival.nl/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="nav__home-link"
+            >
+              Go to Home
+            </a>
+          </div>
         </div>
       </header>
 
@@ -659,21 +607,6 @@ function App() {
                       month: 'long'
                     })}
                   </div>
-                  
-                  {/* Mobile view toggle button */}
-                  <button 
-                    className={`btn__second btn__second--mobile ${currentView === 'list' ? 'active' : ''}`}
-                    onClick={() => {
-                      const newView = currentView === 'timeline' ? 'list' : 'timeline';
-                      setCurrentView(newView);
-                      trackViewChange(newView);
-                    }}
-                  >
-                    <span>
-                      <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
-                      {currentView === 'timeline' ? 'list' : 'timeline'}
-                    </span>
-                  </button>
                 </div>
               </div>
             </div>
@@ -800,16 +733,16 @@ function App() {
             </div>
             
             {/* PDF Download Link - positioned after both timetable views */}
-            {currentDayData.pdf_download_link && (
+            {edition && edition.pdf_download_link && (
               <div className="timetable__pdf-download">
                 <a 
-                  href={currentDayData.pdf_download_link}
+                  href={edition.pdf_download_link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn__pdf-download"
                 >
                   <i className="fa-sharp fa-solid fa-download"></i>
-                  {currentDayData.pdf_cta_text || 'Download PDF'}
+                  {edition.pdf_cta_text || 'Download PDF'}
                 </a>
               </div>
             )}

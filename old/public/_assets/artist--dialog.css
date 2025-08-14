@@ -1,0 +1,311 @@
+/* Artist Dialog Styles */
+.artist-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.artist-dialog.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.artist-dialog__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.artist-dialog__content {
+  position: relative;
+  background: white;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+  padding: 8px;
+}
+
+.artist-dialog.active .artist-dialog__content {
+  transform: scale(1) translateY(0);
+}
+
+.artist-dialog__header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.artist-dialog__artist-info {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.artist-dialog__image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.artist-dialog__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.artist-dialog__name-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.artist-dialog__name-section h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.2;
+}
+
+.artist-dialog__spotify-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1DB954;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.artist-dialog__spotify-link:hover {
+  color: #1ed760;
+}
+
+.artist-dialog__spotify-link i {
+  font-size: 16px;
+}
+
+.artist-dialog__recommendation {
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.artist-dialog__recommendation-content {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.artist-dialog__album-art {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.artist-dialog__album-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.artist-dialog__album-art span {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.artist-dialog__genre-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.artist-dialog__genre-info > span {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+}
+
+.artist-dialog__spotify-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.artist-dialog__spotify-badge i {
+  color: #1DB954;
+}
+
+.artist-dialog__about {
+  padding: 20px 24px;
+  border-bottom: none;
+}
+
+.artist-dialog__about h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.artist-dialog__about p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.artist-dialog__event-details {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.artist-dialog__event-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.artist-dialog__event-info span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.artist-dialog__event-times {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+}
+
+.artist-dialog__event-times span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.artist-dialog__close-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: #A35C9D;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.artist-dialog__close-btn:hover {
+  background: #8a4a84;
+}
+
+/* Mobile responsive styles for dialog */
+@media screen and (max-width: 768px) {
+  .artist-dialog__content {
+    width: 95%;
+    max-height: 95vh;
+    margin: 10px;
+  }
+
+  .artist-dialog__header {
+    padding: 20px 20px 12px 20px;
+  }
+
+  .artist-dialog__artist-info {
+    gap: 12px;
+  }
+
+  .artist-dialog__image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .artist-dialog__name-section h2 {
+    font-size: 20px;
+  }
+
+  .artist-dialog__recommendation {
+    padding: 12px 20px;
+  }
+
+  .artist-dialog__recommendation-content {
+    gap: 12px;
+  }
+
+  .artist-dialog__album-art {
+    width: 50px;
+    height: 50px;
+  }
+
+  .artist-dialog__genre-info > span {
+    font-size: 16px;
+  }
+
+  .artist-dialog__about {
+    padding: 16px 20px;
+  }
+
+  .artist-dialog__about h3 {
+    font-size: 13px;
+  }
+
+  .artist-dialog__about p {
+    font-size: 13px;
+  }
+
+  .artist-dialog__event-details {
+    padding: 12px 20px;
+  }
+
+  .artist-dialog__event-info span,
+  .artist-dialog__event-times span {
+    font-size: 13px;
+  }
+
+  .artist-dialog__close-btn {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
