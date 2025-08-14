@@ -5,6 +5,7 @@ import { useSpotifyRecommendations } from './hooks/useSpotifyRecommendations'
 import { ArtistDialog } from './components/ArtistDialog'
 import { TimelineView } from './components/TimelineView'
 import { SpotifyCallback } from './components/SpotifyCallback'
+import { Header } from './components/Header'
 import { Api } from './pages/Api'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
@@ -390,6 +391,7 @@ function App() {
 
   return (
     <div className="main__app">
+      <Header />
       <header className="header__fixed bg--white">
         <div className="section__margin">
           <div className="festival__logo--header">
