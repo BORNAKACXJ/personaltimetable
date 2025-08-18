@@ -61,7 +61,34 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
         
         {/* Mobile-only Home Link */}
         <div className="nav__mobile-home">
-          <a href="https://hitthecity-festival.nl/" className="nav__mobile-home-link">Go to Home</a>
+          {isPersonalTimetable ? (
+            <div className="nav__mobile-home-link" style={{
+              background: 'linear-gradient(135deg, #8B5CF6, #C4B5FD)',
+              color: 'white',
+              padding: '6px 12px',
+              borderRadius: '4px',
+              textAlign: 'center',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 8px rgba(139, 92, 246, 0.25)'
+            }}>
+              {currentUserName ? `User: ${currentUserName}` : `User ID: ${currentUserId}`}
+            </div>
+          ) : (
+            <a href="/connect-spotify" className="nav__mobile-home-link" style={{
+              background: 'linear-gradient(135deg, #1DB954, #1ed760)',
+              color: 'white',
+              padding: '6px 12px',
+              borderRadius: '4px',
+              textAlign: 'center',
+              textDecoration: 'none',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 8px rgba(29, 185, 84, 0.25)'
+            }}>
+              🎵 Connect with Spotify
+            </a>
+          )}
         </div>
         
         {/* Social Icons - Right */}

@@ -1,23 +1,23 @@
 /* ConnectSpotify Page Styles */
 .connect-spotify-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+ 
   padding: 40px 20px;
 }
 
 .connect-spotify-page .container {
   max-width: 800px;
   margin: 0 auto;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  
+  color: white;
+ 
   overflow: hidden;
 }
 
 .connect-spotify-page .header {
-  background: linear-gradient(135deg, #1DB954, #1ed760);
+  
   color: white;
-  padding: 40px;
+  padding: 0px;
   text-align: center;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .connect-spotify-page .back-link {
-  color: rgba(255, 255, 255, 0.8);
+  
   text-decoration: none;
   font-size: 1rem;
   display: inline-block;
@@ -37,9 +37,7 @@
   transition: color 0.2s ease;
 }
 
-.connect-spotify-page .back-link:hover {
-  color: white;
-}
+
 
 .connect-spotify-page .content {
   padding: 40px;
@@ -53,12 +51,12 @@
 .connect-step h2 {
   font-size: 2rem;
   margin-bottom: 20px;
-  color: #333;
+  
 }
 
 .connect-step p {
   font-size: 1.1rem;
-  color: #666;
+  
   margin-bottom: 40px;
   line-height: 1.6;
 }
@@ -230,6 +228,10 @@
   margin-top: 20px;
   font-family: monospace;
   font-size: 0.9rem;
+}
+
+.debug-section {
+  color: black;
 }
 
 /* Error Message */
