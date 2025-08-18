@@ -174,8 +174,8 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
 
             {artist.recommendation.matchType === 'direct' && ' TOP ARTISTS'}
                   {artist.recommendation.matchType === 'related' && ' RELATED ARTISTS'}
-                  {artist.recommendation.matchType === 'genre' && ' GENRE'}
-                  {artist.recommendation.matchType === 'genre_light' && ' GENRE'}
+                                      {artist.recommendation.matchType === 'genre' && ' GENRE'}
+                    {artist.recommendation.matchType === 'genre_light' && ' GENRE (LIGHT)'}
 
             </h3>
             
@@ -186,7 +186,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                 <div className="related-artists-grid">
                   {artist.recommendation.detailedMatches.map((match, index) => (
                     <div key={index} className="related-artist-item">
-                      {match.type === 'genre' ? (
+                      {match.type === 'genre' || artist.recommendation.matchType === 'genre' || artist.recommendation.matchType === 'genre_light' ? (
                         // Genre match display
                         <>
                           <div className="genre-badge">
@@ -194,7 +194,9 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                           </div>
                           <div className="related-artist-info">
                             <div className="related-artist-name">{match.name}</div>
-                            <div className="related-artist-strength">_Genre</div>
+                            <div className="related-artist-strength">
+                              {artist.recommendation.matchType === 'genre_light' ? '_Genre Light' : '_Genre'}
+                            </div>
                           </div>
                         </>
                       ) : (
