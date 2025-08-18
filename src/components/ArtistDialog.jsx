@@ -175,7 +175,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
             {artist.recommendation.matchType === 'direct' && ' TOP ARTISTS'}
                   {artist.recommendation.matchType === 'related' && ' RELATED ARTISTS'}
                                       {artist.recommendation.matchType === 'genre' && ' GENRE'}
-                    {artist.recommendation.matchType === 'genre_light' && ' GENRE (LIGHT)'}
+                    {artist.recommendation.matchType === 'genre_light' && ' GENRE'}
 
             </h3>
             

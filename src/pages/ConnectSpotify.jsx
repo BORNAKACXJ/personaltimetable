@@ -223,7 +223,7 @@ export default function ConnectSpotify() {
       case 'success':
         return (
           <div className="success-step">
-            <h2>✅ Successfully Connected!</h2>
+            <h2>Successfully Connected!</h2>
             <p>We've successfully connected to your Spotify account.</p>
             
             <div className="user-data">
