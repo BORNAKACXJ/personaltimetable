@@ -250,24 +250,25 @@
 
 .related-artists-grid {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
 }
 
 .related-artist-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: #F9FAFB;
-  border-radius: 8px;
-  border: 1px solid #E5E7EB;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 0px;
+    
+    border-radius: 8px;
+    
+    flex-direction: column;
 }
 
 .related-artist-image {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
+  border-radius: 2px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -294,9 +295,10 @@
 }
 
 .related-artist-strength {
-  font-size: 12px;
+  font-size: 10px;
   color: #6B7280;
   font-weight: 500;
+  font-family: monospace;
 }
 
 .match-detail {
@@ -306,6 +308,29 @@
   color: #6B7280;
   margin-bottom: 4px;
   padding: 4px 0;
+}
+
+/* Genre Badge */
+.genre-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.genre-name {
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  padding: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 

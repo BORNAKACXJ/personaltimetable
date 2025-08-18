@@ -179,44 +179,46 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
 
             </h3>
             
-            {/* Match Score */}
-            <div className="recommendation-score">
-              Match Score: {artist.recommendation.matchScore}%
-            </div>
-            
-            {/* Match Details */}
-            {artist.recommendation.matchDetails && artist.recommendation.matchDetails.length > 0 && (
-              <div className="artist-dialog__recommendation-details">
-                {artist.recommendation.matchDetails.map((detail, index) => (
-                  <span key={index} className="match-detail">{detail}</span>
-                ))}
-              </div>
-            )}
-            
             {/* Related Artists with Images */}
             {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
               <div className="related-artists-section">
-                <h4>Related Artists:</h4>
+                
                 <div className="related-artists-grid">
                   {artist.recommendation.detailedMatches.map((match, index) => (
                     <div key={index} className="related-artist-item">
-                      <div className="related-artist-image">
-                        <img 
-                          src={match.image_url || '/_assets/_images/default-artist.png'} 
-                          alt={match.name}
-                          onError={(e) => {
-                            e.target.src = '/_assets/_images/default-artist.png'
-                          }}
-                        />
-                      </div>
-                      <div className="related-artist-info">
-                        <div className="related-artist-name">{match.name}</div>
-                        <div className="related-artist-strength">
-                          {match.rel_strength === 'heavy' && 'Strong Match'}
-                          {match.rel_strength === 'medium' && 'Medium Match'}
-                          {match.rel_strength === 'light' && 'Light Match'}
-                        </div>
-                      </div>
+                      {match.type === 'genre' ? (
+                        // Genre match display
+                        <>
+                          <div className="genre-badge">
+                            <span className="genre-name">{match.name}</span>
+                          </div>
+                          <div className="related-artist-info">
+                            <div className="related-artist-name">{match.name}</div>
+                            <div className="related-artist-strength">_Genre</div>
+                          </div>
+                        </>
+                      ) : (
+                        // Related artist match display
+                        <>
+                          <div className="related-artist-image">
+                            <img 
+                              src={match.image_url || '/_assets/_images/default-artist.png'} 
+                              alt={match.name}
+                              onError={(e) => {
+                                e.target.src = '/_assets/_images/default-artist.png'
+                              }}
+                            />
+                          </div>
+                          <div className="related-artist-info">
+                            <div className="related-artist-name">{match.name}</div>
+                            <div className="related-artist-strength">
+                              {match.rel_strength === 'heavy' && '_Strong'}
+                              {match.rel_strength === 'medium' && '_Medium'}
+                              {match.rel_strength === 'light' && '_Light'}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
