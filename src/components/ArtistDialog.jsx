@@ -162,7 +162,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         </div>
         
         {/* Recommendation section */}
-        {artist.recommendation && (
+        {artist.recommendation && artist.recommendation.matchType && artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
           <div 
             className="artist-dialog__recommendation artist-dialog__recommendation--animate"
             style={{
