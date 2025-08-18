@@ -162,7 +162,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         </div>
         
         {/* Recommendation section */}
-        {artist.recommendation && artist.recommendation.matchType && artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
+        {artist.recommendation && artist.recommendation.matchType && (
           <div 
             className="artist-dialog__recommendation artist-dialog__recommendation--animate"
             style={{
@@ -179,7 +179,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
 
             </h3>
             
-            {/* Related Artists with Images */}
+            {/* Related Artists with Images - Only show if there are detailed matches */}
             {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
               <div className="related-artists-section">
                 
