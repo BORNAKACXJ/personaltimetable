@@ -12,6 +12,8 @@ export default function ConnectSpotify() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [profileId, setProfileId] = useState(null)
+  const [selectedHeadline, setSelectedHeadline] = useState('')
+  const [generatedSummary, setGeneratedSummary] = useState('')
 
   // Spotify OAuth configuration
   const CLIENT_ID = getSpotifyClientId()
@@ -133,6 +135,7 @@ export default function ConnectSpotify() {
       setError(null)
       setStep('loading')
 
+      // TEMPORARILY COMMENTED OUT FOR STYLING WORK
       // If user already has a profile, use it; otherwise create one
       let newProfileId = await checkExistingProfile(authUser?.id || spotifyUser?.id)
       if (!newProfileId) {
@@ -189,10 +192,8 @@ export default function ConnectSpotify() {
       setProfileId(newProfileId)
       setStep('complete')
 
-      // Redirect to personal timetable after a short delay
-      setTimeout(() => {
-        window.location.href = `/t/${newProfileId}`
-      }, 2000)
+      // TEMPORARY: Just stay on loading step for styling work
+      console.log('Loading step reached - staying here for styling work')
 
     } catch (err) {
       setError(err.message)
@@ -206,81 +207,92 @@ export default function ConnectSpotify() {
     switch (step) {
       case 'connect':
         return (
-          <div className="connect-step">
-            <h2>Connect Your Spotify Account</h2>
-            <p>To create your personal timetable, we need to connect to your Spotify account to see your music preferences.</p>
+          <div className="step__wrapper connect-step">
+            <div className='font__size--headline'>Connect Your Spotify Account</div>
+            <div className="generated__summary font__size--body">Hit The City is here! With 100+ emerging and established live acts, there is so much to see and to discover. But where to go? To help you a little bit, we created a tool that gives you personal advice based on your music taste.
+
+Connect with Spotify to create your timetable. Let's go!</div>
             <button 
               onClick={connectSpotify}
               disabled={loading}
               className="spotify-connect-btn"
             >
-              {loading ? 'Connecting...' : '🎵 Connect with Spotify'}
+              <img src="/_assets/_images/spotify_icon.svg" alt="Spotify" />
+              {loading ? 'Connecting...' : 'Connect with Spotify'}
             </button>
             {error && <div className="error-message">{error}</div>}
           </div>
         )
 
       case 'success':
-        return (
-          <div className="success-step">
-            <h2>Successfully Connected!</h2>
-            <p>We've successfully connected to your Spotify account.</p>
-            
-            <div className="user-data">
-              <h3>Your Top 5 Artists</h3>
-              <div className="artists-list">
-                {topArtists.map((artist, index) => (
-                  <div key={artist.id} className="artist-item">
-                    <img src={artist.images[0]?.url} alt={artist.name} />
-                    <div>
-                      <h4>{index + 1}. {artist.name}</h4>
-                      <p>{artist.genres?.slice(0, 2).join(', ')}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        // Generate personalized headline based on top artists (only once)
+        if (!selectedHeadline) {
+          const artist01 = topArtists[0]?.name || '';
+          const artist02 = topArtists[1]?.name || '';
+          const artist03 = topArtists[2]?.name || '';
+          const artist04 = topArtists[3]?.name || '';
 
-              <h3>Your Top 5 Tracks</h3>
-              <div className="tracks-list">
-                {topTracks.map((track, index) => (
-                  <div key={track.id} className="track-item">
-                    <img src={track.album.images[0]?.url} alt={track.name} />
-                    <div>
-                      <h4>{index + 1}. {track.name}</h4>
-                      <p>{track.artists[0]?.name}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          const headlines = [
+            `Ah.. also a huge ${artist01} lover?`,
+            `Oeh.. hello big ${artist01} fan!`,
+            `I see.. you are that ${artist01} fan!`
+          ];
+
+          const randomHeadline = headlines[Math.floor(Math.random() * headlines.length)];
+          const generatedSummary = `Let's find some of that and also some ${artist02}, ${artist03} and ${artist04} energy at HtC 2025`;
+          
+          setSelectedHeadline(randomHeadline);
+          setGeneratedSummary(generatedSummary);
+        }
+
+        return (
+
+          <div className='step__wrapper success-step'>
+          
+            
+            <div className='font__size--headline'>{selectedHeadline}</div>
+            <div className="generated__summary font__size--body">{generatedSummary}</div>
+            
+           
 
             <button 
               onClick={createPersonalTimetable}
               className="create-timetable-btn"
             >
-              Yes, let's create personal timetable
+              Create your personal timetable
             </button>
+          
           </div>
         )
 
       case 'loading':
         return (
-          <div className="loading-step">
-            <h2>Creating Your Personal Timetable</h2>
+
+          <div className='step__wrapper loading-step'>
             <div className="loading-spinner"></div>
-            <p>Saving your music preferences and generating recommendations...</p>
+            <div className='font__size--headline'>We are working on it!</div>
+            <div className="generated__summary font__size--body">This can take<br />
+							up to 20 seconds..<br />
+							<br />
+							Please don't<br />
+							close this page</div>
+            
+            
           </div>
         )
 
       case 'complete':
         return (
-          <div className="complete-step">
-            <h2>🎉 Personal Timetable Created!</h2>
-            <p>Your personal timetable has been created successfully!</p>
-            <p>Redirecting you to your personalized experience...</p>
-            <div className="profile-id">
-              <strong>Profile ID:</strong> {profileId}
-            </div>
+          <div className="step__wrapper complete-step">
+            <div className='font__size--headline'>Done!</div>
+            <div className="generated__summary font__size--body">Your personal timetable has been created successfully!</div>
+           
+            <button 
+              onClick={() => window.location.href = `/t/${profileId}`}
+              className="create-timetable-btn"
+            >
+              Go to My Personal Timetable
+            </button>
           </div>
         )
 
@@ -292,13 +304,17 @@ export default function ConnectSpotify() {
   return (
     <div className="connect-spotify-page">
       <div className="container">
-        <div className="header">
-          <a href="/" className="back-link">← Back to Timetable</a>
-          <h1>Create Your Personal Timetable</h1>
+        <div className="header__onboarding">
+          <div className="header__onboarding--title">LET’S CREATE YOUR PERSONAL TIMETABLE</div>
+         
         </div>
 
         <div className="content">
           {renderStep()}
+
+          <div className="onboarding__footer">
+            <a href="/" className="back__link">Back to Timetable</a>
+          </div>
           
           {/* Debug Section */}
           <div className="debug-section" style={{ marginTop: '40px', padding: '20px', background: '#f8f9fa', borderRadius: '8px' }}>

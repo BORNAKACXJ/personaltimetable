@@ -252,6 +252,8 @@
   display: flex;
   flex-direction: row;
   gap: 12px;
+  margin-right: -24px;
+  overflow-x: auto;
 }
 
 .related-artist-item {
@@ -263,11 +265,12 @@
     border-radius: 8px;
     
     flex-direction: column;
+    flex: 0 0 80px;
 }
 
 .related-artist-image {
-  width: 48px;
-  height: 48px;
+  width: 72px;
+  height: 72px;
   border-radius: 2px;
   overflow: hidden;
   flex-shrink: 0;
@@ -282,6 +285,7 @@
 .related-artist-info {
   flex: 1;
   min-width: 0;
+  text-transform: capitalize;
 }
 
 .related-artist-name {
@@ -289,7 +293,7 @@
   font-weight: 600;
   color: #374151;
   margin-bottom: 4px;
-  white-space: nowrap;
+  
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -299,6 +303,7 @@
   color: #6B7280;
   font-weight: 500;
   font-family: monospace;
+  display: none;
 }
 
 .match-detail {
@@ -312,10 +317,10 @@
 
 /* Genre Badge */
 .genre-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 2px;
-  background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+  width: 72px;
+  height: 72px;
+  border-radius: 5px;
+  background: var(--purpler);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -331,12 +336,13 @@
   padding: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transform: skew(0deg, -16deg);
 }
 
 /* Direct Match Badge */
 .direct-match-badge {
-  width: 48px;
-  height: 48px;
+  width: 72px;
+  height: 72px;
   border-radius: 2px;
   background: linear-gradient(135deg, #F59E0B, #FCD34D);
   display: flex;

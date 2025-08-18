@@ -203,13 +203,17 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                         // Direct match display
                         <>
                           <div className="direct-match-badge">
-                            <span className="direct-match-icon">★</span>
+                            <span className="direct-match-icon">
+                              {match.positions?.artist_position ? `#${match.positions.artist_position}` : 
+                               match.positions?.track_position ? `#${match.positions.track_position}` : 
+                               '★'}
+                            </span>
                           </div>
                           <div className="related-artist-info">
                             <div className="related-artist-name">{match.name}</div>
                             <div className="related-artist-strength">
-                              {match.artist_position && `_Top Artist #${match.artist_position}`}
-                              {match.track_position && `_Top Track #${match.track_position}`}
+                              {match.positions?.artist_position && `_Top Artist #${match.positions.artist_position}`}
+                              {match.positions?.track_position && `_Top Track #${match.positions.track_position}`}
                             </div>
                           </div>
                         </>

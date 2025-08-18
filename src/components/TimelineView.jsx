@@ -328,7 +328,9 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                         <span>{act.name}</span>
                         {isRecommended && recommendation && (
                           <span className={getIndicatorClass(recommendation.matchType)}>
-                            {recommendation.matchType === 'direct' ? '★' :
+                            {recommendation.matchType === 'direct' ? 
+                              (recommendation.positions?.artist_position ? `#${recommendation.positions.artist_position}` :
+                               recommendation.positions?.track_position ? `#${recommendation.positions.track_position}` : '★') :
                              recommendation.matchType === 'related' ? '◆' :
                              recommendation.matchType === 'genre' ? '●' :
                              recommendation.matchType === 'genre_light' ? '○' : '•'}

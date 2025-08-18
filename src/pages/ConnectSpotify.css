@@ -1,17 +1,33 @@
 /* ConnectSpotify Page Styles */
 .connect-spotify-page {
   min-height: 100vh;
- 
-  padding: 40px 20px;
+  height: 100%;
+  
+
+  font-family: "neue-haas-grotesk-text", sans-serif;
+  font-weight: 400;
 }
 
 .connect-spotify-page .container {
-  max-width: 800px;
   margin: 0 auto;
-  
   color: white;
- 
-  overflow: hidden;
+  height: 100%;
+}
+
+.header__onboarding {
+  position: relative;
+  width: 100%;
+  
+}
+
+.connect-spotify-page .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  margin-top: 100px;
 }
 
 .connect-spotify-page .header {
@@ -28,25 +44,33 @@
   margin-bottom: 10px;
 }
 
-.connect-spotify-page .back-link {
+.onboarding__footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 24px;
+}
+
+
+.back__link {
   
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 14px;
   display: inline-block;
-  margin-bottom: 20px;
+ 
   transition: color 0.2s ease;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 2;
 }
 
-
-
-.connect-spotify-page .content {
-  padding: 40px;
+.back__link:hover {
+  border-bottom: 1px solid var(--white);
 }
+
 
 /* Connect Step */
-.connect-step {
-  text-align: center;
-}
+
 
 .connect-step h2 {
   font-size: 2rem;
@@ -62,21 +86,31 @@
 }
 
 .spotify-connect-btn {
-  background: linear-gradient(135deg, #1DB954, #1ed760);
-  color: white;
-  border: none;
-  padding: 16px 32px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(29, 185, 84, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0px 16px;
+  padding-left: 12px;
+  border-radius: 2px;
+  width: max-content;
+  color: #ffffff;
+  background-color: var(--purple);
+
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 400;
+
+  font-size: 14px;
+  line-height: 40px;
+}
+
+.spotify-connect-btn img {
+  width: 24px;
+  height: 24px;
 }
 
 .spotify-connect-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(29, 185, 84, 0.4);
+  background-color: var(--purple);
 }
 
 .spotify-connect-btn:disabled {
@@ -84,10 +118,19 @@
   cursor: not-allowed;
 }
 
-/* Success Step */
-.success-step {
-  text-align: center;
+.step__wrapper {
+  padding: 24px;
+  background-color: white;
+  color: var(--purple);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  max-width: 320px;
+  margin: 0 auto;
 }
+
+
 
 .success-step h2 {
   font-size: 2rem;
@@ -95,10 +138,10 @@
   
 }
 
-.success-step > p {
-  font-size: 1.1rem;
-  
-  margin-bottom: 40px;
+.generated__summary {
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 600;
 }
 
 .user-data {
@@ -155,27 +198,26 @@
 }
 
 .create-timetable-btn {
-  background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+  background-color: black;
   color: white;
   border: none;
   padding: 16px 32px;
+  padding-bottom: 14px;
   font-size: 1.2rem;
   font-weight: bold;
-  border-radius: 50px;
+  border-radius: 0px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .create-timetable-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(139, 92, 246, 0.4);
+  background-color:var(--purple);
 }
 
 /* Loading Step */
-.loading-step {
-  text-align: center;
-}
+
 
 .loading-step h2 {
   font-size: 2rem;
@@ -205,9 +247,7 @@
 }
 
 /* Complete Step */
-.complete-step {
-  text-align: center;
-}
+
 
 .complete-step h2 {
   font-size: 2rem;
@@ -232,6 +272,7 @@
 
 .debug-section {
   color: black;
+  display: none;  
 }
 
 /* Error Message */
@@ -242,6 +283,14 @@
   border-radius: 8px;
   margin-top: 20px;
   border: 1px solid #fcc;
+}
+
+.font__size--headline {
+font-size: 32px;
+line-height: 1;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+font-weight: 600;
 }
 
 /* Mobile Responsiveness */

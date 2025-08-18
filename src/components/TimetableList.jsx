@@ -183,7 +183,9 @@ export function TimetableList({
                         <span>{act.name}</span>
                         {isRecommended && recommendation && (
                           <span className={getIndicatorClass(recommendation.matchType)}>
-                            {recommendation.matchType === 'direct' ? '★ Direct' :
+                            {recommendation.matchType === 'direct' ? 
+                              (recommendation.positions?.artist_position ? `#${recommendation.positions.artist_position} Direct` :
+                               recommendation.positions?.track_position ? `#${recommendation.positions.track_position} Direct` : '★ Direct') :
                              recommendation.matchType === 'related' ? '◆ Related' :
                              recommendation.matchType === 'genre' ? '● Genre' :
                              recommendation.matchType === 'genre_light' ? '○ Genre Light' : '• Recommended'}

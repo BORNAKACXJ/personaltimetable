@@ -64,6 +64,15 @@ function App() {
   // Toggle state for showing only recommended acts
   const [showOnlyRecommended, setShowOnlyRecommended] = useState(false)
 
+  // Set default filter based on whether we're viewing a personal timetable
+  useEffect(() => {
+    const userId = getUserFromUrl()
+    // If we're viewing a personal timetable, default to "my timetable" view
+    if (userId) {
+      setShowOnlyRecommended(true)
+    }
+  }, [window.location.pathname])
+
   // 3. All useEffect hooks
   useEffect(() => {
     // Track page view on app load
