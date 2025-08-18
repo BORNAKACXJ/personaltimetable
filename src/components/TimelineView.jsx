@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Heart } from 'lucide-react'
 import { isFavorited } from '../utils/favorites'
+import './TimelineView.css'
 
 // Utility: "12:00" → 720
 function timeToMinutes(timeStr) {
@@ -227,29 +228,75 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
             const startCol = timeToColumnIndex(act.start_time, timeRange.start, timeMarkers)
             const endCol = timeToColumnIndex(act.end_time, timeRange.start, timeMarkers)
 
-            // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
+            // Check if this act is recommended - match API recommendation structure
             const isRecommended = act.artist && act.artist.spotify_id && recommendations.some(rec => {
-              // rec.artist.id is from Spotify API, act.artist.spotify_id is from Supabase
-              return rec.artist.id === act.artist.spotify_id
+              return rec.artist.spotify_id === act.artist.spotify_id
             })
-            const recommendation = isRecommended ? recommendations.find(rec => rec.artist.id === act.artist.spotify_id) : null
+            const recommendation = isRecommended ? recommendations.find(rec => rec.artist.spotify_id === act.artist.spotify_id) : null
 
-            stageElements.push(
-              <div
-                key={act.id}
-                className={`event-card ${isRecommended ? 'event-card--recommended' : ''}`}
-                style={{
-                  gridArea: `${actsRow} / ${startCol} / auto / ${endCol}`,
-                  animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
-                  cursor: 'pointer',
-                  backgroundColor: isRecommended ? '#e8f5e8' : undefined,
-                  border: isRecommended ? '2px solid #1DB954' : undefined,
-                  boxShadow: isRecommended ? '0 2px 8px rgba(29, 185, 84, 0.3)' : undefined
-                }}
-                onClick={() => onArtistClick(act)}
-              >
-                <div className="act__wrapper">
-                  <div className="act__info">
+            // Get CSS class based on match type
+            const getMatchTypeClass = (matchType) => {
+              switch (matchType) {
+                case 'direct':
+                  return 'match__type--direct'
+                case 'related':
+                  return 'match__type--relevant-artist'
+                case 'genre':
+                  return 'match__type--genre'
+                case 'genre_light':
+                  return 'match__type--genre-light'
+                default:
+                  return 'match__type--nomatch'
+              }
+            }
+
+            // Get indicator class based on match type
+            const getIndicatorClass = (matchType) => {
+              switch (matchType) {
+                case 'direct':
+                  return 'match-indicator match-indicator--direct'
+                case 'related':
+                  return 'match-indicator match-indicator--relevant-artist'
+                case 'genre':
+                  return 'match-indicator match-indicator--genre'
+                case 'genre_light':
+                  return 'match-indicator match-indicator--genre-light'
+                default:
+                  return 'match-indicator'
+              }
+            }
+
+            // Get details class based on match type
+            const getDetailsClass = (matchType) => {
+              switch (matchType) {
+                case 'direct':
+                  return 'match-details match-details--direct'
+                case 'related':
+                  return 'match-details match-details--relevant-artist'
+                case 'genre':
+                  return 'match-details match-details--genre'
+                case 'genre_light':
+                  return 'match-details match-details--genre-light'
+                default:
+                  return 'match-details match-details--nomatch'
+              }
+            }
+
+                                        stageElements.push(
+                <div
+                  key={act.id}
+                  className={`event-card ${isRecommended ? 'event-card--recommended' : ''}`}
+                  style={{
+                    gridArea: `${actsRow} / ${startCol} / auto / ${endCol}`,
+                    animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => onArtistClick(act)}
+                >
+                  <div className="act__wrapper">
+                    <div 
+                      className={`act__info ${recommendation ? getMatchTypeClass(recommendation.matchType) : 'match__type--nomatch'}`}
+                    >
                     <div className="act__name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {isFavorited(act) && (
@@ -261,27 +308,24 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                           />
                         )}
                         <span>{act.name}</span>
-                        {isRecommended && (
-                          <span style={{ 
-                            fontSize: '0.7em', 
-                            color: '#1DB954', 
-                            marginLeft: '4px',
-                            fontWeight: 'bold'
-                          }}>
-                            ★
+                        {isRecommended && recommendation && (
+                          <span className={getIndicatorClass(recommendation.matchType)}>
+                            {recommendation.matchType === 'direct' ? '★' :
+                             recommendation.matchType === 'related' ? '◆' :
+                             recommendation.matchType === 'genre' ? '●' :
+                             recommendation.matchType === 'genre_light' ? '○' : '•'}
                           </span>
                         )}
                       </div>
                     </div>
                     <div className="act__time">{formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}</div>
                     {isRecommended && recommendation && (
-                      <div style={{ 
-                        fontSize: '0.7em', 
-                        color: '#666', 
-                        fontStyle: 'italic',
-                        marginTop: '2px'
-                      }}>
-                        {recommendation.reason}
+                      <div className={`match-details ${getDetailsClass(recommendation.matchType)}`}>
+                        {recommendation.matchType === 'direct' ? 'Direct match' :
+                         recommendation.matchType === 'related' ? 'Related artist' :
+                         recommendation.matchType === 'genre' ? 'Genre match' :
+                         recommendation.matchType === 'genre_light' ? 'Genre light match' : 'Recommended'}
+                        {recommendation.matchScore > 0 && ` (${recommendation.matchScore}pts)`}
                       </div>
                     )}
                   </div>

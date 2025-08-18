@@ -1,4 +1,4 @@
-export function AppHeader() {
+export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName, apiRecommendationsLoading, apiRecommendationsError }) {
   return (
     <header className="header__fixed bg--white">
       <div className="section__margin">
@@ -6,32 +6,58 @@ export function AppHeader() {
           <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
         </div>
         
-        {/* Main Navigation Menu - Center */}
-        <div className="nav navbar-nav navbar-main navbar-nav-first">
-          <ul id="menu-hoofdmenu" className="menu-primary-inner menu-smart sm" role="menu" data-smartmenus-id="17551600275673013">
-            <li role="menuitem" id="menu-item-3595" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-3595 menu-item-link">
-              <a href="https://hitthecity-festival.nl/" className="cursor-init">Home</a>
-            </li>
-            <li role="menuitem" id="menu-item-3589" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3589 menu-item-link">
-              <a href="https://hitthecity-festival.nl/line-up/" className="cursor-init">Line up</a>
-            </li>
-            <li role="menuitem" id="menu-item-101" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-101 menu-item-link">
-              <a href="https://hitthecity-festival.nl/venues/" className="cursor-init">Venues</a>
-            </li>
-            <li role="menuitem" id="menu-item-104" className="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-86 current_page_item menu-item-104 active menu-item-link">
-              <a href="https://hitthecity-festival.nl/news/" className="cursor-init">News</a>
-            </li>
-            <li role="menuitem" id="menu-item-3080" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3080 menu-item-link">
-              <a href="https://hitthecity-festival.nl/getting-there/" className="cursor-init">Getting there</a>
-            </li>
-            <li role="menuitem" id="menu-item-3099" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3099 menu-item-link">
-              <a href="https://hitthecity-festival.nl/faq/" className="cursor-init">FAQ</a>
-            </li>
-            <li role="menuitem" id="menu-item-833" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-833 menu-item-link">
-              <a href="https://hitthecity-festival.nl/about-us/" className="cursor-init">About us</a>
-            </li>
-          </ul>
-        </div>
+        {/* Personal Timetable Indicator - Center */}
+        {isPersonalTimetable ? (
+          <div className="nav navbar-nav navbar-main navbar-nav-first">
+            <div style={{
+              background: 'linear-gradient(135deg, #8B5CF6, #C4B5FD)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(139, 92, 246, 0.25)',
+              minWidth: '200px'
+            }}>
+              <div style={{ fontSize: '1rem', fontWeight: 'bold', marginBottom: '2px' }}>
+                Personal Timetable
+              </div>
+              <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>
+                {currentUserName ? `User: ${currentUserName}` : `User ID: ${currentUserId}`}
+              </div>
+              {apiRecommendationsLoading && (
+                <div style={{ fontSize: '0.7rem', marginTop: '4px' }}>
+                  Loading...
+                </div>
+              )}
+              {apiRecommendationsError && (
+                <div style={{ fontSize: '0.7rem', marginTop: '4px', color: '#FECACA' }}>
+                  Error: {apiRecommendationsError}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Connect with Spotify - Center */
+          <div className="nav navbar-nav navbar-main navbar-nav-first">
+            <a 
+              href="/connect-spotify" 
+              style={{
+                background: 'linear-gradient(135deg, #1DB954, #1ed760)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                textAlign: 'center',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                boxShadow: '0 2px 8px rgba(29, 185, 84, 0.25)',
+                minWidth: '200px',
+                display: 'inline-block'
+              }}
+            >
+              🎵 Connect with Spotify
+            </a>
+          </div>
+                )}
         
         {/* Mobile-only Home Link */}
         <div className="nav__mobile-home">

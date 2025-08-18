@@ -140,6 +140,102 @@
   line-height: 1.5;
 }
 
+/* Recommendation section styles */
+.artist-dialog__recommendation {
+  padding: 16px 24px;
+  border-top: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f8f9ff, #f0f2ff);
+}
+
+.artist-dialog__recommendation h3 {
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: normal;
+  margin: 0;
+  margin-bottom: 12px;
+  color: #8B5CF6;
+}
+
+.artist-dialog__recommendation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artist-dialog__recommendation-type {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.recommendation-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recommendation-badge--direct {
+  background: #8B5CF6;
+  color: white;
+}
+
+.recommendation-badge--relevant_artist {
+  background: #C4B5FD;
+  color: white;
+}
+
+.recommendation-badge--genre {
+  background: #DDD6FE;
+  color: #4C1D95;
+}
+
+.recommendation-badge--genre_light {
+  background: #E5E7EB;
+  color: #374151;
+}
+
+.recommendation-score {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+.artist-dialog__recommendation-details {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+}
+
+.artist-dialog__recommendation-details h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #374151;
+}
+
+.artist-dialog__recommendation-details ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.artist-dialog__recommendation-details li {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+.artist-dialog__recommendation--animate {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 
 
 .artist-dialog__performance-info {
@@ -353,6 +449,41 @@
   
   .artist-dialog__bio-fade {
     height: 40px;
+  }
+
+  /* Mobile recommendation styles */
+  .artist-dialog__recommendation {
+    padding: 8px;
+  }
+
+  .artist-dialog__recommendation h3 {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .artist-dialog__recommendation-type {
+    gap: 8px;
+  }
+
+  .recommendation-badge {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .recommendation-score {
+    font-size: 12px;
+  }
+
+  .artist-dialog__recommendation-details {
+    padding: 8px;
+  }
+
+  .artist-dialog__recommendation-details h4 {
+    font-size: 12px;
+  }
+
+  .artist-dialog__recommendation-details li {
+    font-size: 11px;
   }
 
 }

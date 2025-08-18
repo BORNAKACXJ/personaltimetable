@@ -1,7 +1,11 @@
 // Simple test script to check Supabase related_artists table
 // Run with: node test-supabase.js
 
-// You'll need to set these environment variables or replace with actual values
+// Load environment variables
+import dotenv from 'dotenv'
+dotenv.config()
+
+// Use environment variables
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://gcrgokyyeahltyieyugm.supabase.co'
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key-here'
 

@@ -161,7 +161,41 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
           </div>
         </div>
         
-        {/* Recommendation section hidden */}
+        {/* Recommendation section */}
+        {artist.recommendation && (
+          <div 
+            className="artist-dialog__recommendation artist-dialog__recommendation--animate"
+            style={{
+              transform: animationStep >= 4 ? 'translateY(0)' : 'translateY(20px)',
+              opacity: animationStep >= 4 ? 1 : 0
+            }}
+          >
+            <h3>🎵 PERSONAL RECOMMENDATION</h3>
+            <div className="artist-dialog__recommendation-content">
+              <div className="artist-dialog__recommendation-type">
+                <span className={`recommendation-badge recommendation-badge--${artist.recommendation.matchType}`}>
+                  {artist.recommendation.matchType === 'direct' && '★ Direct Match'}
+                  {artist.recommendation.matchType === 'relevant_artist' && '★ Related Artist'}
+                  {artist.recommendation.matchType === 'genre' && '★ Genre Match'}
+                  {artist.recommendation.matchType === 'genre_light' && '★ Genre Light'}
+                </span>
+                <span className="recommendation-score">
+                  Score: {artist.recommendation.matchScore}/100
+                </span>
+              </div>
+              {artist.recommendation.matchDetails && artist.recommendation.matchDetails.length > 0 && (
+                <div className="artist-dialog__recommendation-details">
+                  <h4>Why this artist was recommended:</h4>
+                  <ul>
+                    {artist.recommendation.matchDetails.map((detail, index) => (
+                      <li key={index}>{detail}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         <div 
           className="artist-dialog__about artist-dialog__about--animate"

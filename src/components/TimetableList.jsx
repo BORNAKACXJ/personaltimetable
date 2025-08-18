@@ -1,5 +1,6 @@
 import { Heart } from 'lucide-react'
 import { isFavorited } from '../utils/favorites'
+import './TimelineView.css'
 
 // Format time to display format (remove seconds if present)
 function formatTimeForDisplay(timeStr) {
@@ -84,21 +85,66 @@ export function TimetableList({
               </div>
             ) : (
               sortActsByTime(stage.acts).map((act, actIndex) => {
-                // Check if this act is recommended - match Spotify API 'id' with Supabase 'spotify_id'
+                // Check if this act is recommended - match API recommendation structure
                 const isRecommended = act.artist && act.artist.spotify_id && recommendations.some(rec => {
-                  // rec.artist.id is from Spotify API, act.artist.spotify_id is from Supabase
-                  return rec.artist.id === act.artist.spotify_id
+                  return rec.artist.spotify_id === act.artist.spotify_id
                 })
-                const recommendation = isRecommended ? recommendations.find(rec => rec.artist.id === act.artist.spotify_id) : null
+                const recommendation = isRecommended ? recommendations.find(rec => rec.artist.spotify_id === act.artist.spotify_id) : null
+
+                // Get CSS class based on match type
+                const getMatchTypeClass = (matchType) => {
+                  switch (matchType) {
+                    case 'direct':
+                      return 'match__type--direct'
+                    case 'related':
+                      return 'match__type--relevant-artist'
+                    case 'genre':
+                      return 'match__type--genre'
+                    case 'genre_light':
+                      return 'match__type--genre-light'
+                    default:
+                      return 'match__type--nomatch'
+                  }
+                }
+
+                // Get indicator class based on match type
+                const getIndicatorClass = (matchType) => {
+                  switch (matchType) {
+                    case 'direct':
+                      return 'match-indicator match-indicator--direct'
+                    case 'related':
+                      return 'match-indicator match-indicator--relevant-artist'
+                    case 'genre':
+                      return 'match-indicator match-indicator--genre'
+                    case 'genre_light':
+                      return 'match-indicator match-indicator--genre-light'
+                    default:
+                      return 'match-indicator'
+                  }
+                }
+
+                // Get details class based on match type
+                const getDetailsClass = (matchType) => {
+                  switch (matchType) {
+                    case 'direct':
+                      return 'match-details--direct'
+                    case 'related':
+                      return 'match-details--relevant-artist'
+                    case 'genre':
+                      return 'match-details--genre'
+                    case 'genre_light':
+                      return 'match-details--genre-light'
+                    default:
+                      return 'match-details--nomatch'
+                  }
+                }
                 
                 return (
                   <div 
                     key={act.id} 
-                    className={`list__act ${isRecommended ? 'list__act--recommended' : ''}`}
+                    className={`list__act ${recommendation ? getMatchTypeClass(recommendation.matchType) : 'match__type--nomatch'}`}
                     style={{ 
-                      animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
-                      backgroundColor: isRecommended ? '#e8f5e8' : undefined,
-                      borderLeft: isRecommended ? '4px solid #1DB954' : undefined
+                      animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`
                     }}
                     data-artist={act.name}
                     onClick={() => onArtistClick(act)}
@@ -114,14 +160,12 @@ export function TimetableList({
                           />
                         )}
                         <span>{act.name}</span>
-                        {isRecommended && (
-                          <span style={{ 
-                            fontSize: '0.8em', 
-                            color: '#1DB954', 
-                            marginLeft: '8px',
-                            fontWeight: 'bold'
-                          }}>
-                            ★ RECOMMENDED
+                        {isRecommended && recommendation && (
+                          <span className={getIndicatorClass(recommendation.matchType)}>
+                            {recommendation.matchType === 'direct' ? '★ Direct' :
+                             recommendation.matchType === 'related' ? '◆ Related' :
+                             recommendation.matchType === 'genre' ? '● Genre' :
+                             recommendation.matchType === 'genre_light' ? '○ Genre Light' : '• Recommended'}
                           </span>
                         )}
                       </div>
@@ -130,13 +174,12 @@ export function TimetableList({
                       {formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}
                     </div>
                     {isRecommended && recommendation && (
-                      <div style={{ 
-                        fontSize: '0.8em', 
-                        color: '#666', 
-                        fontStyle: 'italic',
-                        marginTop: '4px'
-                      }}>
-                        {recommendation.reason}
+                      <div className={`match-details ${getDetailsClass(recommendation.matchType)}`}>
+                        {recommendation.matchType === 'direct' ? 'Direct match' :
+                         recommendation.matchType === 'related' ? 'Related artist' :
+                         recommendation.matchType === 'genre' ? 'Genre match' :
+                         recommendation.matchType === 'genre_light' ? 'Genre light match' : 'Recommended'}
+                        {recommendation.matchScore > 0 && ` (${recommendation.matchScore}pts)`}
                       </div>
                     )}
                   </div>

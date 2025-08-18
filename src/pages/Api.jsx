@@ -1,383 +1,129 @@
 import { useState, useEffect } from 'react'
-import { useFestivalData } from '../hooks/useFestivalData'
+import { supabase } from '../lib/supabase'
 
-export function Api() {
-  const { 
-    festival, 
-    festivalDays, 
-    stages, 
-    artists, 
-    acts, 
-    actArtists, 
-    timetableEntries, 
-    loading, 
-    error,
-    getActsByDayAndStage 
-  } = useFestivalData()
-
-  const [apiData, setApiData] = useState(null)
-  const [timeSlotsData, setTimeSlotsData] = useState(null)
-  const [activeTab, setActiveTab] = useState('normal')
-
-  // Helper function to create 2-hour time slots
-  const createTimeSlots = (startTime, endTime) => {
-    const slots = []
-    let currentTime = new Date(`2000-01-01T${startTime}:00`)
-    const endDateTime = new Date(`2000-01-01T${endTime}:00`)
-    
-    // Handle overnight events (end time is before start time)
-    if (endDateTime < currentTime) {
-      endDateTime.setDate(endDateTime.getDate() + 1)
-    }
-    
-    while (currentTime < endDateTime) {
-      const slotStart = currentTime.toTimeString().slice(0, 5)
-      currentTime.setHours(currentTime.getHours() + 2)
-      const slotEnd = currentTime.toTimeString().slice(0, 5)
-      
-      slots.push({
-        start_time: slotStart,
-        end_time: slotEnd,
-        acts: []
-      })
-    }
-    
-    return slots
-  }
-
-  // Helper function to check if an act falls within a time slot
-  const isActInTimeSlot = (act, slotStart, slotEnd) => {
-    const actStart = act.start_time
-    const actEnd = act.end_time
-    
-    // Convert times to minutes for easier comparison
-    const slotStartMinutes = parseInt(slotStart.split(':')[0]) * 60 + parseInt(slotStart.split(':')[1])
-    const slotEndMinutes = parseInt(slotEnd.split(':')[0]) * 60 + parseInt(slotEnd.split(':')[1])
-    const actStartMinutes = parseInt(actStart.split(':')[0]) * 60 + parseInt(actStart.split(':')[1])
-    const actEndMinutes = parseInt(actEnd.split(':')[0]) * 60 + parseInt(actEnd.split(':')[1])
-    
-    // Handle overnight acts
-    if (actEndMinutes < actStartMinutes) {
-      actEndMinutes += 24 * 60
-    }
-    if (slotEndMinutes < slotStartMinutes) {
-      slotEndMinutes += 24 * 60
-    }
-    
-    // Check if act overlaps with slot
-    return actStartMinutes < slotEndMinutes && actEndMinutes > slotStartMinutes
-  }
+export default function Api() {
+  const [artistsData, setArtistsData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!loading && !error && festival) {
-      // Get the acts data once to avoid infinite loops
-      const actsByDay = getActsByDayAndStage()
+    fetchArtistsData()
+  }, [])
+
+  const fetchArtistsData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Fetch artists data from external API
+      const response = await fetch('https://mpt-api.netlify.app/api/artists')
       
-      // Structure the data as requested: day -> stage -> acts -> artist -> artist info
-      const structuredData = {
-        festival: {
-          id: festival.id,
-          name: festival.name,
-          description: festival.description
-        },
-        days: festivalDays.map(day => {
-          const dayData = actsByDay.find(d => d.day.id === day.id)
-          
-          return {
-            id: day.id,
-            name: day.name,
-            date: day.date,
-            start_time: day.start_time,
-            end_time: day.end_time,
-            stages: dayData ? dayData.stages.map(stage => ({
-              id: stage.name, // Using stage name as ID for now
-              name: stage.name,
-              acts: stage.acts.map(act => ({
-                id: act.id,
-                name: act.name,
-                start_time: act.start_time,
-                end_time: act.end_time,
-                artist: act.artist ? {
-                  id: act.artist.id,
-                  name: act.artist.name,
-                  spotify_id: act.artist.spotify_id,
-                  image_url: act.artist.image_url,
-                  spotify_url: act.artist.spotify_url,
-                  genres: act.artist.genres,
-                  popularity: act.artist.popularity,
-                  followers: act.artist.followers,
-                  about: act.artist.about,
-                  bio: act.artist.bio,
-                  social_links: act.artist.social_links,
-                  youtube_embed: act.artist.youtube_embed
-                } : null
-              }))
-            })) : []
-          }
-        })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-
-      setApiData(structuredData)
-
-      // Create time slots data
-      const timeSlotsStructuredData = {
-        festival: {
-          id: festival.id,
-          name: festival.name,
-          description: festival.description
-        },
-        days: festivalDays.map(day => {
-          // Create 2-hour time slots for this day
-          const timeSlots = createTimeSlots(day.start_time, day.end_time)
-          
-          // Get acts for this day
-          const dayData = actsByDay.find(d => d.day.id === day.id)
-          
-          // Populate each time slot with acts
-          timeSlots.forEach(slot => {
-            if (dayData) {
-              dayData.stages.forEach(stage => {
-                stage.acts.forEach(act => {
-                  if (isActInTimeSlot(act, slot.start_time, slot.end_time)) {
-                    slot.acts.push({
-                      id: act.id,
-                      name: act.name,
-                      start_time: act.start_time,
-                      end_time: act.end_time,
-                      stage: stage.name,
-                      artist: act.artist ? {
-                        id: act.artist.id,
-                        name: act.artist.name,
-                        spotify_id: act.artist.spotify_id,
-                        image_url: act.artist.image_url,
-                        spotify_url: act.artist.spotify_url,
-                        genres: act.artist.genres,
-                        popularity: act.artist.popularity,
-                        followers: act.artist.followers,
-                        about: act.artist.about,
-                        bio: act.artist.bio,
-                        social_links: act.artist.social_links,
-                        youtube_embed: act.artist.youtube_embed
-                      } : null
-                    })
-                  }
-                })
-              })
-            }
-          })
-          
-          return {
-            id: day.id,
-            name: day.name,
-            date: day.date,
-            start_time: day.start_time,
-            end_time: day.end_time,
-            time_slots: timeSlots
-          }
-        })
-      }
-
-      setTimeSlotsData(timeSlotsStructuredData)
+      
+      const data = await response.json()
+      setArtistsData(data)
+      
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-  }, [loading, error, festival, festivalDays])
+  }
+
+  const copyToClipboard = () => {
+    if (artistsData) {
+      navigator.clipboard.writeText(JSON.stringify(artistsData, null, 2))
+        .then(() => alert('JSON copied to clipboard!'))
+        .catch(err => console.error('Failed to copy:', err))
+    }
+  }
 
   if (loading) {
     return (
-      <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-        <h1>Festival API</h1>
-        <p>Loading festival data...</p>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">API Data</h1>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4">Loading artists data...</p>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-        <h1>Festival API</h1>
-        <p>Error: {error}</p>
-      </div>
-    )
-  }
-
-  if (!apiData || !timeSlotsData) {
-    return (
-      <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-        <h1>Festival API</h1>
-        <p>No data available</p>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">API Data</h1>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <strong>Error:</strong> {error}
+        </div>
+        <button 
+          onClick={fetchArtistsData}
+          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Retry
+        </button>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'monospace' }}>
-      <h1>Festival API</h1>
-      <p>Two API endpoints available for festival data</p>
+    <div className="container mx-auto px-4 py-8">
+      {/* Navigation */}
+      <div className="mb-6">
+        <nav className="flex space-x-4">
+          <a href="/" className="text-blue-600 hover:text-blue-800">← Back to Timetable</a>
+          <a href="/api" className="text-blue-800 font-semibold">API</a>
+          <a href="/spotify-profiles" className="text-blue-600 hover:text-blue-800">Spotify Profiles</a>
+          <a href="/artist-recommendations" className="text-blue-600 hover:text-blue-800">Artist Recommendations</a>
+          <a href="/cache" className="text-blue-600 hover:text-blue-800">Cache</a>
+          <a href="/test-recommendations" className="text-blue-600 hover:text-blue-800">Test Recommendations</a>
+        </nav>
+      </div>
       
-      <div style={{ marginBottom: '20px' }}>
-        <button 
-          onClick={() => setActiveTab('normal')}
-          style={{
-            padding: '10px 20px',
-            marginRight: '10px',
-            backgroundColor: activeTab === 'normal' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'normal' ? 'white' : '#333',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Normal API
-        </button>
-        <button 
-          onClick={() => setActiveTab('timed')}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: activeTab === 'timed' ? '#007bff' : '#f8f9fa',
-            color: activeTab === 'timed' ? 'white' : '#333',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Time Slots API
-        </button>
+      <h1 className="text-3xl font-bold mb-6">API Data</h1>
+      
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">API Endpoints</h2>
+        <div className="bg-gray-100 p-4 rounded">
+          <p className="mb-2"><strong>External API Base URL:</strong> <code className="bg-gray-200 px-2 py-1 rounded">https://mpt-api.netlify.app</code></p>
+          <p className="mb-2"><strong>Artists Endpoint:</strong> <code className="bg-gray-200 px-2 py-1 rounded">/api/artists</code></p>
+          <p className="mb-2"><strong>Spotify Profiles:</strong> <code className="bg-gray-200 px-2 py-1 rounded">/api/spotify-profiles</code></p>
+          <p className="mb-2"><strong>Artist Recommendations:</strong> <code className="bg-gray-200 px-2 py-1 rounded">/api/artist-recommendations/:profileId</code></p>
+          <p className="text-sm text-gray-600">All endpoints are now served from the external API</p>
+        </div>
       </div>
 
-      {activeTab === 'normal' ? (
-        <div>
-          <h2>Normal API</h2>
-          <p>Endpoint: <code>/api</code></p>
-          <p>Format: JSON</p>
-          <p>Description: Acts grouped by day and stage</p>
-          <hr />
-          <h3>Data Structure:</h3>
-          <pre style={{ 
-            background: '#f5f5f5', 
-            padding: '20px', 
-            borderRadius: '8px',
-            overflow: 'auto',
-            maxHeight: '400px'
-          }}>
-            {JSON.stringify(apiData, null, 2)}
-          </pre>
-          
-          <hr />
-          <h3>API Usage:</h3>
-          <div style={{ background: '#f0f8ff', padding: '15px', borderRadius: '8px' }}>
-            <h4>Fetch Data:</h4>
-            <pre style={{ background: '#fff', padding: '10px', borderRadius: '4px' }}>
-{`fetch('/api')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Festival data:', data);
-    // Access specific day
-    const day1 = data.days[0];
-    // Access specific stage
-    const stage1 = day1.stages[0];
-    // Access specific act
-    const act1 = stage1.acts[0];
-    // Access artist info
-    const artist = act1.artist;
-  });`}
-            </pre>
-            
-            <h4>Data Structure:</h4>
-            <pre style={{ background: '#fff', padding: '10px', borderRadius: '4px' }}>
-{`{
-  festival: { id, name, description },
-  days: [
-    {
-      id, name, date, start_time, end_time,
-      stages: [
-        {
-          id, name,
-          acts: [
-            {
-              id, name, start_time, end_time,
-              artist: {
-                id, name, spotify_id, image_url, 
-                spotify_url, genres, popularity, 
-                followers, about, bio, social_links, 
-                youtube_embed
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}`}
-            </pre>
-          </div>
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-semibold">Artists Data</h2>
+          <button 
+            onClick={copyToClipboard}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Copy JSON
+          </button>
         </div>
-      ) : (
-        <div>
-          <h2>Time Slots API</h2>
-          <p>Endpoint: <code>/time-slots</code></p>
-          <p>Format: JSON</p>
-          <p>Description: Acts grouped by 2-hour time slots for each day</p>
-          <hr />
-          <h3>Data Structure:</h3>
-          <pre style={{ 
-            background: '#f5f5f5', 
-            padding: '20px', 
-            borderRadius: '8px',
-            overflow: 'auto',
-            maxHeight: '400px'
-          }}>
-            {JSON.stringify(timeSlotsData, null, 2)}
+        
+        <div className="bg-gray-900 text-green-400 p-4 rounded overflow-auto max-h-96">
+          <pre className="text-sm">
+            {JSON.stringify(artistsData, null, 2)}
           </pre>
-          
-          <hr />
-          <h3>API Usage:</h3>
-          <div style={{ background: '#f0f8ff', padding: '15px', borderRadius: '8px' }}>
-            <h4>Fetch Data:</h4>
-            <pre style={{ background: '#fff', padding: '10px', borderRadius: '4px' }}>
-{`fetch('/time-slots')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Time slots data:', data);
-    // Access specific day
-    const day1 = data.days[0];
-    // Access specific time slot
-    const slot1 = day1.time_slots[0];
-    // Access acts in that slot
-    const acts = slot1.acts;
-    // Access artist info
-    const artist = acts[0].artist;
-  });`}
-            </pre>
-            
-            <h4>Data Structure:</h4>
-            <pre style={{ background: '#fff', padding: '10px', borderRadius: '4px' }}>
-{`{
-  festival: { id, name, description },
-  days: [
-    {
-      id, name, date, start_time, end_time,
-      time_slots: [
-        {
-          start_time, end_time,
-          acts: [
-            {
-              id, name, start_time, end_time, stage,
-              artist: {
-                id, name, spotify_id, image_url, 
-                spotify_url, genres, popularity, 
-                followers, about, bio, social_links, 
-                youtube_embed
-              }
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}`}
-            </pre>
-          </div>
         </div>
-      )}
+      </div>
+
+      <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+        <strong>Data Structure:</strong>
+        <ul className="mt-2 list-disc list-inside">
+          <li><strong>artists</strong>: Array of artist objects</li>
+          <li><strong>spotify_id</strong>: Artist's Spotify ID</li>
+          <li><strong>artist_name</strong>: Artist's name</li>
+          <li><strong>relevant_artist</strong>: Object with heavy, medium, light arrays of related artists</li>
+          <li><strong>genres</strong>: Array of artist genres</li>
+        </ul>
+      </div>
     </div>
   )
 } 

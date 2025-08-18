@@ -1,0 +1,104 @@
+/* Recommendation Match Type Classes */
+.match__type--direct {
+  background-color: #8B5CF6 !important;
+  /* border: 2px solid #8B5CF6 !important; */
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
+  color: white !important;
+}
+
+.match__type--direct .act__name,
+.match__type--direct .act__time {
+  color: white !important;
+}
+
+.match__type--relevant-artist {
+  background-color: #C4B5FD !important;
+  /* border: 2px solid #C4B5FD !important; */
+  box-shadow: 0 2px 8px rgba(196, 181, 253, 0.25) !important;
+  color: #1F2937 !important;
+}
+
+.match__type--relevant-artist .act__name,
+.match__type--relevant-artist .act__time {
+  color: #1F2937 !important;
+}
+
+.match__type--genre {
+  background-color: #DDD6FE !important;
+  /* border: 2px solid #DDD6FE !important; */
+  box-shadow: 0 2px 8px rgba(221, 214, 254, 0.25) !important;
+  color: #374151 !important;
+}
+
+.match__type--genre .act__name,
+.match__type--genre .act__time {
+  color: #374151 !important;
+}
+
+.match__type--genre-light {
+  background-color: #ddd6fe !important;
+  /* border: 2px solid #9CA3AF !important; */
+  box-shadow: 0 2px 8px rgba(156, 163, 175, 0.25) !important;
+  color: #1F2937 !important;
+}
+
+.match__type--genre-light .act__name,
+.match__type--genre-light .act__time {
+  color: #1F2937 !important;
+}
+
+.match__type--nomatch {
+  background-color: #FFFFFF !important;
+  /* border: 1px solid #E5E7EB !important; */
+  color: #1F2937 !important;
+  opacity: 0.5;
+
+}
+
+.match__type--nomatch .act__name,
+.match__type--nomatch .act__time {
+  color: #374151 !important;
+}
+
+/* Match type indicators */
+.match-indicator {
+  font-size: 0.7em;
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+.match-indicator--direct {
+  color: #8B5CF6 !important;
+}
+
+.match-indicator--relevant-artist {
+  color: #C4B5FD !important;
+}
+
+.match-indicator--genre {
+  color: #DDD6FE !important;
+}
+
+.match-indicator--genre-light {
+  color: #9CA3AF !important;
+}
+
+/* Match details styling */
+.match-details {
+  font-size: 0.7em;
+  font-style: italic;
+  margin-top: 2px;
+  opacity: 0.8;
+  display: none;
+}
+
+.match-details--direct {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.match-details--relevant-artist,
+.match-details--genre,
+.match-details--genre-light,
+.match-details--nomatch {
+  color: #6B7280 !important;
+}

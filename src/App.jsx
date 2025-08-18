@@ -10,9 +10,12 @@ import { RecommendationsPanel } from './components/RecommendationsPanel'
 import { TimetableNavigation } from './components/TimetableNavigation'
 import { TimetableList } from './components/TimetableList'
 import { AppHeader } from './components/AppHeader'
-import { Api } from './pages/Api'
+import Api from './pages/Api'
+import SpotifyProfiles from './pages/SpotifyProfiles'
+import ArtistRecommendations from './pages/ArtistRecommendations'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
+import ConnectSpotify from './pages/ConnectSpotify'
 import { trackPageView, trackActPopup } from './utils/tracking'
 
 function App() {
@@ -51,6 +54,12 @@ function App() {
   const [currentView, setCurrentView] = useState('list')
   const [selectedArtist, setSelectedArtist] = useState(null)
   const [isArtistDialogOpen, setIsArtistDialogOpen] = useState(false)
+  const [currentUserName, setCurrentUserName] = useState(null)
+  
+  // API recommendations state
+  const [apiRecommendations, setApiRecommendations] = useState([])
+  const [apiRecommendationsLoading, setApiRecommendationsLoading] = useState(false)
+  const [apiRecommendationsError, setApiRecommendationsError] = useState(null)
 
   // 3. All useEffect hooks
   useEffect(() => {
@@ -128,16 +137,91 @@ function App() {
     }
   }, [spotifyAuthenticated, spotifyUser?.id, data?.festival?.id, topArtists, topTracks, generateRecommendations])
 
+  // Get user ID from URL path
+  const getUserFromUrl = () => {
+    const path = window.location.pathname
+    const match = path.match(/^\/t\/([a-f0-9-]+)$/)
+    return match ? match[1] : null
+  }
+
+  // Fetch recommendations from API for a specific user
+  useEffect(() => {
+    const fetchApiRecommendations = async () => {
+      try {
+        setApiRecommendationsLoading(true)
+        setApiRecommendationsError(null)
+        
+        const userId = getUserFromUrl()
+        
+        // Only fetch recommendations if we have a user ID in the URL
+        if (userId) {
+          const response = await fetch(`https://mpt-api.netlify.app/api/artist-recommendations/${userId}`)
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+          }
+          
+          const data = await response.json()
+          setApiRecommendations(data.recommendations || [])
+        } else {
+          // No user ID in URL, clear recommendations
+          setApiRecommendations([])
+        }
+      } catch (error) {
+        console.error('Error fetching API recommendations:', error)
+        setApiRecommendationsError(error.message)
+      } finally {
+        setApiRecommendationsLoading(false)
+      }
+    }
+
+    fetchApiRecommendations()
+  }, [window.location.pathname]) // Re-run when URL changes
+
+  // Fetch Spotify profile display name for header when viewing personal timetable
+  useEffect(() => {
+    const fetchProfileName = async () => {
+      try {
+        const userId = getUserFromUrl()
+        if (!userId) {
+          setCurrentUserName(null)
+          return
+        }
+        const response = await fetch(`https://mpt-api.netlify.app/api/spotify-profiles/${userId}`)
+        if (!response.ok) {
+          setCurrentUserName(null)
+          return
+        }
+        const data = await response.json()
+        const name = data?.profile?.display_name || data?.profile?.spotify_id || null
+        setCurrentUserName(name)
+      } catch (e) {
+        setCurrentUserName(null)
+      }
+    }
+    fetchProfileName()
+  }, [window.location.pathname])
+
   // 4. Route checking (after all hooks)
   const currentPath = window.location.pathname
   const isApiRoute = currentPath === '/api'
+  const isSpotifyProfilesRoute = currentPath === '/spotify-profiles'
+  const isArtistRecommendationsRoute = currentPath === '/artist-recommendations'
   const isCacheRoute = currentPath === '/cache'
   const isCallbackRoute = currentPath === '/callback'
   const isTestRecommendationsRoute = currentPath === '/test-recommendations'
+  const isPersonalTimetableRoute = currentPath.match(/^\/t\/[a-f0-9-]+$/)
 
   // 5. Conditional returns (after all hooks)
   if (isApiRoute) {
     return <Api />
+  }
+
+  if (isSpotifyProfilesRoute) {
+    return <SpotifyProfiles />
+  }
+
+  if (isArtistRecommendationsRoute) {
+    return <ArtistRecommendations />
   }
 
   if (isCacheRoute) {
@@ -151,6 +235,16 @@ function App() {
   if (isTestRecommendationsRoute) {
     return <TestRecommendations />
   }
+
+  if (currentPath === '/connect-spotify') {
+    return <ConnectSpotify />
+  }
+
+  if (currentPath === '/callback') {
+    return <ConnectSpotify />
+  }
+
+
 
   if (loading) {
     return (
@@ -185,6 +279,10 @@ function App() {
   const edition = data.edition
   const days = data.days
   const currentDayData = days[currentDay] || { stages: [] }
+  
+  // Check if we're viewing a personal timetable
+  const currentUserId = getUserFromUrl()
+  const isPersonalTimetable = !!currentUserId
 
   // Helper function to flatten time slot recommendations
   const getFlattenedRecommendations = () => {
@@ -227,6 +325,11 @@ function App() {
         )
       )
       
+      // Find recommendation data for this artist if available
+      const artistRecommendation = apiRecommendations.find(rec => 
+        rec.artist.spotify_id === act.artist.spotify_id
+      )
+      
       // Track the popup open
       trackActPopup(
         act.name, 
@@ -237,11 +340,12 @@ function App() {
         act.artist?.id
       );
       
-      // Pass both artist and act data to include performance times, plus the day info
+      // Pass both artist and act data to include performance times, plus the day info and recommendation
       setSelectedArtist({ 
         ...act.artist, 
         actData: act,
-        dayData: actDay
+        dayData: actDay,
+        recommendation: artistRecommendation
       })
       setIsArtistDialogOpen(true)
     } else {
@@ -256,18 +360,24 @@ function App() {
 
   return (
     <div className="main__app">
-      <AppHeader />
+      <AppHeader 
+        isPersonalTimetable={isPersonalTimetable}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        apiRecommendationsLoading={apiRecommendationsLoading}
+        apiRecommendationsError={apiRecommendationsError}
+      />
 
       <main className="timetable__main">
         <div className="section__margin">
           <div className="sticky__helper"></div>
           
           <div className="timetable__content">
-            {/* Spotify Authentication & User Profile */}
-            <SpotifyAuth />
+            {/* Spotify Authentication & User Profile - HIDDEN FOR NOW */}
+            {/* <SpotifyAuth /> */}
 
-            {/* Recommendations Panel */}
-            {spotifyAuthenticated && (
+            {/* Recommendations Panel - HIDDEN FOR NOW */}
+            {/* {spotifyAuthenticated && (
               <RecommendationsPanel 
                 topArtists={topArtists}
                 topTracks={topTracks}
@@ -281,7 +391,7 @@ function App() {
                 currentDayData={currentDayData}
                 onArtistClick={handleArtistClick}
               />
-            )}
+            )} */}
 
             {/* Timetable Navigation */}
             <TimetableNavigation 
@@ -299,7 +409,7 @@ function App() {
                   day: currentDayData,
                   stages: currentDayData.stages || []
                 }}
-                recommendations={flattenedRecommendations}
+                recommendations={apiRecommendations}
                 onArtistClick={handleArtistClick}
               />
             </div>
@@ -308,7 +418,7 @@ function App() {
             <div className={`timetable__timelist ${currentView === 'list' ? 'active' : ''}`}>
               <TimetableList 
                 currentDayData={currentDayData}
-                recommendations={flattenedRecommendations}
+                recommendations={apiRecommendations}
                 onArtistClick={handleArtistClick}
               />
             </div>
