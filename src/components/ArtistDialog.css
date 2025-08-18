@@ -333,6 +333,24 @@
   letter-spacing: 0.5px;
 }
 
+/* Direct Match Badge */
+.direct-match-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, #F59E0B, #FCD34D);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.direct-match-icon {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+}
+
 
 
 .artist-dialog__performance-info {

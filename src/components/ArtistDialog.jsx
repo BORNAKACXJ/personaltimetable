@@ -195,7 +195,21 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                           <div className="related-artist-info">
                             <div className="related-artist-name">{match.name}</div>
                             <div className="related-artist-strength">
-                              {artist.recommendation.matchType === 'genre_light' ? '_Genre Light' : '_Genre'}
+                              {artist.recommendation.matchType === 'genre_light' ? '_Genre' : '_Genre'}
+                            </div>
+                          </div>
+                        </>
+                      ) : match.type === 'direct' ? (
+                        // Direct match display
+                        <>
+                          <div className="direct-match-badge">
+                            <span className="direct-match-icon">★</span>
+                          </div>
+                          <div className="related-artist-info">
+                            <div className="related-artist-name">{match.name}</div>
+                            <div className="related-artist-strength">
+                              {match.artist_position && `_Top Artist #${match.artist_position}`}
+                              {match.track_position && `_Top Track #${match.track_position}`}
                             </div>
                           </div>
                         </>
