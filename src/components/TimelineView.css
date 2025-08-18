@@ -65,6 +65,7 @@
   font-size: 0.7em;
   margin-left: 4px;
   font-weight: bold;
+  display: none;
 }
 
 .match-indicator--direct {
