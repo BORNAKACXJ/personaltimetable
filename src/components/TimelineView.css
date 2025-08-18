@@ -1,50 +1,46 @@
-/* Recommendation Match Type Classes */
-.match__type--direct {
+/* Recommendation Match Type Classes - Color Classification */
+.match__type--heavy {
   background-color: #8B5CF6 !important;
-  /* border: 2px solid #8B5CF6 !important; */
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
   color: white !important;
 }
 
-.match__type--direct .act__name,
-.match__type--direct .act__time {
+.match__type--heavy .act__name,
+.match__type--heavy .act__time {
   color: white !important;
 }
 
-.match__type--relevant-artist {
+.match__type--medium {
   background-color: #C4B5FD !important;
-  /* border: 2px solid #C4B5FD !important; */
   box-shadow: 0 2px 8px rgba(196, 181, 253, 0.25) !important;
   color: #1F2937 !important;
 }
 
-.match__type--relevant-artist .act__name,
-.match__type--relevant-artist .act__time {
+.match__type--medium .act__name,
+.match__type--medium .act__time {
   color: #1F2937 !important;
 }
 
-.match__type--genre {
+.match__type--light {
   background-color: #DDD6FE !important;
-  /* border: 2px solid #DDD6FE !important; */
   box-shadow: 0 2px 8px rgba(221, 214, 254, 0.25) !important;
   color: #374151 !important;
 }
 
-.match__type--genre .act__name,
-.match__type--genre .act__time {
+.match__type--light .act__name,
+.match__type--light .act__time {
   color: #374151 !important;
 }
 
-.match__type--genre-light {
-  background-color: #ddd6fe !important;
-  /* border: 2px solid #9CA3AF !important; */
+.match__type--soft {
+  background-color: #F3F4F6 !important;
   box-shadow: 0 2px 8px rgba(156, 163, 175, 0.25) !important;
-  color: #1F2937 !important;
+  color: #6B7280 !important;
 }
 
-.match__type--genre-light .act__name,
-.match__type--genre-light .act__time {
-  color: #1F2937 !important;
+.match__type--soft .act__name,
+.match__type--soft .act__time {
+  color: #6B7280 !important;
 }
 
 .match__type--nomatch {

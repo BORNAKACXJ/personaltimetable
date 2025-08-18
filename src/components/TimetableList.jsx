@@ -91,17 +91,21 @@ export function TimetableList({
                 })
                 const recommendation = isRecommended ? recommendations.find(rec => rec.artist.spotify_id === act.artist.spotify_id) : null
 
-                // Get CSS class based on match type
-                const getMatchTypeClass = (matchType) => {
-                  switch (matchType) {
-                    case 'direct':
-                      return 'match__type--direct'
-                    case 'related':
-                      return 'match__type--relevant-artist'
-                    case 'genre':
-                      return 'match__type--genre'
-                    case 'genre_light':
-                      return 'match__type--genre-light'
+                // Get CSS class based on color classification
+                const getMatchTypeClass = (recommendation) => {
+                  if (!recommendation || !recommendation.colorClassification) {
+                    return 'match__type--nomatch'
+                  }
+                  
+                  switch (recommendation.colorClassification) {
+                    case 'heavy':
+                      return 'match__type--heavy'
+                    case 'medium':
+                      return 'match__type--medium'
+                    case 'light':
+                      return 'match__type--light'
+                    case 'soft':
+                      return 'match__type--soft'
                     default:
                       return 'match__type--nomatch'
                   }
@@ -142,7 +146,7 @@ export function TimetableList({
                 return (
                   <div 
                     key={act.id} 
-                    className={`list__act ${recommendation ? getMatchTypeClass(recommendation.matchType) : 'match__type--nomatch'}`}
+                    className={`list__act ${recommendation ? getMatchTypeClass(recommendation) : 'match__type--nomatch'}`}
                     style={{ 
                       animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`
                     }}

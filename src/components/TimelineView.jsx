@@ -234,17 +234,21 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
             })
             const recommendation = isRecommended ? recommendations.find(rec => rec.artist.spotify_id === act.artist.spotify_id) : null
 
-            // Get CSS class based on match type
-            const getMatchTypeClass = (matchType) => {
-              switch (matchType) {
-                case 'direct':
-                  return 'match__type--direct'
-                case 'related':
-                  return 'match__type--relevant-artist'
-                case 'genre':
-                  return 'match__type--genre'
-                case 'genre_light':
-                  return 'match__type--genre-light'
+            // Get CSS class based on color classification
+            const getMatchTypeClass = (recommendation) => {
+              if (!recommendation || !recommendation.colorClassification) {
+                return 'match__type--nomatch'
+              }
+              
+              switch (recommendation.colorClassification) {
+                case 'heavy':
+                  return 'match__type--heavy'
+                case 'medium':
+                  return 'match__type--medium'
+                case 'light':
+                  return 'match__type--light'
+                case 'soft':
+                  return 'match__type--soft'
                 default:
                   return 'match__type--nomatch'
               }
@@ -295,7 +299,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                 >
                   <div className="act__wrapper">
                     <div 
-                      className={`act__info ${recommendation ? getMatchTypeClass(recommendation.matchType) : 'match__type--nomatch'}`}
+                      className={`act__info ${recommendation ? getMatchTypeClass(recommendation) : 'match__type--nomatch'}`}
                     >
                     <div className="act__name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
