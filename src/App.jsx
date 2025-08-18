@@ -60,6 +60,9 @@ function App() {
   const [apiRecommendations, setApiRecommendations] = useState([])
   const [apiRecommendationsLoading, setApiRecommendationsLoading] = useState(false)
   const [apiRecommendationsError, setApiRecommendationsError] = useState(null)
+  
+  // Toggle state for showing only recommended acts
+  const [showOnlyRecommended, setShowOnlyRecommended] = useState(false)
 
   // 3. All useEffect hooks
   useEffect(() => {
@@ -396,6 +399,8 @@ function App() {
               setCurrentDay={setCurrentDay}
               currentView={currentView}
               setCurrentView={setCurrentView}
+              showOnlyRecommended={showOnlyRecommended}
+              setShowOnlyRecommended={setShowOnlyRecommended}
             />
 
             {/* Timeline View */}
@@ -407,6 +412,7 @@ function App() {
                 }}
                 recommendations={apiRecommendations}
                 onArtistClick={handleArtistClick}
+                showOnlyRecommended={showOnlyRecommended}
               />
             </div>
 
@@ -416,6 +422,7 @@ function App() {
                 currentDayData={currentDayData}
                 recommendations={apiRecommendations}
                 onArtistClick={handleArtistClick}
+                showOnlyRecommended={showOnlyRecommended}
               />
             </div>
             

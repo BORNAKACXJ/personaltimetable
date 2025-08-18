@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Heart } from 'lucide-react'
 import { isFavorited } from '../utils/favorites'
 import './TimelineView.css'
@@ -43,9 +44,25 @@ function sortActsByTime(acts) {
 export function TimetableList({ 
   currentDayData, 
   recommendations = [], 
-  onArtistClick 
+  onArtistClick,
+  showOnlyRecommended = true
 }) {
-  if (currentDayData.stages.length === 0) {
+  
+  // Filter acts based on toggle state
+  const filteredStages = showOnlyRecommended 
+    ? currentDayData.stages.map(stage => ({
+        ...stage,
+        acts: stage.acts.filter(act => {
+          // Only show acts that have a valid recommendation with colorClassification
+          const hasValidRecommendation = act.artist && act.artist.spotify_id && recommendations.some(rec => 
+            rec.artist.spotify_id === act.artist.spotify_id && rec.colorClassification && rec.recommended === true
+          )
+          return hasValidRecommendation
+        })
+      })).filter(stage => stage.acts.length > 0) // Only show stages with recommended acts
+    : currentDayData.stages
+
+  if (filteredStages.length === 0) {
     return (
       <div className="timetable-empty">
         <div style={{ 
@@ -54,7 +71,7 @@ export function TimetableList({
           color: '#666',
           fontSize: '1.1rem'
         }}>
-          No acts scheduled for this day
+          {showOnlyRecommended ? 'No recommended acts for this day' : 'No acts scheduled for this day'}
         </div>
       </div>
     )
@@ -62,7 +79,7 @@ export function TimetableList({
 
   return (
     <div className="timetable__list" id="timetable__list">
-      {currentDayData.stages.map((stage, stageIndex) => (
+              {filteredStages.map((stage, stageIndex) => (
         <div 
           key={stage.name} 
           className="list__stage"

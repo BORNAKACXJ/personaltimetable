@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+import './TimetableNavigation.css'
 import { trackDayClick, trackViewChange } from '../utils/tracking'
 
 export function TimetableNavigation({ 
@@ -5,9 +7,35 @@ export function TimetableNavigation({
   currentDay, 
   setCurrentDay, 
   currentView, 
-  setCurrentView 
+  setCurrentView,
+  showOnlyRecommended,
+  setShowOnlyRecommended
 }) {
   const currentDayData = days[currentDay] || { stages: [] }
+
+  // Auto-switch view based on screen orientation
+  useEffect(() => {
+    const handleOrientationChange = () => {
+      const isLandscape = window.innerWidth > window.innerHeight
+      if (isLandscape && currentView === 'list') {
+        setCurrentView('timeline')
+      } else if (!isLandscape && currentView === 'timeline') {
+        setCurrentView('list')
+      }
+    }
+
+    // Listen for orientation changes and window resize
+    window.addEventListener('orientationchange', handleOrientationChange)
+    window.addEventListener('resize', handleOrientationChange)
+    
+    // Initial check
+    handleOrientationChange()
+
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange)
+      window.removeEventListener('resize', handleOrientationChange)
+    }
+  }, [currentView, setCurrentView])
 
   const handleDayClick = (index) => {
     setCurrentDay(index)
@@ -46,16 +74,36 @@ export function TimetableNavigation({
           ))}
         </nav>
         
-        <button 
-          className={`btn__second btn__second--desktop ${currentView === 'list' ? 'active' : ''}`}
-          id="view-toggle"
-          onClick={handleViewToggle}
-        >
-          <span>
-            <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
-            {currentView === 'timeline' ? 'list view' : 'timeline view'}
-          </span>
-        </button>
+        <div className="timetable__nav--controls">
+          {/* Toggle Buttons */}
+          <div className="timetable__toggle">
+            <button
+              className={`btn__second ${!showOnlyRecommended ? 'active' : ''}`}
+              id="filter-toggle-all"
+              onClick={() => setShowOnlyRecommended(false)}
+            >
+              <span>all</span>
+            </button>
+            <button
+              className={`btn__second ${showOnlyRecommended ? 'active' : ''}`}
+              id="filter-toggle-mine"
+              onClick={() => setShowOnlyRecommended(true)}
+            >
+              <span>my timetable</span>
+            </button>
+          </div>
+          
+          <button 
+            className={`btn__second btn__second--desktop ${currentView === 'list' ? 'active' : ''}`}
+            id="view-toggle"
+            onClick={handleViewToggle}
+          >
+            <span>
+              <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
+              {currentView === 'timeline' ? 'list view' : 'timeline view'}
+            </span>
+          </button>
+        </div>
       </div>
       
       <div className="timetable__nav--currentday font__size--head">
@@ -68,16 +116,24 @@ export function TimetableNavigation({
             })}
           </div>
           
-          {/* Mobile view toggle button */}
-          <button 
-            className={`btn__second btn__second--mobile ${currentView === 'list' ? 'active' : ''}`}
-            onClick={handleViewToggle}
-          >
-            <span>
-              <i className="fa-sharp fa-light fa-table-list" aria-hidden="true"></i> 
-              {currentView === 'timeline' ? 'list' : 'timeline'}
-            </span>
-          </button>
+          {/* Mobile controls */}
+          <div className="timetable__nav--mobile-controls" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Mobile filter toggle buttons */}
+            <div className="timetable__toggle--mobile" style={{ display: 'flex', gap: '4px' }}>
+              <button
+                className={`btn__second btn__second--mobile ${!showOnlyRecommended ? 'active' : ''}`}
+                onClick={() => setShowOnlyRecommended(false)}
+              >
+                <span>all</span>
+              </button>
+              <button
+                className={`btn__second btn__second--mobile ${showOnlyRecommended ? 'active' : ''}`}
+                onClick={() => setShowOnlyRecommended(true)}
+              >
+                <span>my</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

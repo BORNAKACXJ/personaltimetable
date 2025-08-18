@@ -1,0 +1,31 @@
+/* Mobile personal timetable pill */
+.nav__mobile--usertimetable {
+	background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+	color: #ffffff;
+	padding: 6px 12px;
+	border-radius: 4px;
+	text-align: center;
+	font-size: 0.8rem;
+	font-weight: bold;
+	box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+	display: inline-block;
+    text-transform: uppercase;
+}
+
+/* Mobile connect with Spotify pill */
+.nav__mobile--connectspotify {
+	background: linear-gradient(135deg, #1DB954, #1ed760);
+	color: #ffffff;
+	padding: 6px 12px;
+	border-radius: 4px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 0.8rem;
+	font-weight: bold;
+	box-shadow: 0 2px 8px rgba(29, 185, 84, 0.25);
+	display: inline-block;
+}
+
+
+
+

@@ -104,7 +104,7 @@ function organizeActsIntoRows(acts) {
   return rows
 }
 
-export function TimelineView({ currentDayData, recommendations = [], onArtistClick }) {
+export function TimelineView({ currentDayData, recommendations = [], onArtistClick, showOnlyRecommended = false }) {
   const [timeMarkers, setTimeMarkers] = useState([])
   const [totalColumns, setTotalColumns] = useState(0)
   const timelineRef = useRef(null)
@@ -166,6 +166,20 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
 
   const timeRange = getTimeRange()
 
+  // Filter acts based on toggle state
+  const filteredStages = showOnlyRecommended 
+    ? currentDayData.stages.map(stage => ({
+        ...stage,
+        acts: stage.acts.filter(act => {
+          // Only show acts that have a valid recommendation with colorClassification
+          const hasValidRecommendation = act.artist && act.artist.spotify_id && recommendations.some(rec => 
+            rec.artist.spotify_id === act.artist.spotify_id && rec.colorClassification && rec.recommended === true
+          )
+          return hasValidRecommendation
+        })
+      })).filter(stage => stage.acts.length > 0) // Only show stages with recommended acts
+    : currentDayData.stages
+
   return (
     <div 
       className="timetable__grid" 
@@ -189,7 +203,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
       </div>
 
       {/* Stages and events - no wrapper div */}
-      {currentDayData.stages.map((stage, stageIndex) => {
+      {filteredStages.map((stage, stageIndex) => {
         // Organize acts into rows to handle overlaps
         const actRows = organizeActsIntoRows(stage.acts)
         const totalActRows = actRows.length
