@@ -322,6 +322,10 @@
   flex-shrink: 0;
 }
 
+.genre-badge--light {
+  background: linear-gradient(135deg, #E5E7EB, #F3F4F6);
+}
+
 .genre-name {
   color: white;
   font-size: 10px;
@@ -331,6 +335,10 @@
   padding: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.genre-badge--light .genre-name {
+  color: #6B7280;
 }
 
 

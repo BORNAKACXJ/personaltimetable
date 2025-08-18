@@ -175,7 +175,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
             {artist.recommendation.matchType === 'direct' && ' TOP ARTISTS'}
                   {artist.recommendation.matchType === 'related' && ' RELATED ARTISTS'}
                   {artist.recommendation.matchType === 'genre' && ' GENRE'}
-                  {artist.recommendation.matchType === 'genre_light' && ' GENRE'}
+                  {artist.recommendation.matchType === 'genre_light' && ' GENRE (LIGHT)'}
 
             </h3>
             
@@ -189,12 +189,14 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                       {match.type === 'genre' ? (
                         // Genre match display
                         <>
-                          <div className="genre-badge">
+                          <div className={`genre-badge ${artist.recommendation.matchType === 'genre_light' ? 'genre-badge--light' : ''}`}>
                             <span className="genre-name">{match.name}</span>
                           </div>
                           <div className="related-artist-info">
                             <div className="related-artist-name">{match.name}</div>
-                            <div className="related-artist-strength">_Genre</div>
+                            <div className="related-artist-strength">
+                              {artist.recommendation.matchType === 'genre_light' ? '_Genre Light' : '_Genre'}
+                            </div>
                           </div>
                         </>
                       ) : (
