@@ -170,30 +170,59 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               opacity: animationStep >= 4 ? 1 : 0
             }}
           >
-            <h3>🎵 PERSONAL RECOMMENDATION</h3>
-            <div className="artist-dialog__recommendation-content">
-              <div className="artist-dialog__recommendation-type">
-                <span className={`recommendation-badge recommendation-badge--${artist.recommendation.matchType}`}>
-                  {artist.recommendation.matchType === 'direct' && '★ Direct Match'}
-                  {artist.recommendation.matchType === 'relevant_artist' && '★ Related Artist'}
-                  {artist.recommendation.matchType === 'genre' && '★ Genre Match'}
-                  {artist.recommendation.matchType === 'genre_light' && '★ Genre Light'}
-                </span>
-                <span className="recommendation-score">
-                  Score: {artist.recommendation.matchScore}/100
-                </span>
-              </div>
-              {artist.recommendation.matchDetails && artist.recommendation.matchDetails.length > 0 && (
-                <div className="artist-dialog__recommendation-details">
-                  <h4>Why this artist was recommended:</h4>
-                  <ul>
-                    {artist.recommendation.matchDetails.map((detail, index) => (
-                      <li key={index}>{detail}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+            <h3>RECOMMENDED BASED ON 
+
+            {artist.recommendation.matchType === 'direct' && ' TOP ARTISTS'}
+                  {artist.recommendation.matchType === 'related' && ' RELATED ARTISTS'}
+                  {artist.recommendation.matchType === 'genre' && ' GENRE'}
+                  {artist.recommendation.matchType === 'genre_light' && ' GENRE'}
+
+            </h3>
+            
+            {/* Match Score */}
+            <div className="recommendation-score">
+              Match Score: {artist.recommendation.matchScore}%
             </div>
+            
+            {/* Match Details */}
+            {artist.recommendation.matchDetails && artist.recommendation.matchDetails.length > 0 && (
+              <div className="artist-dialog__recommendation-details">
+                {artist.recommendation.matchDetails.map((detail, index) => (
+                  <span key={index} className="match-detail">{detail}</span>
+                ))}
+              </div>
+            )}
+            
+            {/* Related Artists with Images */}
+            {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
+              <div className="related-artists-section">
+                <h4>Related Artists:</h4>
+                <div className="related-artists-grid">
+                  {artist.recommendation.detailedMatches.map((match, index) => (
+                    <div key={index} className="related-artist-item">
+                      <div className="related-artist-image">
+                        <img 
+                          src={match.image_url || '/_assets/_images/default-artist.png'} 
+                          alt={match.name}
+                          onError={(e) => {
+                            e.target.src = '/_assets/_images/default-artist.png'
+                          }}
+                        />
+                      </div>
+                      <div className="related-artist-info">
+                        <div className="related-artist-name">{match.name}</div>
+                        <div className="related-artist-strength">
+                          {match.rel_strength === 'heavy' && 'Strong Match'}
+                          {match.rel_strength === 'medium' && 'Medium Match'}
+                          {match.rel_strength === 'light' && 'Light Match'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+           
           </div>
         )}
         
