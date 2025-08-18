@@ -240,10 +240,6 @@ function App() {
     return <ConnectSpotify />
   }
 
-  if (currentPath === '/callback') {
-    return <ConnectSpotify />
-  }
-
 
 
   if (loading) {

@@ -53,10 +53,10 @@ export function SpotifyCallback() {
           return
         }
 
-        // Redirect back to main page after successful authentication
-        // setTimeout(() => {
-        //   window.location.href = '/'
-        // }, 2000)
+        // Redirect to ConnectSpotify page to show top artists/tracks
+        setTimeout(() => {
+          window.location.href = '/connect-spotify'
+        }, 2000)
 
       } catch (err) {
         console.error('Error processing callback:', err)
@@ -111,7 +111,7 @@ export function SpotifyCallback() {
         <h2>Connection Error</h2>
         <p style={{ color: 'red' }}>{error}</p>
         <button 
-          onClick={() => window.location.href = '/'}
+          onClick={() => window.location.href = '/connect-spotify'}
           style={{
             padding: '10px 20px',
             backgroundColor: '#1DB954',
@@ -122,7 +122,7 @@ export function SpotifyCallback() {
             marginTop: '20px'
           }}
         >
-          Go Back
+          Continue to Spotify Setup
         </button>
       </div>
     )
@@ -152,7 +152,7 @@ export function SpotifyCallback() {
         <span style={{ color: 'white', fontSize: '24px' }}>✓</span>
       </div>
       <button 
-        onClick={() => window.location.href = '/'}
+        onClick={() => window.location.href = '/connect-spotify'}
         style={{
           padding: '10px 20px',
           backgroundColor: '#1DB954',
@@ -163,7 +163,7 @@ export function SpotifyCallback() {
           marginTop: '20px'
         }}
       >
-        Go to Main Page
+        Continue to Spotify Setup
       </button>
     </div>
   )
