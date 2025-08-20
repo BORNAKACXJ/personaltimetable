@@ -347,11 +347,11 @@
   }
 
   .settings-dialog__body {
-    padding: 20px;
+    padding: 0px;
   }
 
   .settings-section {
-    padding: 16px;
+    padding: 0px;
     margin-bottom: 24px;
   }
 
@@ -364,12 +364,12 @@
   }
 
   .artists-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-  }
+    grid-template-columns: repeat(3, auto);
+    gap: 16px;
+}
 
   .artist-card {
-    padding: 12px;
+    padding: 0px;
   }
 
   .artist-image-container {

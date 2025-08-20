@@ -316,7 +316,8 @@
   }
 
   .share-timetable-dialog__header {
-    padding: 20px 20px 16px 20px;
+    padding: 8px;
+    padding-bottom: 24px;
   }
 
   .share-timetable-dialog__title-actions h2 {
@@ -324,7 +325,7 @@
   }
 
   .share-timetable-dialog__body {
-    padding: 20px;
+    padding: 8px;
   }
 
   .share-timetable-dialog__description p {
@@ -340,5 +341,19 @@
   .share-timetable-dialog__save {
     width: 100%;
     padding: 14px 24px;
+  }
+
+  .share-link-container {
+    flex-direction: column;
+  }
+
+  .copy-button:after {
+    content: "Copy personal link";
+    padding-left: 8px;
+  }
+
+  .share-timetable-dialog__close {
+    padding: 0px;
+    
   }
 }

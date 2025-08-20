@@ -135,7 +135,9 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
         <div className="share-timetable-dialog__body">
           <div className="share-timetable-dialog__description">
             <p>
-              Share your personal Hit The City timetable with friends! Add your name and email to personalize your shared link. Your preferences will be automatically saved.
+              Share your Personal Hit The City 2025 timetable with friends!
+              Optional you can ddd your name and email to personalize it even more.
+              Your preferences will be automatically saved.
             </p>
           </div>
 
