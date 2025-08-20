@@ -62,7 +62,7 @@ export function SpotifyCallback() {
         try {
           await handleCallback(code)
           console.log('✅ Spotify callback successful')
-          setStatus('Successfully connected! Loading your data...')
+          setStatus('Successfully connected! Loading your music taste...')
           
           // Set a timeout to redirect even if data doesn't load
           setTimeout(() => {
@@ -195,7 +195,7 @@ export function SpotifyCallback() {
     return (
       <div className="spotify-callback processing">
         <div className="callback-step">
-          <h2>Processing Authorization</h2>
+          <h2>Connecting to Spotify...</h2>
           <div className="status-info">
             <p>{status}</p>
           </div>
@@ -212,7 +212,7 @@ export function SpotifyCallback() {
     return (
       <div className="spotify-callback error">
         <div className="callback-step">
-          <h2>Step 1: Authorization Failed</h2>
+          <h2>Authorization Failed</h2>
           <div className="status-info">
             <p className="error-message">{callbackError || status}</p>
           </div>

@@ -189,30 +189,19 @@ export class UserDataManager {
       console.log('Prepared artists data:', artistsData.length, 'artists')
       console.log('Sample artist data:', artistsData[0])
 
-      // Insert new artists - try one by one to identify the issue
-      const results = []
-      for (let i = 0; i < artistsData.length; i++) {
-        const artistData = artistsData[i]
-        console.log(`Inserting artist ${i + 1}/${artistsData.length}:`, artistData.artist_name)
-        
-        const { data, error } = await supabase
-          .from('user_top_artists')
-          .insert(artistData)
-          .select()
-          .single()
+      // Insert new artists using bulk insert (same as tracks)
+      const { data, error } = await supabase
+        .from('user_top_artists')
+        .insert(artistsData)
+        .select()
 
-        if (error) {
-          console.error(`Error inserting artist ${artistData.artist_name}:`, error)
-          console.error('Artist data that failed:', artistData)
-          throw error
-        }
-
-        results.push(data)
-        console.log(`✅ Successfully inserted artist ${i + 1}:`, data.artist_name)
+      if (error) {
+        console.error('Error saving top artists:', error)
+        throw error
       }
 
-      console.log(`Successfully saved ${results.length} top artists to Supabase`)
-      return results
+      console.log(`Successfully saved ${data.length} top artists to Supabase`)
+      return data
     } catch (error) {
       console.error('Error saving top artists:', error)
       throw error

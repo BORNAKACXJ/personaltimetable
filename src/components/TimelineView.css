@@ -1,14 +1,36 @@
 /* Recommendation Match Type Classes - Color Classification */
-.match__type--heavy {
+/* .match__type--heavy {
   background-color: #8B5CF6 !important;
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
   color: white !important;
+} */
+
+.match__type--heavy {
+  background-color:white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
+  color: var(--purpler) !important;
 }
 
+.match__type--heavy:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0px;
+  width: 100%;
+  height: 6px;
+  background-color: var(--purpler);
+}
+
+.match__type--heavy .act__time::before {
+  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
+  font-weight: 900; /* solid */
+  /* content: "\f0e7"; Unicode for fa-bolt */
+}
+/* 
 .match__type--heavy .act__name,
 .match__type--heavy .act__time {
-  color: white !important;
-}
+  
+} */
 
 .match__type--medium {
   background-color: #C4B5FD !important;

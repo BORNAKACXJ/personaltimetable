@@ -139,6 +139,48 @@ export default function ConnectSpotify() {
     }
   }, [authError])
 
+  // Sync data from hook when available
+  useEffect(() => {
+    if (authTopArtists && authTopArtists.length > 0) {
+      console.log('🔄 Syncing top artists from hook:', authTopArtists.length)
+      setTopArtists(authTopArtists.slice(0, 5))
+    }
+    
+    if (authTopTracks && authTopTracks.length > 0) {
+      console.log('🔄 Syncing top tracks from hook:', authTopTracks.length)
+      setTopTracks(authTopTracks.slice(0, 5))
+    }
+    
+    if (authUser) {
+      console.log('🔄 Syncing user from hook:', authUser.id)
+      setSpotifyUser(authUser)
+    }
+  }, [authTopArtists, authTopTracks, authUser])
+
+  // Generate headline when topArtists data becomes available
+  useEffect(() => {
+    if (step === 'success' && topArtists && topArtists.length > 0 && !selectedHeadline) {
+      console.log('🎯 Generating headline with artists:', topArtists.map(a => a.name))
+      
+      const artist01 = topArtists[0]?.name || '';
+      const artist02 = topArtists[1]?.name || '';
+      const artist03 = topArtists[2]?.name || '';
+      const artist04 = topArtists[3]?.name || '';
+
+      const headlines = [
+        `Ah.. also a huge ${artist01} lover?`,
+        `Oeh.. hello big ${artist01} fan!`,
+        `I see.. you are that ${artist01} fan!`
+      ];
+
+      const randomHeadline = headlines[Math.floor(Math.random() * headlines.length)];
+      const generatedSummary = `Let's find some of that and also some ${artist02}, ${artist03} and ${artist04} energy at HtC 2025`;
+      
+      setSelectedHeadline(randomHeadline);
+      setGeneratedSummary(generatedSummary);
+    }
+  }, [step, topArtists, selectedHeadline])
+
 
 
   // Deprecated local handler removed; auth is handled via useSpotifyAuth
@@ -242,25 +284,15 @@ Connect with Spotify to create your timetable. Let's go!</div>
         )
 
       case 'success':
-        // Generate personalized headline based on top artists (only once)
-        if (!selectedHeadline) {
-          const artist01 = topArtists[0]?.name || '';
-          const artist02 = topArtists[1]?.name || '';
-          const artist03 = topArtists[2]?.name || '';
-          const artist04 = topArtists[3]?.name || '';
-
-          const headlines = [
-            `Ah.. also a huge ${artist01} lover?`,
-            `Oeh.. hello big ${artist01} fan!`,
-            `I see.. you are that ${artist01} fan!`
-          ];
-
-          const randomHeadline = headlines[Math.floor(Math.random() * headlines.length)];
-          const generatedSummary = `Let's find some of that and also some ${artist02}, ${artist03} and ${artist04} energy at HtC 2025`;
-          
-          setSelectedHeadline(randomHeadline);
-          setGeneratedSummary(generatedSummary);
-        }
+        // Debug data state
+        console.log('🎯 Success step - Data state:', {
+          topArtistsLength: topArtists?.length || 0,
+          authTopArtistsLength: authTopArtists?.length || 0,
+          topTracksLength: topTracks?.length || 0,
+          authTopTracksLength: authTopTracks?.length || 0,
+          firstArtist: topArtists?.[0]?.name || 'None',
+          firstAuthArtist: authTopArtists?.[0]?.name || 'None'
+        })
 
         return (
 

@@ -17,6 +17,7 @@
   max-width: 500px;
   width: 100%;
   text-align: center;
+  color:white;
 }
 
 .callback-step h2 {
@@ -24,6 +25,7 @@
  
   font-size: 24px;
   font-weight: 600;
+  color:white
 }
 
 .status-info {
@@ -32,7 +34,7 @@
 
 .status-info p {
   margin: 10px 0;
-  color: #666;
+  
   font-size: 16px;
   line-height: 1.5;
 }
@@ -50,9 +52,7 @@
   font-size: 14px;
 }
 
-.user-info strong {
-  color: #333;
-}
+
 
 /* Data Preview Styles */
 .data-preview {
@@ -67,14 +67,14 @@
 .data-preview h3 {
   margin: 0 0 12px 0;
   font-size: 16px;
-  color: #495057;
+ 
   text-align: center;
 }
 
 .data-preview h4 {
   margin: 8px 0 6px 0;
   font-size: 14px;
-  color: #6c757d;
+  
 }
 
 .artists-preview,
