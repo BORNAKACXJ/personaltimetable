@@ -294,7 +294,17 @@ header .section__margin {
 }
 
 .festival__logo--header {
-	flex: 0 0 auto;
+	flex: 0 0 30%;
+}
+
+.nav__main--title {
+	flex: 1 1 40%;
+}
+
+.nav__main--right {
+	flex: 0 0 30%;
+	display: flex;
+	justify-content: flex-end;
 }
 
 /* Main Navigation Styles */

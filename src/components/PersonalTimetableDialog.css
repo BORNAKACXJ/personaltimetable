@@ -1,0 +1,331 @@
+/* Personal Timetable Dialog Styles */
+.personal-timetable-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.personal-timetable-dialog.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.personal-timetable-dialog__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.personal-timetable-dialog__content {
+  position: relative;
+  background: white;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 8px;
+}
+
+.personal-timetable-dialog.active .personal-timetable-dialog__content {
+  transform: scale(1) translateY(0);
+}
+
+.personal-timetable-dialog__header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.personal-timetable-dialog__title-section {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+}
+
+.personal-timetable-dialog__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.personal-timetable-dialog__title-actions {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.personal-timetable-dialog__title-actions h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.personal-timetable-dialog__close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.personal-timetable-dialog__close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.personal-timetable-dialog__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 24px;
+}
+
+.personal-timetable-dialog__description p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+}
+
+.privacy__note {
+  background-color: var(--purple-glow);
+  color: var(--black);
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  padding:16px;
+
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 0;
+}
+
+.wrapper__connect {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 8px;
+}
+
+.agreement-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.agreement-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.agreement-checkbox:hover .checkmark {
+  border-color: #8B5CF6;
+}
+
+.agreement-checkbox input:checked + .checkmark {
+  background: #8B5CF6;
+  border-color: #8B5CF6;
+}
+
+.agreement-checkbox input:checked + .checkmark::after {
+  content: '✓';
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.agreement-text {
+  flex: 1;
+}
+
+.agreement-text a {
+  color: #8B5CF6;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.agreement-text a:hover {
+  color: #7C3AED;
+}
+
+.personal-timetable-dialog__footer {
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.personal-timetable-dialog__cancel {
+  padding: 12px 24px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.personal-timetable-dialog__cancel:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.personal-timetable-dialog__create {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #8B5CF6, #C4B5FD);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.personal-timetable-dialog__create:hover:not(.disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.personal-timetable-dialog__create.disabled {
+  background: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.personal-timetable-dialog__create img {
+  filter: brightness(0) invert(1);
+}
+
+.personal-timetable-dialog__create.disabled img {
+  filter: brightness(0) invert(0.6);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .personal-timetable-dialog__content {
+    width: 95%;
+    max-height: 95vh;
+    margin: 16px;
+  }
+
+  .personal-timetable-dialog__header {
+    padding: 20px 20px 16px 20px;
+  }
+
+  .personal-timetable-dialog__title-actions h2 {
+    font-size: 20px;
+  }
+
+  .personal-timetable-dialog__body {
+    padding: 20px;
+  }
+
+  .personal-timetable-dialog__description p {
+    font-size: 15px;
+  }
+
+  .feature-item {
+    gap: 12px;
+  }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .feature-content h3 {
+    font-size: 15px;
+  }
+
+  .feature-content p {
+    font-size: 13px;
+  }
+
+  .personal-timetable-dialog__footer {
+    padding: 20px;
+    flex-direction: column;
+  }
+
+  .personal-timetable-dialog__cancel,
+  .personal-timetable-dialog__create {
+    width: 100%;
+    padding: 14px 24px;
+  }
+
+  .agreement-checkbox {
+    font-size: 13px;
+  }
+
+  .checkmark {
+    width: 16px;
+    height: 16px;
+  }
+
+  .agreement-checkbox input:checked + .checkmark::after {
+    font-size: 10px;
+  }
+}

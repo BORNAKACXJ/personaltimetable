@@ -1,6 +1,6 @@
 
 :root {
-	--timeline-grid-width: 88px;
+	--timeline-grid-width: 48px;
 }
 
 .timetable__nav {
@@ -195,6 +195,22 @@
 
 .time-marker.hour:after {
 	opacity: 0.4;
+}
+
+.time-marker.quarter {
+	opacity: 0;
+}
+
+.time-marker.quarter:after {
+	opacity: 0;
+}
+
+.time-marker.quarter {
+	opacity: 0;
+}
+
+.time-marker.quarter:after {
+	opacity: 0;
 }
 
 .stage-name {

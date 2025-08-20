@@ -110,6 +110,11 @@ export function TimetableList({
 
                 // Get CSS class based on color classification
                 const getMatchTypeClass = (recommendation) => {
+                  // If no recommendations are loaded (no personal timetable), don't apply any recommendation styling
+                  if (recommendations.length === 0) {
+                    return ''
+                  }
+                  
                   if (!recommendation || !recommendation.colorClassification) {
                     return 'match__type--nomatch'
                   }
@@ -163,7 +168,7 @@ export function TimetableList({
                 return (
                   <div 
                     key={act.id} 
-                    className={`list__act ${recommendation ? getMatchTypeClass(recommendation) : 'match__type--nomatch'}`}
+                    className={`list__act ${recommendation ? getMatchTypeClass(recommendation) : (recommendations.length > 0 ? 'match__type--nomatch' : '')}`}
                     style={{ 
                       animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`
                     }}
@@ -181,7 +186,7 @@ export function TimetableList({
                           />
                         )}
                         <span>{act.name}</span>
-                        {isRecommended && recommendation && (
+                        {isRecommended && recommendation && recommendations.length > 0 && (
                           <span className={getIndicatorClass(recommendation.matchType)}>
                             {recommendation.matchType === 'direct' ? 
                               (recommendation.positions?.artist_position ? `#${recommendation.positions.artist_position} Direct` :
@@ -196,7 +201,7 @@ export function TimetableList({
                     <div className="list__act-time">
                       {formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}
                     </div>
-                    {isRecommended && recommendation && (
+                    {isRecommended && recommendation && recommendations.length > 0 && (
                       <div className={`match-details ${getDetailsClass(recommendation.matchType)}`}>
                         {recommendation.matchType === 'direct' ? 'Direct match' :
                          recommendation.matchType === 'related' ? 'Related artist' :

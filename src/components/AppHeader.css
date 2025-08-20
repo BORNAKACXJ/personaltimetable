@@ -47,7 +47,7 @@
     border-radius: 2px;
     width: max-content;
     color: #ffffff;
-    background-color: var(--purple);
+    background-color: var(--purpler);
 
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -55,6 +55,26 @@
 
     font-size: 14px;
     line-height: 40px;
+    border:none;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.nav__main--spotify.huge {
+    font-size: 16px;
+    line-height: 48px;
+
+    font-weight: 600;
+}
+
+.disabled.nav__main--spotify {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.nav__main--spotify:hover {
+    background-color: var(--purple);
 }
 
 .nav__main--spotify img {

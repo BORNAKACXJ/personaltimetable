@@ -48,8 +48,8 @@ function minutesToTime(minutes) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }
 
-// Generate 30-minute interval time markers
-function generateTimeMarkers(start, end, interval = 30) {
+// Generate 15-minute interval time markers
+function generateTimeMarkers(start, end, interval = 15) {
   const markers = [];
   let startMin = timeToMinutes(start);
   let endMin = timeToMinutes(end);
@@ -295,9 +295,11 @@ function renderTimetable(dayIndex) {
       const div = document.createElement('div');
       div.className = 'time-marker';
 
-      // Add extra class if time ends in ":30"
+      // Add extra class if time ends in ":00" for hour markers
       if (time.endsWith(':00')) {
         div.classList.add('hour');
+      } else if (time.endsWith(':15') || time.endsWith(':45')) {
+        div.classList.add('quarter');
       }
 
       div.innerHTML = `<span>${time}</span>`;

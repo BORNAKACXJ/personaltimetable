@@ -16,8 +16,8 @@ function minutesToTime(minutes) {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
-// Generate 30-minute interval time markers
-function generateTimeMarkers(start, end, interval = 30) {
+// Generate 15-minute interval time markers
+function generateTimeMarkers(start, end, interval = 15) {
   const markers = []
   let startMin = timeToMinutes(start)
   let endMin = timeToMinutes(end)
@@ -194,7 +194,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
         {timeMarkers.map((time, index) => (
           <div 
             key={time}
-            className={time.endsWith(':00') ? 'time-marker hour' : 'time-marker '}
+            className={time.endsWith(':00') ? 'time-marker hour' : time.endsWith(':15') || time.endsWith(':45') ? 'time-marker quarter' : 'time-marker'}
             style={{ '--marker-line-height': '496px' }}
           >
             <span>{time}</span>
@@ -250,6 +250,11 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
 
             // Get CSS class based on color classification
             const getMatchTypeClass = (recommendation) => {
+              // If no recommendations are loaded (no personal timetable), don't apply any recommendation styling
+              if (recommendations.length === 0) {
+                return ''
+              }
+              
               if (!recommendation || !recommendation.colorClassification) {
                 return 'match__type--nomatch'
               }
@@ -303,7 +308,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                                         stageElements.push(
                 <div
                   key={act.id}
-                  className={`event-card ${isRecommended ? 'event-card--recommended' : ''}`}
+                  className={`event-card ${isRecommended && recommendations.length > 0 ? 'event-card--recommended' : ''}`}
                   style={{
                     gridArea: `${actsRow} / ${startCol} / auto / ${endCol}`,
                     animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
@@ -313,7 +318,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                 >
                   <div className="act__wrapper">
                     <div 
-                      className={`act__info ${recommendation ? getMatchTypeClass(recommendation) : 'match__type--nomatch'}`}
+                      className={`act__info ${recommendation ? getMatchTypeClass(recommendation) : (recommendations.length > 0 ? 'match__type--nomatch' : '')}`}
                     >
                     <div className="act__name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -326,7 +331,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                           />
                         )}
                         <span>{act.name}</span>
-                        {isRecommended && recommendation && (
+                        {isRecommended && recommendation && recommendations.length > 0 && (
                           <span className={getIndicatorClass(recommendation.matchType)}>
                             {recommendation.matchType === 'direct' ? 
                               (recommendation.positions?.artist_position ? `#${recommendation.positions.artist_position}` :
@@ -339,7 +344,7 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                       </div>
                     </div>
                     <div className="act__time">{formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}</div>
-                    {isRecommended && recommendation && (
+                    {isRecommended && recommendation && recommendations.length > 0 && (
                       <div className={`match-details ${getDetailsClass(recommendation.matchType)}`}>
                         {recommendation.matchType === 'direct' ? 'Direct match' :
                          recommendation.matchType === 'related' ? 'Related artist' :

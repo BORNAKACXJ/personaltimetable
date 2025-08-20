@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import './AppHeader.css'
 import { UserProfileDialog } from './UserProfileDialog'
+import { PersonalTimetableDialog } from './PersonalTimetableDialog'
 
 export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName, apiRecommendationsLoading, apiRecommendationsError }) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
+  const [isPersonalTimetableDialogOpen, setIsPersonalTimetableDialogOpen] = useState(false)
   return (
     <header className="header__fixed bg--white">
       <div className="section__margin">
@@ -12,7 +14,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
         </div>
         
         {/* Center Title */}
-        <div className="nav navbar-nav navbar-main navbar-nav-first">
+        <div className="nav__main--title">
           <div style={{
             fontSize: '1.2rem',
             fontWeight: 'bold',
@@ -24,7 +26,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
         </div>
         
         
-        
+        <div className="nav__main--right">
         {/* User Info / Spotify Connect - Right */}
         {isPersonalTimetable ? (
           <div style={{
@@ -51,26 +53,17 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
             )}
           </div>
         ) : (
-          <a 
-            href="/connect-spotify" 
+          <button 
+            onClick={() => setIsPersonalTimetableDialogOpen(true)}
             className="nav__main--spotify"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '0px 16px',
-              borderRadius: '40px',
-              color: 'white',
-              backgroundColor: '#1DB954',
-              textDecoration: 'none',
-              fontSize: '0.9rem',
-              fontWeight: 'bold',
-              boxShadow: '0 2px 8px rgba(29, 185, 84, 0.25)'
+              cursor: 'pointer',
+              textDecoration: 'none'
             }}
           >
             <img src="/_assets/_images/spotify_icon.svg" alt="Spotify" style={{ width: '20px', height: '20px' }} />
-            Connect with Spotify
-          </a>
+            Create your personal timetable
+          </button>
         )}
       </div>
       
@@ -81,6 +74,18 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
         userId={currentUserId}
         currentUserName={currentUserName}
       />
+
+      {/* Personal Timetable Dialog */}
+      <PersonalTimetableDialog
+        isOpen={isPersonalTimetableDialogOpen}
+        onClose={() => setIsPersonalTimetableDialogOpen(false)}
+        onCreateTimetable={() => {
+          setIsPersonalTimetableDialogOpen(false)
+          window.location.href = '/connect-spotify'
+        }}
+      />
+      </div>
+      
     </header>
   )
 }

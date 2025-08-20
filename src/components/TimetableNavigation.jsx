@@ -9,18 +9,22 @@ export function TimetableNavigation({
   currentView, 
   setCurrentView,
   showOnlyRecommended,
-  setShowOnlyRecommended
+  setShowOnlyRecommended,
+  isPersonalTimetable
 }) {
   const currentDayData = days[currentDay] || { stages: [] }
 
-  // Auto-switch view based on screen orientation
+  // Auto-switch view based on screen orientation (mobile only)
   useEffect(() => {
     const handleOrientationChange = () => {
-      const isLandscape = window.innerWidth > window.innerHeight
-      if (isLandscape && currentView === 'list') {
-        setCurrentView('timeline')
-      } else if (!isLandscape && currentView === 'timeline') {
-        setCurrentView('list')
+      // Only apply auto-switching on mobile devices (width <= 768px)
+      if (window.innerWidth <= 768) {
+        const isLandscape = window.innerWidth > window.innerHeight
+        if (isLandscape && currentView === 'list') {
+          setCurrentView('timeline')
+        } else if (!isLandscape && currentView === 'timeline') {
+          setCurrentView('list')
+        }
       }
     }
 
@@ -76,23 +80,26 @@ export function TimetableNavigation({
         
         <div className="timetable__nav--controls">
           {/* Toggle Buttons */}
+
+          {isPersonalTimetable && (
           <div className="timetable__toggle">
             <button
               className={`btn__second ${!showOnlyRecommended ? 'active' : ''}`}
               id="filter-toggle-all"
               onClick={() => setShowOnlyRecommended(false)}
             >
-              <span>all</span>
+              <span>Show all</span>
             </button>
             <button
               className={`btn__second ${showOnlyRecommended ? 'active' : ''}`}
               id="filter-toggle-mine"
               onClick={() => setShowOnlyRecommended(true)}
             >
-              <span>my timetable</span>
+              <span>Show my recommendations</span>
             </button>
           </div>
-          
+          )
+        }          
           <button 
             className={`btn__second btn__second--desktop ${currentView === 'list' ? 'active' : ''}`}
             id="view-toggle"
