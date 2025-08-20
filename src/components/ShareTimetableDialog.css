@@ -177,9 +177,9 @@
 
 .copy-button {
   padding: 12px;
-  background: #8B5CF6;
+  background:var(--purpler);
   border: none;
-  border-radius: 8px;
+  border-radius: 0px;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -187,6 +187,8 @@
   align-items: center;
   justify-content: center;
   min-width: 44px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .copy-button:hover {

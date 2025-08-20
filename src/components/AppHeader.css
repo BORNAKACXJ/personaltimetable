@@ -94,6 +94,39 @@
     display: none;
 }
 
+.nav__zoom--controls {
+    display: none;
+}
+
+.mobile__landscape header {
+    display: none;
+}
+
+.mobile__landscape .timetable__nav {
+    top: 0;
+    gap: 8px;
+}
+
+.mobile__landscape .nav__type--days {
+    justify-content: flex-start;
+}
+
+.mobile__landscape .timetable__main .section__margin {
+    padding-top: 0px;
+}
+
+.mobile__landscape .nav__zoom--controls {
+    display: flex;
+    gap: 8px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.mobile__landscape {
+    --timeline-grid-width: 24px;
+}
 
 @media (max-width: 768px) {
     .nav__main--usertimetable, .nav__main--share, .nav__main--settings {

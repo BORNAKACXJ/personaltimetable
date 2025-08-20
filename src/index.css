@@ -66,3 +66,29 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Mobile Landscape Mode Styles */
+body.mobile-landscape {
+  /* Add any specific styles for mobile landscape mode */
+  overflow-x: hidden;
+}
+
+/* Example: Hide certain elements in mobile landscape */
+body.mobile-landscape .mobile--turn-screen {
+  display: none !important;
+}
+
+/* Example: Adjust layout for mobile landscape */
+body.mobile-landscape .timetable__nav--mobile-controls {
+  flex-direction: row;
+  gap: 8px;
+}
+
+/* Example: Optimize text size for landscape */
+body.mobile-landscape .font__size--headline {
+  font-size: 1.2em;
+}
+
+body.mobile-landscape .font__size--body {
+  font-size: 0.9em;
+}

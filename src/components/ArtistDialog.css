@@ -154,7 +154,7 @@
   text-transform: uppercase;
   font-weight: normal;
   margin: 0;
-  margin-bottom: 12px;
+  margin-bottom: 0px;
   color: #8B5CF6;
 }
 
@@ -238,7 +238,7 @@
 
 /* Related Artists Section */
 .related-artists-section {
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 .related-artists-section h4 {
@@ -317,26 +317,28 @@
 
 /* Genre Badge */
 .genre-badge {
-  width: 72px;
-  height: 72px;
-  border-radius: 5px;
-  background: var(--purpler);
+ 
+  background: var(--black);
+  border-radius: 0px;
+  
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  color: white;
+  font-size: 12px;
+  padding: 0px 6px 0px 8px;
 }
 
 .genre-name {
   color: white;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 400;
   text-align: center;
   line-height: 1.2;
   padding: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  transform: skew(0deg, -16deg);
 }
 
 /* Direct Match Badge */
@@ -366,6 +368,7 @@
   align-items: flex-start;
   border-top: 1px solid #e9ecef;
   margin-top: 8px;
+  padding-bottom: 8px;
 }
 
 .artist-dialog__performance-left {
@@ -377,6 +380,8 @@
   color: #333;
   font-weight: bold;
   margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .artist-dialog__performance-stage {

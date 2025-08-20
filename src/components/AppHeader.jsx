@@ -11,7 +11,12 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false)
   return (
+
+  
+
     <header className="header__fixed bg--white">
+
+
       <div className="section__margin">
         <div className="festival__logo--header">
           <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
@@ -122,5 +127,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
       </div>
       
     </header>
+
+    
   )
 }

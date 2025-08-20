@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useCachedFestivalData } from './hooks/useCachedFestivalData'
 import { useSpotifyAuth } from './hooks/useSpotifyAuth'
 import { useRecommendations } from './hooks/useRecommendations'
+import { useLandscapeMode } from './hooks/useLandscapeMode'
 import { ArtistDialog } from './components/ArtistDialog'
 import { TimelineView } from './components/TimelineView'
 import { SpotifyCallback } from './components/SpotifyCallback'
@@ -49,6 +50,9 @@ function App() {
     directMatchCount,
     relatedArtistCount
   } = useRecommendations(spotifyUser?.id, data?.festival?.id)
+  
+  // Landscape mode detection
+  useLandscapeMode()
   
   // 2. All useState hooks
   const [currentDay, setCurrentDay] = useState(0)

@@ -66,16 +66,16 @@
 }
 
 .match__type--nomatch {
-  background-color: #FFFFFF !important;
+  background-color: #484766 !important;
   /* border: 1px solid #E5E7EB !important; */
-  color: #1F2937 !important;
-  opacity: 0.5;
+  color: white !important;
+  opacity: 1;
 
 }
 
 .match__type--nomatch .act__name,
 .match__type--nomatch .act__time {
-  color: #374151 !important;
+  color: white !important;
 }
 
 /* Match type indicators */

@@ -190,14 +190,10 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                         // Genre match display
                         <>
                           <div className="genre-badge">
+                          <i class="fa-sharp fa-regular fa-wave-square"></i>
                             <span className="genre-name">{match.name}</span>
                           </div>
-                          <div className="related-artist-info">
-                            <div className="related-artist-name">{match.name}</div>
-                            <div className="related-artist-strength">
-                              {artist.recommendation.matchType === 'genre_light' ? '_Genre' : '_Genre'}
-                            </div>
-                          </div>
+                          
                         </>
                       ) : match.type === 'direct' ? (
                         // Direct match display
@@ -255,7 +251,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
             opacity: animationStep >= 6 ? 1 : 0
           }}
         >
-          <h3>ABOUT THIS ARTIST</h3>
+          {/* <h3>ABOUT THIS ARTIST</h3> */}
           <div className="artist-dialog__bio-container">
             <p id="dialog-artist-about">
               {artist.bio || 'No description available for this artist.'}
