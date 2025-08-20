@@ -102,10 +102,6 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
       <PersonalTimetableDialog
         isOpen={isPersonalTimetableDialogOpen}
         onClose={() => setIsPersonalTimetableDialogOpen(false)}
-        onCreateTimetable={() => {
-          setIsPersonalTimetableDialogOpen(false)
-          window.location.href = '/connect-spotify'
-        }}
       />
 
       {/* Share Timetable Dialog */}

@@ -9,7 +9,8 @@ const SPOTIFY_SCOPES = [
   'user-top-read'       // Access to user's top artists and tracks
 ].join(' ')
 
-export function useSpotifyAuth() {
+export function useSpotifyAuth(options = {}) {
+  const { disableSupabaseSaving = false } = options
   const [user, setUser] = useState(null)
   const [topTracks, setTopTracks] = useState([])
   const [topArtists, setTopArtists] = useState([])
@@ -227,13 +228,15 @@ export function useSpotifyAuth() {
         localStorage.setItem('spotify_user_profile', JSON.stringify(data))
         localStorage.setItem('spotify_user_profile_timestamp', Date.now().toString())
         
-        // Save to Supabase
-        try {
-          const savedProfile = await UserDataManager.saveSpotifyProfile(data)
-          console.log('User profile saved to Supabase:', savedProfile)
-        } catch (supabaseError) {
-          console.error('Failed to save profile to Supabase:', supabaseError)
-          // Don't throw error - localStorage fallback is still available
+        // Only save to Supabase if not disabled
+        if (!disableSupabaseSaving) {
+          try {
+            const savedProfile = await UserDataManager.saveSpotifyProfile(data)
+            console.log('User profile saved to Supabase:', savedProfile)
+          } catch (supabaseError) {
+            console.error('Failed to save profile to Supabase:', supabaseError)
+            // Don't throw error - localStorage fallback is still available
+          }
         }
         
         return data
@@ -245,7 +248,7 @@ export function useSpotifyAuth() {
       setError(error.message)
       return null
     }
-  }, [getValidAccessToken])
+  }, [getValidAccessToken, disableSupabaseSaving])
 
   const fetchTopTracks = useCallback(async (timeRange = 'medium_term', limit = 50) => {
     try {
@@ -265,8 +268,8 @@ export function useSpotifyAuth() {
         localStorage.setItem('spotify_top_tracks', JSON.stringify(data.items))
         localStorage.setItem('spotify_top_tracks_timestamp', Date.now().toString())
         
-        // Save to Supabase if we have a user profile
-        if (user?.id) {
+        // Only save to Supabase if not disabled and we have a user profile
+        if (!disableSupabaseSaving && user?.id) {
           try {
             const savedTracks = await UserDataManager.saveTopTracks(user.id, data.items, timeRange)
             console.log('Top tracks saved to Supabase:', savedTracks.length)
@@ -287,7 +290,7 @@ export function useSpotifyAuth() {
     } finally {
       setLoading(false)
     }
-  }, [getValidAccessToken, user?.id])
+  }, [getValidAccessToken, user?.id, disableSupabaseSaving])
 
   const fetchTopArtists = useCallback(async (timeRange = 'medium_term', limit = 50) => {
     try {
@@ -307,8 +310,8 @@ export function useSpotifyAuth() {
         localStorage.setItem('spotify_top_artists', JSON.stringify(data.items))
         localStorage.setItem('spotify_top_artists_timestamp', Date.now().toString())
         
-        // Save to Supabase if we have a user profile
-        if (user?.id) {
+        // Only save to Supabase if not disabled and we have a user profile
+        if (!disableSupabaseSaving && user?.id) {
           try {
             const savedArtists = await UserDataManager.saveTopArtists(user.id, data.items, timeRange)
             console.log('Top artists saved to Supabase:', savedArtists.length)
@@ -329,17 +332,26 @@ export function useSpotifyAuth() {
     } finally {
       setLoading(false)
     }
-  }, [getValidAccessToken, user?.id])
+  }, [getValidAccessToken, user?.id, disableSupabaseSaving])
 
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
       
-      await fetchUserProfile()
-      await fetchTopTracks()
-      await fetchTopArtists()
+      console.log('🔄 Starting fetchUserData...')
+      const userProfile = await fetchUserProfile()
+      console.log('✅ User profile fetched:', userProfile?.id)
+      
+      const topTracksData = await fetchTopTracks()
+      console.log('✅ Top tracks fetched:', topTracksData?.length || 0)
+      
+      const topArtistsData = await fetchTopArtists()
+      console.log('✅ Top artists fetched:', topArtistsData?.length || 0)
+      
+      console.log('✅ fetchUserData completed successfully')
     } catch (error) {
+      console.error('❌ fetchUserData error:', error)
       setError(error.message)
     } finally {
       setLoading(false)
@@ -376,7 +388,10 @@ export function useSpotifyAuth() {
       console.log('Got access token:', token ? 'SUCCESS' : 'FAILED')
       
       if (token) {
+        setIsAuthenticated(true)
+        console.log('✅ Setting isAuthenticated to true')
         await fetchUserData()
+        console.log('✅ fetchUserData completed')
       }
     } catch (error) {
       console.error('HandleCallback error:', error)

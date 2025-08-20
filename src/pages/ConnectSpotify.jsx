@@ -32,7 +32,7 @@ export default function ConnectSpotify() {
     handleCallback: authHandleCallback,
     fetchTopArtists: fetchTopArtistsHook,
     fetchTopTracks: fetchTopTracksHook
-  } = useSpotifyAuth()
+  } = useSpotifyAuth({ disableSupabaseSaving: false })
 
   // Check if user already has a personal timetable
   const checkExistingProfile = async (spotifyId) => {
@@ -60,15 +60,69 @@ export default function ConnectSpotify() {
     console.log('🎵 ConnectSpotify Component Mounted')
     logSpotifyConfig()
     
-    // Check if we're returning from Spotify OAuth
+    // Check URL parameters
     const urlParams = new URLSearchParams(window.location.search)
     const code = urlParams.get('code')
     const error = urlParams.get('error')
+    const step = urlParams.get('step')
+    const userParam = urlParams.get('user')
+    const artistsParam = urlParams.get('artists')
+    const tracksParam = urlParams.get('tracks')
+
+    // Debug all URL parameters
+    console.log('🔍 ConnectSpotify URL Debug:', {
+      fullUrl: window.location.href,
+      search: window.location.search,
+      code,
+      error,
+      step,
+      userParam: userParam ? 'Present' : 'Missing',
+      artistsParam: artistsParam ? 'Present' : 'Missing',
+      tracksParam: tracksParam ? 'Present' : 'Missing'
+    })
 
     if (error) {
       console.error('Spotify OAuth Error:', error)
       setError('Spotify authorization failed: ' + error)
       setStep('connect')
+    } else if (step === 'success') {
+      // Coming from SpotifyCallback with success data
+      console.log('🎯 Received success step from SpotifyCallback')
+      try {
+        let userData = null
+        let artistsData = []
+        let tracksData = []
+        
+        if (userParam && userParam !== '') {
+          userData = JSON.parse(decodeURIComponent(userParam))
+          console.log('✅ Parsed user data:', userData)
+        }
+        
+        if (artistsParam && artistsParam !== '') {
+          artistsData = JSON.parse(decodeURIComponent(artistsParam))
+          console.log('✅ Parsed artists data:', artistsData.length)
+        }
+        
+        if (tracksParam && tracksParam !== '') {
+          tracksData = JSON.parse(decodeURIComponent(tracksParam))
+          console.log('✅ Parsed tracks data:', tracksData.length)
+        }
+        
+        // Set the data (even if empty)
+        if (userData) setSpotifyUser(userData)
+        if (artistsData.length > 0) setTopArtists(artistsData.slice(0, 5))
+        if (tracksData.length > 0) setTopTracks(tracksData.slice(0, 5))
+        
+        setStep('success')
+        
+        // Clear URL parameters
+        window.history.replaceState({}, document.title, '/connect-spotify')
+      } catch (parseError) {
+        console.error('❌ Error parsing URL parameters:', parseError)
+        console.log('Proceeding to success step anyway...')
+        setStep('success')
+        window.history.replaceState({}, document.title, '/connect-spotify')
+      }
     } else if (code) {
       console.log('Spotify OAuth Code received:', code)
       authHandleCallback(code)
@@ -85,33 +139,7 @@ export default function ConnectSpotify() {
     }
   }, [authError])
 
-  useEffect(() => {
-    if (isAuthenticated && authUser) {
-      // Always show the success step with user's data after auth
-      if (!spotifyUser) {
-        setSpotifyUser(authUser)
-      }
-      if (authTopArtists && authTopArtists.length) {
-        setTopArtists(authTopArtists.slice(0, 5))
-      }
-      if (authTopTracks && authTopTracks.length) {
-        setTopTracks(authTopTracks.slice(0, 5))
-      }
-      if ((authTopArtists && authTopArtists.length) || (authTopTracks && authTopTracks.length)) {
-        setStep('success')
-      } else {
-        // If not loaded yet, fetch minimal lists
-        Promise.all([
-          fetchTopArtistsHook('short_term', 5),
-          fetchTopTracksHook('short_term', 5)
-        ]).then(([artists, tracks]) => {
-          setTopArtists((artists || []).slice(0, 5))
-          setTopTracks((tracks || []).slice(0, 5))
-          setStep('success')
-        }).catch(() => {})
-      }
-    }
-  }, [isAuthenticated, authUser, authTopArtists, authTopTracks, fetchTopArtistsHook, fetchTopTracksHook])
+
 
   // Deprecated local handler removed; auth is handled via useSpotifyAuth
 
@@ -135,9 +163,10 @@ export default function ConnectSpotify() {
       setError(null)
       setStep('loading')
 
-      // TEMPORARILY COMMENTED OUT FOR STYLING WORK
       // If user already has a profile, use it; otherwise create one
-      let newProfileId = await checkExistingProfile(authUser?.id || spotifyUser?.id)
+      const userId = spotifyUser?.id || authUser?.id
+      let newProfileId = await checkExistingProfile(userId)
+      
       if (!newProfileId) {
         // Generate a unique profile ID
         newProfileId = crypto.randomUUID()
@@ -147,43 +176,34 @@ export default function ConnectSpotify() {
           .from('spotify_profiles')
           .insert({
             id: newProfileId,
-            spotify_id: (authUser?.id || spotifyUser?.id),
-            display_name: (authUser?.display_name || spotifyUser?.display_name)
+            spotify_id: userId,
+            display_name: spotifyUser?.display_name || authUser?.display_name
           })
 
         if (profileError) {
           throw new Error(`Failed to save profile: ${profileError.message}`)
         }
 
-        // Save top artists
+        // Save top artists using UserDataManager
         if (topArtists.length > 0) {
-          const artistsToInsert = topArtists.map(artist => ({
-            spotify_profile_id: newProfileId,
-            spotify_artist_id: artist.id,
-            genres: artist.genres || []
-          }))
-
-          const { error: artistsError } = await supabase
-            .from('user_top_artists')
-            .insert(artistsToInsert)
-
-          if (artistsError) {
+          try {
+            const { UserDataManager } = await import('../utils/userDataManager')
+            await UserDataManager.saveTopArtists(userId, topArtists, 'medium_term')
+            console.log('✅ Top artists saved successfully')
+          } catch (artistsError) {
+            console.error('❌ Failed to save top artists:', artistsError)
             throw new Error(`Failed to save top artists: ${artistsError.message}`)
           }
         }
 
-        // Save top tracks
+        // Save top tracks using UserDataManager
         if (topTracks.length > 0) {
-          const tracksToInsert = topTracks.map(track => ({
-            spotify_profile_id: newProfileId,
-            artist_spotify_id: track.artists[0]?.id
-          }))
-
-          const { error: tracksError } = await supabase
-            .from('user_top_tracks')
-            .insert(tracksToInsert)
-
-          if (tracksError) {
+          try {
+            const { UserDataManager } = await import('../utils/userDataManager')
+            await UserDataManager.saveTopTracks(userId, topTracks, 'medium_term')
+            console.log('✅ Top tracks saved successfully')
+          } catch (tracksError) {
+            console.error('❌ Failed to save top tracks:', tracksError)
             throw new Error(`Failed to save top tracks: ${tracksError.message}`)
           }
         }
@@ -191,9 +211,6 @@ export default function ConnectSpotify() {
 
       setProfileId(newProfileId)
       setStep('complete')
-
-      // TEMPORARY: Just stay on loading step for styling work
-      console.log('Loading step reached - staying here for styling work')
 
     } catch (err) {
       setError(err.message)

@@ -10,6 +10,7 @@ import { RecommendationsPanel } from './components/RecommendationsPanel'
 import { TimetableNavigation } from './components/TimetableNavigation'
 import { TimetableList } from './components/TimetableList'
 import { AppHeader } from './components/AppHeader'
+import { PersonalTimetableLoadingDialog } from './components/PersonalTimetableLoadingDialog'
 import Api from './pages/Api'
 import SpotifyProfiles from './pages/SpotifyProfiles'
 import ArtistRecommendations from './pages/ArtistRecommendations'
@@ -37,7 +38,7 @@ function App() {
     login: spotifyLogin, 
     logout: spotifyLogout,
     loading: spotifyLoading 
-  } = useSpotifyAuth()
+  } = useSpotifyAuth({ disableSupabaseSaving: true })
 
   const { 
     recommendations, 
@@ -63,6 +64,9 @@ function App() {
   
   // Toggle state for showing only recommended acts
   const [showOnlyRecommended, setShowOnlyRecommended] = useState(false)
+  
+  // Personal timetable loading dialog state
+  const [isPersonalTimetableLoading, setIsPersonalTimetableLoading] = useState(false)
 
   // Set default filter based on whether we're viewing a personal timetable
   useEffect(() => {
@@ -167,6 +171,9 @@ function App() {
         
         // Only fetch recommendations if we have a user ID in the URL
         if (userId) {
+          // Show loading dialog for personal timetables
+          setIsPersonalTimetableLoading(true)
+          
           const response = await fetch(`https://mpt-api.netlify.app/api/artist-recommendations/${userId}`)
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)
@@ -183,6 +190,10 @@ function App() {
         setApiRecommendationsError(error.message)
       } finally {
         setApiRecommendationsLoading(false)
+        // Hide loading dialog after a short delay to show completion
+        setTimeout(() => {
+          setIsPersonalTimetableLoading(false)
+        }, 1000)
       }
     }
 
@@ -483,6 +494,12 @@ function App() {
         artist={selectedArtist} 
         isOpen={isArtistDialogOpen} 
         onClose={closeArtistDialog}
+      />
+
+      {/* Personal Timetable Loading Dialog */}
+      <PersonalTimetableLoadingDialog 
+        isVisible={isPersonalTimetableLoading}
+        userName={currentUserName}
       />
     </div>
   )

@@ -218,4 +218,63 @@ export class UserDataManager {
       throw error
     }
   }
+
+  // Save user sharing preferences (autosave) - directly to spotify_profiles
+  static async saveSharingPreferences(userId, shareDisplayName, shareEmail) {
+    try {
+      console.log('Saving sharing preferences for user:', userId)
+      console.log('Sharing preferences:', { shareDisplayName, shareEmail })
+
+      // Update the spotify_profiles table directly with sharing preferences using the UUID
+      const { data, error } = await supabase
+        .from('spotify_profiles')
+        .update({
+          display_name: shareDisplayName,
+          email: shareEmail,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId) // Use the UUID directly
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating sharing preferences:', error)
+        throw error
+      }
+
+      console.log('Sharing preferences saved to spotify_profiles:', data)
+      return data
+    } catch (error) {
+      console.error('Error saving sharing preferences:', error)
+      throw error
+    }
+  }
+
+  // Get user sharing preferences from spotify_profiles
+  static async getSharingPreferences(userId) {
+    try {
+      console.log('Getting sharing preferences for user:', userId)
+
+      // Get sharing preferences directly from spotify_profiles using the UUID
+      const { data: profile, error } = await supabase
+        .from('spotify_profiles')
+        .select('display_name, email')
+        .eq('id', userId) // Use the UUID directly
+        .single()
+
+      if (error) {
+        console.error('Error getting sharing preferences:', error)
+        throw error
+      }
+
+      console.log('Retrieved sharing preferences:', profile)
+      return {
+        share_display_name: profile?.display_name || '',
+        share_email: profile?.email || ''
+      }
+    } catch (error) {
+      console.error('Error getting sharing preferences:', error)
+      throw error
+    }
+  }
 }

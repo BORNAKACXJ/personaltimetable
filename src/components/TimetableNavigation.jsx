@@ -81,7 +81,7 @@ export function TimetableNavigation({
         <div className="timetable__nav--controls">
           {/* Toggle Buttons */}
 
-          {!isPersonalTimetable && (
+          {isPersonalTimetable && (
           <div className="timetable__toggle">
             <button
               className={`btn__second ${!showOnlyRecommended ? 'active' : ''}`}

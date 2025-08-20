@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Music, Heart, Users, Calendar, Star } from 'lucide-react'
+import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
+import { getSpotifyRedirectUri, getSpotifyClientId, logSpotifyConfig } from '../utils/spotifyConfig'
 import './PersonalTimetableDialog.css'
 
 export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) {
@@ -7,6 +9,16 @@ export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) 
   const [animationStep, setAnimationStep] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  // Spotify OAuth configuration
+  const CLIENT_ID = getSpotifyClientId()
+  const REDIRECT_URI = getSpotifyRedirectUri()
+  const SCOPES = 'user-top-read'
+
+  // Use existing Spotify auth hook
+  const { login } = useSpotifyAuth({ disableSupabaseSaving: true })
 
   useEffect(() => {
     // Check if mobile on mount and resize
@@ -41,9 +53,28 @@ export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) 
     if (!hasAgreedToTerms) {
       return // Don't proceed if terms not agreed
     }
-    onClose()
-    if (onCreateTimetable) {
-      onCreateTimetable()
+    
+    setLoading(true)
+    setError(null)
+    
+    // Log current Spotify configuration for debugging
+    logSpotifyConfig()
+    
+    // Validate required configuration
+    if (!CLIENT_ID) {
+      setError('Spotify Client ID is not configured. Please check your environment variables.')
+      setLoading(false)
+      return
+    }
+    
+    try {
+      // Initiate Spotify OAuth flow directly
+      login()
+      // Close dialog after initiating auth
+      onClose()
+    } catch (err) {
+      setError('Failed to connect to Spotify. Please try again.')
+      setLoading(false)
     }
   }
 
@@ -58,7 +89,7 @@ export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) 
           <div className="personal-timetable-dialog__title-section">
             
             <div className="personal-timetable-dialog__title-actions">
-              <h2>Create Your Personal HTC Timetable 2025</h2>
+              <h2>Connect to Spotify to create your personal timetable</h2>
               <button 
                 className="personal-timetable-dialog__close" 
                 onClick={onClose}
@@ -104,13 +135,24 @@ export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) 
           </div>
 
           <button 
-            className={`nav__main--spotify huge ${!hasAgreedToTerms ? 'disabled' : ''}`}
+            className={`nav__main--spotify huge ${!hasAgreedToTerms || loading ? 'disabled' : ''}`}
             onClick={handleCreateTimetable}
-            disabled={!hasAgreedToTerms}
+            disabled={!hasAgreedToTerms || loading}
           >
             <img src="/_assets/_images/spotify_icon.svg" alt="Spotify" />
-            Connect to Spotify
+            {loading ? 'Connecting...' : 'Connect to Spotify'}
           </button>
+          
+          {error && (
+            <div className="error-message" style={{ 
+              color: '#ef4444', 
+              fontSize: '14px', 
+              marginTop: '8px',
+              textAlign: 'center'
+            }}>
+              {error}
+            </div>
+          )}
 
          </div>
 

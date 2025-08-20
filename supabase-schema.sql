@@ -17,6 +17,17 @@ CREATE TABLE IF NOT EXISTS spotify_profiles (
   updated_at timestamptz DEFAULT now()
 );
 
+-- Create user_sharing_preferences table for storing autosaved sharing preferences
+CREATE TABLE IF NOT EXISTS user_sharing_preferences (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  spotify_profile_id uuid REFERENCES spotify_profiles(id) ON DELETE CASCADE,
+  share_display_name text,
+  share_email text,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(spotify_profile_id)
+);
+
 -- Create user_top_tracks table
 CREATE TABLE IF NOT EXISTS user_top_tracks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -201,6 +212,7 @@ CREATE TABLE IF NOT EXISTS related_artists (
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_spotify_profiles_spotify_id ON spotify_profiles(spotify_id);
+CREATE INDEX IF NOT EXISTS idx_user_sharing_preferences_spotify_profile_id ON user_sharing_preferences(spotify_profile_id);
 CREATE INDEX IF NOT EXISTS idx_user_top_tracks_spotify_profile_id ON user_top_tracks(spotify_profile_id);
 CREATE INDEX IF NOT EXISTS idx_user_top_tracks_time_range ON user_top_tracks(time_range);
 CREATE INDEX IF NOT EXISTS idx_user_top_artists_spotify_profile_id ON user_top_artists(spotify_profile_id);
@@ -228,6 +240,7 @@ CREATE INDEX IF NOT EXISTS idx_related_artists_related_spotify_id ON related_art
 
 -- Enable Row Level Security
 ALTER TABLE spotify_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_sharing_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_top_tracks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_top_artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_sessions ENABLE ROW LEVEL SECURITY;
@@ -257,6 +270,10 @@ CREATE POLICY "Allow public read access to related_artists" ON related_artists F
 CREATE POLICY "Users can view own profile" ON spotify_profiles FOR SELECT USING (auth.uid()::text = spotify_id);
 CREATE POLICY "Users can update own profile" ON spotify_profiles FOR UPDATE USING (auth.uid()::text = spotify_id);
 CREATE POLICY "Users can insert own profile" ON spotify_profiles FOR INSERT WITH CHECK (auth.uid()::text = spotify_id);
+
+CREATE POLICY "Users can view own sharing preferences" ON user_sharing_preferences FOR SELECT USING (spotify_profile_id IN (SELECT id FROM spotify_profiles WHERE spotify_id = auth.uid()::text));
+CREATE POLICY "Users can insert own sharing preferences" ON user_sharing_preferences FOR INSERT WITH CHECK (spotify_profile_id IN (SELECT id FROM spotify_profiles WHERE spotify_id = auth.uid()::text));
+CREATE POLICY "Users can update own sharing preferences" ON user_sharing_preferences FOR UPDATE USING (spotify_profile_id IN (SELECT id FROM spotify_profiles WHERE spotify_id = auth.uid()::text));
 
 CREATE POLICY "Users can view own top tracks" ON user_top_tracks FOR SELECT USING (spotify_profile_id IN (SELECT id FROM spotify_profiles WHERE spotify_id = auth.uid()::text));
 CREATE POLICY "Users can insert own top tracks" ON user_top_tracks FOR INSERT WITH CHECK (spotify_profile_id IN (SELECT id FROM spotify_profiles WHERE spotify_id = auth.uid()::text));
@@ -293,6 +310,7 @@ $$ language 'plpgsql';
 
 -- Create triggers for updated_at
 CREATE TRIGGER update_spotify_profiles_updated_at BEFORE UPDATE ON spotify_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_user_sharing_preferences_updated_at BEFORE UPDATE ON user_sharing_preferences FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_personal_timetables_updated_at BEFORE UPDATE ON personal_timetables FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_personal_timetable_entries_updated_at BEFORE UPDATE ON personal_timetable_entries FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_festivals_updated_at BEFORE UPDATE ON festivals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { X, Share2, Copy, Check } from 'lucide-react'
+import { UserDataManager } from '../utils/userDataManager'
 import './ShareTimetableDialog.css'
 
 export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
@@ -10,6 +11,8 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
   const [email, setEmail] = useState('')
   const [copied, setCopied] = useState(false)
   const [shareLink, setShareLink] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveStatus, setSaveStatus] = useState('')
 
   useEffect(() => {
     // Check if mobile on mount and resize
@@ -23,12 +26,46 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  // Autosave function with debouncing
+  const autosavePreferences = useCallback(async (displayName, emailAddress) => {
+    if (!userId) return
+    
+    setIsSaving(true)
+    setSaveStatus('Saving...')
+    
+    try {
+      await UserDataManager.saveSharingPreferences(userId, displayName, emailAddress)
+      setSaveStatus('Saved!')
+      setTimeout(() => setSaveStatus(''), 2000)
+    } catch (error) {
+      console.error('Error autosaving preferences:', error)
+      setSaveStatus('Save failed')
+      setTimeout(() => setSaveStatus(''), 3000)
+    } finally {
+      setIsSaving(false)
+    }
+  }, [userId])
+
+  // Load saved preferences when dialog opens
+  const loadSavedPreferences = useCallback(async () => {
+    if (!userId) return
+    
+    try {
+      const preferences = await UserDataManager.getSharingPreferences(userId)
+      if (preferences) {
+        setName(preferences.share_display_name || '')
+        setEmail(preferences.share_email || '')
+      }
+    } catch (error) {
+      console.error('Error loading saved preferences:', error)
+    }
+  }, [userId])
+
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true)
-      // Reset form when dialog opens
-      setName('')
-      setEmail('')
+      // Load saved preferences when dialog opens
+      loadSavedPreferences()
       setCopied(false)
       // Generate share link
       setShareLink(`${window.location.origin}/t/${userId}`)
@@ -42,7 +79,18 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
       setAnimationStep(0)
       setTimeout(() => setIsVisible(false), 300)
     }
-  }, [isOpen, userId])
+  }, [isOpen, userId, loadSavedPreferences])
+
+  // Debounced autosave effect
+  useEffect(() => {
+    if (!userId || (!name && !email)) return
+    
+    const timeoutId = setTimeout(() => {
+      autosavePreferences(name, email)
+    }, 1000) // 1 second delay
+    
+    return () => clearTimeout(timeoutId)
+  }, [name, email, userId, autosavePreferences])
 
   const handleCopyLink = async () => {
     try {
@@ -70,9 +118,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
       <div className="share-timetable-dialog__content">
         <div className="share-timetable-dialog__header">
           <div className="share-timetable-dialog__title-section">
-            <div className="share-timetable-dialog__icon">
-              <Share2 size={32} />
-            </div>
+            
             <div className="share-timetable-dialog__title-actions">
               <h2>Share Your Timetable</h2>
               <button 
@@ -89,7 +135,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
         <div className="share-timetable-dialog__body">
           <div className="share-timetable-dialog__description">
             <p>
-              Share your personal Hit The City timetable with friends! Add your name and email to personalize your shared link.
+              Share your personal Hit The City timetable with friends! Add your name and email to personalize your shared link. Your preferences will be automatically saved.
             </p>
           </div>
 
@@ -120,6 +166,13 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
               />
             </div>
 
+            {/* Autosave Status */}
+            {saveStatus && (
+              <div className={`autosave-status ${isSaving ? 'saving' : saveStatus === 'Saved!' ? 'saved' : 'error'}`}>
+                {saveStatus}
+              </div>
+            )}
+
             {/* Share Link Section */}
             <div className="share-link-section">
               <label className="form-label">Share Link</label>
@@ -147,7 +200,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
           </div>
         </div>
 
-        <div className="share-timetable-dialog__footer">
+        {/* <div className="share-timetable-dialog__footer">
           <button 
             className="share-timetable-dialog__cancel" 
             onClick={onClose}
@@ -160,7 +213,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
           >
             Save & Share
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   )

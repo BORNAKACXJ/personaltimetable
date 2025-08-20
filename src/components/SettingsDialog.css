@@ -81,7 +81,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: bold;
-  color: #000;
+  color:var(--purpler);
   line-height: 1.2;
   text-transform: uppercase;
   letter-spacing: 0.04em;
