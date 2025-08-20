@@ -118,8 +118,8 @@
 }
 
 .settings-section.danger-zone {
-  border-color: #fecaca;
-  background: #fef2f2;
+  /* border-color: #fecaca;
+  background: #fef2f2; */
 }
 
 .section-title {
@@ -287,9 +287,9 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: #dc2626;
+  background: black;
   border: none;
-  border-radius: 8px;
+  border-radius: 0px;
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -314,7 +314,7 @@
   padding: 12px 24px;
   background: #8B5CF6;
   border: none;
-  border-radius: 8px;
+  border-radius: 0px;
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -339,7 +339,12 @@
   }
 
   .settings-dialog__header {
-    padding: 20px 20px 16px 20px;
+    padding: 8px;
+    padding-bottom: 16px;
+  }
+
+  .settings-dialog__close {
+    padding: 0px;
   }
 
   .settings-dialog__title-actions h2 {
@@ -351,7 +356,7 @@
   }
 
   .settings-section {
-    padding: 0px;
+    padding: 8px;
     margin-bottom: 24px;
   }
 
@@ -361,6 +366,10 @@
 
   .track-item {
     
+  }
+
+  .artist-item, .track-item {
+    padding: 0px !important;
   }
 
   .artists-grid {

@@ -197,10 +197,7 @@ export function SettingsDialog({ isOpen, onClose, userId, userName }) {
 
           {/* Disconnect Section */}
           <div className="settings-section danger-zone">
-            <h3 className="section-title danger">
-              <LogOut size={20} />
-              Disconnect Spotify
-            </h3>
+            
             <div className="disconnect-section">
               <p>Disconnect your Spotify account and remove your personal timetable.</p>
               <button 
