@@ -256,9 +256,19 @@ function App() {
 
   if (loading) {
     return (
-      <div className="loading">
+    <div className="loading" style={{ position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        zIndex: 9999 }}>
         <div className="loading-spinner"></div>
-        <p>Loading timetable...</p>
+        
       </div>
     )
   }

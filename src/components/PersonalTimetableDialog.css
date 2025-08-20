@@ -276,16 +276,13 @@
     padding: 20px 20px 16px 20px;
   }
 
-  .personal-timetable-dialog__title-actions h2 {
-    font-size: 20px;
-  }
-
   .personal-timetable-dialog__body {
     padding: 20px;
   }
 
   .personal-timetable-dialog__description p {
-    font-size: 15px;
+    font-size: 14px;
+        line-height: 1.4;
   }
 
   .feature-item {
