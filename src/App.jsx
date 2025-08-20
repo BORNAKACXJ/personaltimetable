@@ -156,7 +156,27 @@ function App() {
   // Get user ID from URL path
   const getUserFromUrl = () => {
     const path = window.location.pathname
-    const match = path.match(/^\/t\/([a-f0-9-]+)$/)
+    console.log('🔍 getUserFromUrl Debug:', {
+      path,
+      fullUrl: window.location.href,
+      search: window.location.search,
+      hash: window.location.hash
+    })
+    
+    // Try exact match first
+    let match = path.match(/^\/t\/([a-f0-9-]+)$/)
+    
+    // If no match, try more flexible pattern (might have query params or trailing slash)
+    if (!match) {
+      match = path.match(/^\/t\/([a-f0-9-]+)/)
+    }
+    
+    console.log('🔍 URL Match Result:', {
+      match,
+      extractedUserId: match ? match[1] : null,
+      regexPattern: match ? 'flexible' : 'none'
+    })
+    
     return match ? match[1] : null
   }
 
@@ -312,6 +332,14 @@ function App() {
   // Check if we're viewing a personal timetable
   const currentUserId = getUserFromUrl()
   const isPersonalTimetable = !!currentUserId
+  
+  // Debug logging
+  console.log('🔍 Personal Timetable Debug:', {
+    currentPath: window.location.pathname,
+    currentUserId,
+    isPersonalTimetable,
+    hasRecommendations: !!(apiRecommendations && apiRecommendations.length > 0)
+  })
 
   // Helper function to flatten time slot recommendations
   const getFlattenedRecommendations = () => {
@@ -431,6 +459,7 @@ function App() {
               setCurrentView={setCurrentView}
               showOnlyRecommended={showOnlyRecommended}
               setShowOnlyRecommended={setShowOnlyRecommended}
+              isPersonalTimetable={isPersonalTimetable}
             />
 
             {/* Timeline View */}

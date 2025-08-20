@@ -13,6 +13,8 @@ export function TimetableNavigation({
   isPersonalTimetable
 }) {
   const currentDayData = days[currentDay] || { stages: [] }
+  
+
 
   // Auto-switch view based on screen orientation (mobile only)
   useEffect(() => {
@@ -81,25 +83,19 @@ export function TimetableNavigation({
         <div className="timetable__nav--controls">
           {/* Toggle Buttons */}
 
+          
+          
           {isPersonalTimetable && (
           <div className="timetable__toggle">
             <button
-              className={`btn__second ${!showOnlyRecommended ? 'active' : ''}`}
-              id="filter-toggle-all"
-              onClick={() => setShowOnlyRecommended(false)}
+              className="btn__second active"
+              id="filter-toggle"
+              onClick={() => setShowOnlyRecommended(!showOnlyRecommended)}
             >
-              <span>Show all</span>
-            </button>
-            <button
-              className={`btn__second ${showOnlyRecommended ? 'active' : ''}`}
-              id="filter-toggle-mine"
-              onClick={() => setShowOnlyRecommended(true)}
-            >
-              <span>Show my recommendations</span>
+              <span>{showOnlyRecommended ? 'Show all' : 'Show my recommendations'}</span>
             </button>
           </div>
-          )
-        }          
+          )}          
           <button 
             className={`btn__second btn__second--desktop ${currentView === 'list' ? 'active' : ''}`}
             id="view-toggle"
@@ -124,21 +120,20 @@ export function TimetableNavigation({
           </div>
           
           {/* Mobile controls */}
-          <div className="timetable__nav--mobile-controls" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {/* Mobile filter toggle buttons */}
+          <div className="timetable__nav--mobile-controls" style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
+            {/* Mobile filter toggle button */}
+            {isPersonalTimetable && (
             <div className="timetable__toggle--mobile" style={{ display: 'flex', gap: '4px' }}>
               <button
-                className={`btn__second btn__second--mobile ${!showOnlyRecommended ? 'active' : ''}`}
-                onClick={() => setShowOnlyRecommended(false)}
+                className="btn__second btn__second--mobile active"
+                onClick={() => setShowOnlyRecommended(!showOnlyRecommended)}
               >
-                <span>all</span>
+                <span>{showOnlyRecommended ? 'Show all' : 'Show recommendations'}</span>
               </button>
-              <button
-                className={`btn__second btn__second--mobile ${showOnlyRecommended ? 'active' : ''}`}
-                onClick={() => setShowOnlyRecommended(true)}
-              >
-                <span>my</span>
-              </button>
+            </div>
+            )}
+            <div className="mobile--turn-screen">
+            <i class="fa-sharp fa-solid fa-arrow-rotate-right"></i> Turn for timetable view
             </div>
           </div>
         </div>

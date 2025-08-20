@@ -53,7 +53,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
               className="nav__main--share"
             >
                <i class="fa-sharp fa-solid fa-share"></i>
-              Share Timetable
+              Share <span>Timetable</span>
             </button>
             
             <button

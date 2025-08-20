@@ -91,7 +91,41 @@
 }
 
 
+@media (max-width: 768px) {
+    .nav__main--usertimetable, .nav__main--share, .nav__main--settings {
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        line-height: 24px;
+        border: none;
+        background: rgba(1, 1, 1, 0.1);
+        padding: 0px 8px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+        padding-top: 2px;
+    }
 
+    .nav__main--usertimetable span, .nav__main--share span, .nav__main--settings span {
+        display: none;
+    }
+
+    .timetable__nav--mobile-controls {
+        display:flex;
+        align-items: flex-end;
+        flex-direction: column;
+    }
+
+    .mobile--turn-screen {
+        font-size: 10px;
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+       opacity: 0.4;
+    }
+}
 
 
 
