@@ -2,10 +2,14 @@ import { useState } from 'react'
 import './AppHeader.css'
 import { UserProfileDialog } from './UserProfileDialog'
 import { PersonalTimetableDialog } from './PersonalTimetableDialog'
+import { ShareTimetableDialog } from './ShareTimetableDialog'
+import { SettingsDialog } from './SettingsDialog'
 
 export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName, apiRecommendationsLoading, apiRecommendationsError }) {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
   const [isPersonalTimetableDialogOpen, setIsPersonalTimetableDialogOpen] = useState(false)
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false)
   return (
     <header className="header__fixed bg--white">
       <div className="section__margin">
@@ -19,9 +23,17 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
             fontSize: '1.2rem',
             fontWeight: 'bold',
             textAlign: 'center',
-            color: '#333'
+            color: '#333',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
           }}>
-            {isPersonalTimetable ? 'My Personal Timetable' : 'Hit The City Timetable'}
+            {isPersonalTimetable ? (
+              <span dangerouslySetInnerHTML={{
+                __html: `Personal Timetable of <span style="color: var(--purpler);">${currentUserName}</span>`
+              }} />
+            ) : (
+              'Hit The City Timetable'
+            )}
           </div>
         </div>
         
@@ -34,13 +46,24 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
             alignItems: 'center',
             gap: '8px'
           }}>
+            
+            
             <button
-              onClick={() => setIsProfileDialogOpen(true)}
-              className="nav__main--usertimetable"
-              
+              onClick={() => setIsShareDialogOpen(true)}
+              className="nav__main--share"
             >
-              {currentUserName || `User: ${currentUserId}`}
+               <i class="fa-sharp fa-solid fa-share"></i>
+              Share Timetable
             </button>
+            
+            <button
+              onClick={() => setIsSettingsDialogOpen(true)}
+              className="nav__main--settings"
+            >
+               <i class="fa-sharp fa-light fa-sliders"></i>
+              Settings
+            </button>
+            
             {apiRecommendationsLoading && (
               <div style={{ fontSize: '0.8rem', color: '#666' }}>
                 Loading...
@@ -83,6 +106,22 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
           setIsPersonalTimetableDialogOpen(false)
           window.location.href = '/connect-spotify'
         }}
+      />
+
+      {/* Share Timetable Dialog */}
+      <ShareTimetableDialog
+        isOpen={isShareDialogOpen}
+        onClose={() => setIsShareDialogOpen(false)}
+        userId={currentUserId}
+        userName={currentUserName}
+      />
+
+      {/* Settings Dialog */}
+      <SettingsDialog
+        isOpen={isSettingsDialogOpen}
+        onClose={() => setIsSettingsDialogOpen(false)}
+        userId={currentUserId}
+        userName={currentUserName}
       />
       </div>
       

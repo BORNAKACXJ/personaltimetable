@@ -26,16 +26,24 @@
 	display: inline-block;
 }
 
-.nav__main--usertimetable {
-    font-size: 16px;
-    font-weight: 600;
+.nav__main--usertimetable,
+.nav__main--share,  
+.nav__main--settings {
+    font-size: 14px;
+    font-weight: 400;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 32px;
-    font-family: "VG5000", sans-serif;
+    
     border: none;
-    background: rgba(1, 1,1, 0.2);
-    padding: 0px 8px;
+    background: rgba(1, 1,1, 0.1);
+    padding: 0px 12px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding-top: 2px;
 }
 
 .nav__main--spotify {

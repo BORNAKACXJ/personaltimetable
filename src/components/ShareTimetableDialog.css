@@ -1,0 +1,284 @@
+/* Share Timetable Dialog Styles */
+.share-timetable-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.share-timetable-dialog.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.share-timetable-dialog__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.share-timetable-dialog__content {
+  position: relative;
+  background: white;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  padding: 8px;
+}
+
+.share-timetable-dialog.active .share-timetable-dialog__content {
+  transform: scale(1) translateY(0);
+}
+
+.share-timetable-dialog__header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.share-timetable-dialog__title-section {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+}
+
+.share-timetable-dialog__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #10B981, #34D399);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.share-timetable-dialog__title-actions {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.share-timetable-dialog__title-actions h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.share-timetable-dialog__close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-timetable-dialog__close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.share-timetable-dialog__body {
+  padding: 24px;
+}
+
+.share-timetable-dialog__description {
+  margin-bottom: 24px;
+}
+
+.share-timetable-dialog__description p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0;
+}
+
+.share-timetable-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.share-link-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.share-link-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.share-link-input {
+  flex: 1;
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: text;
+}
+
+.copy-button {
+  padding: 12px;
+  background: #8B5CF6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+}
+
+.copy-button:hover {
+  background: #7C3AED;
+  transform: translateY(-1px);
+}
+
+.copy-feedback {
+  font-size: 12px;
+  color: #10B981;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.share-timetable-dialog__footer {
+  padding: 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.share-timetable-dialog__cancel {
+  padding: 12px 24px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-timetable-dialog__cancel:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.share-timetable-dialog__save {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10B981, #34D399);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.share-timetable-dialog__save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .share-timetable-dialog__content {
+    width: 95%;
+    max-height: 95vh;
+    margin: 16px;
+  }
+
+  .share-timetable-dialog__header {
+    padding: 20px 20px 16px 20px;
+  }
+
+  .share-timetable-dialog__title-actions h2 {
+    font-size: 20px;
+  }
+
+  .share-timetable-dialog__body {
+    padding: 20px;
+  }
+
+  .share-timetable-dialog__description p {
+    font-size: 15px;
+  }
+
+  .share-timetable-dialog__footer {
+    padding: 20px;
+    flex-direction: column;
+  }
+
+  .share-timetable-dialog__cancel,
+  .share-timetable-dialog__save {
+    width: 100%;
+    padding: 14px 24px;
+  }
+}

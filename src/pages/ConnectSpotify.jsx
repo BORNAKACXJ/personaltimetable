@@ -259,7 +259,7 @@ Connect with Spotify to create your timetable. Let's go!</div>
               onClick={createPersonalTimetable}
               className="create-timetable-btn"
             >
-              Create your personal timetable
+              Create my timetable
             </button>
           
           </div>
@@ -304,10 +304,10 @@ Connect with Spotify to create your timetable. Let's go!</div>
   return (
     <div className="connect-spotify-page">
       <div className="container">
-        <div className="header__onboarding">
+        {/* <div className="header__onboarding">
           <div className="header__onboarding--title">LET’S CREATE YOUR PERSONAL TIMETABLE</div>
          
-        </div>
+        </div> */}
 
         <div className="content">
           {renderStep()}

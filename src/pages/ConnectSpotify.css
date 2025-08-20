@@ -163,7 +163,7 @@
   margin-bottom: 30px;
 }
 
-.artist-item, .track-item {
+/* .artist-item, .track-item {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -176,7 +176,7 @@
 .artist-item:hover, .track-item:hover {
   background: #e9ecef;
   transform: translateX(4px);
-}
+} */
 
 .artist-item img, .track-item img {
   width: 60px;
