@@ -216,7 +216,7 @@ export function SettingsDialog({ isOpen, onClose, userId, userName }) {
             className="settings-dialog__close-btn" 
             onClick={onClose}
           >
-            Close
+            Back to timetable
           </button>
         </div>
       </div>

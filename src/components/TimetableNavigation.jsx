@@ -120,7 +120,7 @@ export function TimetableNavigation({
           </div>
           
           {/* Mobile controls */}
-          <div className="timetable__nav--mobile-controls" style={{ display: 'flex', gap: '0px', alignItems: 'center' }}>
+          <div className="timetable__nav--mobile-controls" style={{ display: 'flex', gap: '0px' }}>
             {/* Mobile filter toggle button */}
             {isPersonalTimetable && (
             <div className="timetable__toggle--mobile" style={{ display: 'flex', gap: '4px' }}>

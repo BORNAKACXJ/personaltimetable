@@ -125,6 +125,10 @@
         text-transform: uppercase;
        opacity: 0.4;
     }
+
+    .nav__main--title {
+        display: none;
+    }
 }
 
 
