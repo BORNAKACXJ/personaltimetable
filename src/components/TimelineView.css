@@ -6,12 +6,114 @@
 } */
 
 .match__type--heavy {
-  background-color:white;
+  background-color:var(--purpler);
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
-  color: var(--purpler) !important;
+  color: var(--white) !important;
 }
 
-.match__type--heavy:after {
+.act__name, .match__type--heavy, .match__type--medium, .match__type--light, .match__type--soft, .match__type--nomatch {
+  position: relative;
+}
+
+
+.match__type--heavy:before {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+
+  padding: 2px 2px;
+  width: 10px;
+  padding-left: 2px;
+  padding-bottom: 2px;
+  
+  font-size: 8px;
+  line-height: 12px;
+
+ 
+  text-align: center;
+  background-color: var(--black);
+
+  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
+  font-weight: 900; /* solid */
+  content: "\f0e7"; 
+  color:var(--white);
+}
+
+.list__acts .match__type--heavy:before {
+  
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  left: unset;
+
+  padding: 8px 8px;
+  width: max-content;
+  padding-left: 8px;
+  
+  font-size: 10px;
+  line-height: 12px;
+
+  text-align: center;
+  background-color: var(--black);
+
+  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
+  font-weight: 900; /* solid */
+  content: "\f0e7"; 
+  color: rgb(254, 254, 173);
+}
+
+.match__type--medium:before {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+
+  padding: 2px 2px;
+  width: 10px;
+  padding-left: 2px;
+  padding-bottom: 2px;
+  
+  font-size: 8px;
+  line-height: 12px;
+
+  text-align: center;
+  background-color: var(--purpler);
+
+  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
+  font-weight: 900; /* solid */
+  content: "\f89a"; 
+  color: white;
+}
+
+.match__type--medium:after {
+  content: "";
+  position: absolute;
+  left: 0px;
+  top: 0px;
+
+  width: 4px;
+  height: 100%;
+  background-color: var(--purpler);
+}
+
+/* 
+.match__type--heavy .act__name:after {
+  content: "🔥";
+  position: absolute;
+  right: 0px;
+  top: 0px;
+
+  padding: 0px 4px;
+  padding-left: 2px;
+  font-size: 10px;
+  line-height: 14px;
+
+  height: 100%;
+  text-align: center;
+
+  
+} */
+
+/* .match__type--heavy:after {
   content: "";
   position: absolute;
   left: 0;
@@ -19,7 +121,7 @@
   width: 100%;
   height: 6px;
   background-color: var(--purpler);
-}
+} */
 
 .match__type--heavy .act__time::before {
   font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
@@ -33,29 +135,40 @@
 } */
 
 .match__type--medium {
-  background-color: #C4B5FD !important;
+  background-color: #8AA9FF !important;
   box-shadow: 0 2px 8px rgba(196, 181, 253, 0.25) !important;
-  color: #1F2937 !important;
+  color: black !important;
 }
 
 .match__type--medium .act__name,
 .match__type--medium .act__time {
-  color: #1F2937 !important;
+  color:black !important;
 }
 
 .match__type--light {
   background-color: #DDD6FE !important;
   box-shadow: 0 2px 8px rgba(221, 214, 254, 0.25) !important;
-  color: #374151 !important;
+  color: var(--black) !important;
+}
+
+.match__type--light:after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 3px;
+
+  width: 3px;
+  height: calc(100% - 6px);
+  background-color: #FF8CF5;
 }
 
 .match__type--light .act__name,
 .match__type--light .act__time {
-  color: #374151 !important;
+  color: var(--black) !important;
 }
 
 .match__type--soft {
-  background-color: #F3F4F6 !important;
+  background-color: #DDD6FE !important;
   box-shadow: 0 2px 8px rgba(156, 163, 175, 0.25) !important;
   color: #6B7280 !important;
 }
