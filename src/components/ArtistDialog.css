@@ -155,7 +155,7 @@
   font-weight: normal;
   margin: 0;
   margin-bottom: 0px;
-  color: #8B5CF6;
+  color:var(--black);
 }
 
 .artist-dialog__recommendation-content {
@@ -199,6 +199,69 @@
   background: #E5E7EB;
   color: #374151;
 }
+
+/* Match Strength Badge */
+.match-strength-badge {
+  margin-top: 0px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.match-strength-badge__text {
+  position: relative;
+  padding: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+  background-color: var(--black);
+  color: white;
+}
+
+.match-strength-badge__text--strong:before,
+.match-strength-badge__text--medium:before,
+.match-strength-badge__text--light:before,
+.match-strength-badge__text--soft:before {
+  
+
+  padding: 4px 4px;
+  
+  padding-left: 4px;
+  padding-bottom: 4px;
+  
+  font-size: 10px;
+  line-height: 12px;
+ 
+  text-align: center;
+  
+  /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5)); */
+
+  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
+  font-weight: 900; /* solid */
+}
+
+.match-strength-badge__text--strong:before {
+  content: "\f0e7 \f0e7 \f0e7 \f0e7"; 
+  color:rgb(254, 254, 173);
+}
+
+.match-strength-badge__text--medium:before {
+  content: "\f0e7 \f0e7"; 
+  color:rgb(254, 254, 173);
+}
+
+.match-strength-badge__text--light:before {
+  content: "\f0e7"; 
+  color:rgb(254, 254, 173);
+}
+
+.match-strength-badge__text--soft:before {
+  content: "\f0e7 "; 
+  color:rgb(254, 254, 173);
+}
+
+
 
 .recommendation-score {
   font-size: 14px;
@@ -610,6 +673,16 @@
 
   .artist-dialog__recommendation-details li {
     font-size: 11px;
+  }
+
+  /* Mobile match strength badge styles */
+  .match-strength-badge {
+    margin-top: 6px;
+  }
+
+  .match-strength-badge__text {
+    padding: 3px 10px;
+    font-size: 10px;
   }
 
 }

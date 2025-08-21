@@ -11,6 +11,10 @@
   color: var(--white) !important;
 }
 
+.match__type--heavy:hover {
+  background-color:var(--purpler);
+}
+
 .act__name, .match__type--heavy, .match__type--medium, .match__type--light, .match__type--soft, .match__type--nomatch {
   position: relative;
 }

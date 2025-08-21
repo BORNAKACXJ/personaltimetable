@@ -140,6 +140,46 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               >
                 {artist.name}
               </h2>
+                               {/* Match strength badge */}
+                {artist.recommendation && artist.recommendation.recommended === true && (
+                  <div className="match-strength-badge">
+                    {(() => {
+                      // Determine overall match strength
+                      let strength = 'light'
+                      let strengthText = 'Light Match'
+                      
+                      if (artist.recommendation.matchType === 'direct') {
+                        strength = 'strong'
+                        strengthText = 'Strong Match'
+                      } else if (artist.recommendation.matchType === 'related') {
+                        // Check if any related matches are heavy
+                        const hasHeavyMatch = artist.recommendation.detailedMatches?.some(match => match.rel_strength === 'heavy')
+                        const hasMediumMatch = artist.recommendation.detailedMatches?.some(match => match.rel_strength === 'medium')
+                        
+                        if (hasHeavyMatch) {
+                          strength = 'strong'
+                          strengthText = 'Strong Match'
+                        } else if (hasMediumMatch) {
+                          strength = 'medium'
+                          strengthText = 'Medium Match'
+                        }
+                      } else if (artist.recommendation.matchType === 'genre') {
+                        strength = 'medium'
+                        strengthText = 'Genre Match'
+                      } else if (artist.recommendation.matchType === 'genre_light') {
+                        strength = 'light'
+                        strengthText = 'Light Match'
+                      }
+                      
+                      return (
+                        <span className={`match-strength-badge__text match-strength-badge__text--${strength}`}>
+                          {/* {strengthText} */}
+                          match
+                        </span>
+                      )
+                    })()}
+                  </div>
+                )}
               <div className="artist-dialog__name-actions">
                 {artist.spotify_url && (
                   <a 
@@ -156,6 +196,8 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                     LISTEN ON SPOTIFY
                   </a>
                 )}
+
+               
               </div>
             </div>
           </div>
