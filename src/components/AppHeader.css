@@ -161,6 +161,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
        opacity: 0.4;
+       display: block;
     }
 
     .nav__main--title {

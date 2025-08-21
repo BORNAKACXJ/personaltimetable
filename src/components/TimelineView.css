@@ -15,76 +15,76 @@
   position: relative;
 }
 
-
-.match__type--heavy:before {
+.match__type--heavy:before,
+.match__type--medium:before,
+.match__type--light:before,
+.match__type--soft:before {
   position: absolute;
   left: 0px;
   top: 0px;
 
   padding: 2px 2px;
-  width: 10px;
+  
   padding-left: 2px;
   padding-bottom: 2px;
   
   font-size: 8px;
   line-height: 12px;
-
  
   text-align: center;
   background-color: var(--black);
+  /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5)); */
 
   font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
   font-weight: 900; /* solid */
-  content: "\f0e7"; 
-  color:var(--white);
 }
 
-.list__acts .match__type--heavy:before {
-  
+.list__acts .match__type--heavy:before,
+.list__acts .match__type--medium:before,
+.list__acts .match__type--light:before,
+.list__acts .match__type--soft:before {
   position: absolute;
   right: 0px;
   top: 0px;
   left: unset;
 
-  padding: 8px 8px;
-  width: max-content;
-  padding-left: 8px;
+  padding: 4px 4px;
   
-  font-size: 10px;
+  padding-left: 4px;
+  padding-bottom: 4px;
+  
+  font-size: 12px;
   line-height: 12px;
-
+ 
   text-align: center;
   background-color: var(--black);
+  /* filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5)); */
 
   font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
   font-weight: 900; /* solid */
-  content: "\f0e7"; 
-  color: rgb(254, 254, 173);
+}
+
+.match__type--heavy:before {
+  content: "\f0e7 \f0e7 \f0e7 \f0e7"; 
+  color:rgb(254, 254, 173);
 }
 
 .match__type--medium:before {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-
-  padding: 2px 2px;
-  width: 10px;
-  padding-left: 2px;
-  padding-bottom: 2px;
-  
-  font-size: 8px;
-  line-height: 12px;
-
-  text-align: center;
-  background-color: var(--purpler);
-
-  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
-  font-weight: 900; /* solid */
-  content: "\f89a"; 
-  color: white;
+  content: "\f0e7 \f0e7"; 
+  color:rgb(254, 254, 173);
 }
 
-.match__type--medium:after {
+.match__type--light:before {
+  content: "\f0e7"; 
+  color:rgb(254, 254, 173);
+}
+
+.match__type--soft:before {
+  content: "\f0e7 "; 
+  color:rgb(254, 254, 173);
+}
+
+/* .match__type--medium:after {
   content: "";
   position: absolute;
   left: 0px;
@@ -93,7 +93,7 @@
   width: 4px;
   height: 100%;
   background-color: var(--purpler);
-}
+} */
 
 /* 
 .match__type--heavy .act__name:after {
@@ -123,35 +123,31 @@
   background-color: var(--purpler);
 } */
 
-.match__type--heavy .act__time::before {
-  font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
-  font-weight: 900; /* solid */
-  /* content: "\f0e7"; Unicode for fa-bolt */
-}
 /* 
 .match__type--heavy .act__name,
 .match__type--heavy .act__time {
   
 } */
 
-.match__type--medium {
-  background-color: #8AA9FF !important;
+.match__type--medium,
+.match__type--light,
+.match__type--soft {
+  background-color: #C4B5FD !important;
   box-shadow: 0 2px 8px rgba(196, 181, 253, 0.25) !important;
   color: black !important;
 }
 
 .match__type--medium .act__name,
-.match__type--medium .act__time {
+.match__type--medium .act__time,
+.match__type--light .act__name,
+.match__type--light .act__time,
+.match__type--soft .act__name,
+.match__type--soft .act__time {
   color:black !important;
 }
 
-.match__type--light {
-  background-color: #DDD6FE !important;
-  box-shadow: 0 2px 8px rgba(221, 214, 254, 0.25) !important;
-  color: var(--black) !important;
-}
 
-.match__type--light:after {
+/* .match__type--light:after {
   content: "";
   position: absolute;
   left: 2px;
@@ -160,35 +156,22 @@
   width: 3px;
   height: calc(100% - 6px);
   background-color: #FF8CF5;
-}
+} */
 
-.match__type--light .act__name,
-.match__type--light .act__time {
-  color: var(--black) !important;
-}
 
-.match__type--soft {
-  background-color: #DDD6FE !important;
-  box-shadow: 0 2px 8px rgba(156, 163, 175, 0.25) !important;
-  color: #6B7280 !important;
-}
 
-.match__type--soft .act__name,
-.match__type--soft .act__time {
-  color: #6B7280 !important;
-}
 
 .match__type--nomatch {
-  background-color: #484766 !important;
+  background-color: #F3F4F6 !important;
   /* border: 1px solid #E5E7EB !important; */
-  color: white !important;
+  color: var(--black) !important;
   opacity: 1;
 
 }
 
 .match__type--nomatch .act__name,
 .match__type--nomatch .act__time {
-  color: white !important;
+  color: var(--black) !important;
 }
 
 /* Match type indicators */
