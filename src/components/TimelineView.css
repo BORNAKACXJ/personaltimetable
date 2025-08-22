@@ -167,7 +167,7 @@
 
 
 .match__type--nomatch {
-  background-color: #9694A8 !important;
+  background-color: rgba(163, 92, 157, 0.9) !important;
   /* border: 1px solid #E5E7EB !important; */
   color: var(--black) !important;
   opacity: 1;
