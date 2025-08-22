@@ -686,12 +686,14 @@
 
   /* Mobile match strength badge styles */
   .match-strength-badge {
-    margin-top: 6px;
+    margin-top: 0px;
+    float: right;
+    position: relative;
+    right: 0px;
+    top: 0px;
+    left: unset;
   }
 
-  .match-strength-badge__text {
-    padding: 3px 10px;
-    font-size: 10px;
-  }
+ 
 
 }
