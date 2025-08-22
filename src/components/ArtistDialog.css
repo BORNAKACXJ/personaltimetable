@@ -251,7 +251,7 @@
 }
 
 .match-strength-badge__text--strong:after {
-  content: "\f0e7 \f0e7 \f0e7 \f0e7"; 
+  content: "\f0e7 \f0e7 \f0e7"; 
   color:rgb(254, 254, 173);
 }
 
