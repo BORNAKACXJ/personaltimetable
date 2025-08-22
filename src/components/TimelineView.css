@@ -64,7 +64,7 @@
 }
 
 .match__type--heavy:before {
-  content: "\f0e7 \f0e7 \f0e7 \f0e7"; 
+  content: "\f0e7 \f0e7 \f0e7"; 
   color:rgb(248, 255, 237);
 }
 
