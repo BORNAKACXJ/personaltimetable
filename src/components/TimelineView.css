@@ -130,19 +130,20 @@
 
 .match__type--medium {
   /* background-color: #AD60A6 !important; */
-  background: linear-gradient(287.63deg, #4B5CFF 33.67%, #8873D8 74.56%);
+  /* background: linear-gradient(287.63deg, #4B5CFF 33.67%, #8873D8 74.56%); */
+  background-color: #8873D8 !important;
   
   color: white !important;
 }
 
 .list__acts .match__type--medium:hover {
   /* background-color: #AD60A6 !important; */
-  background: linear-gradient(287.63deg, #4B5CFF 33.67%, #8873D8 74.56%);
+  /* background: linear-gradient(287.63deg, #4B5CFF 33.67%, #8873D8 74.56%); */
 }
 
 .match__type--light,
 .match__type--soft {
-  background-color: #8873D8 !important;
+  background-color: #988ACB !important;
   
   color: white !important;
 }
