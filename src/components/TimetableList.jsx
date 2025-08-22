@@ -108,18 +108,21 @@ export function TimetableList({
                 })
                 const recommendation = isRecommended ? recommendations.find(rec => rec.artist.spotify_id === act.artist.spotify_id) : null
 
-                // Get CSS class based on color classification
+                // Get CSS class based on match_type ONLY
                 const getMatchTypeClass = (recommendation) => {
                   // If no recommendations are loaded (no personal timetable), don't apply any recommendation styling
                   if (recommendations.length === 0) {
                     return ''
                   }
                   
-                  if (!recommendation || !recommendation.colorClassification) {
+                  if (!recommendation || !recommendation.match_type) {
                     return 'match__type--nomatch'
                   }
                   
-                  switch (recommendation.colorClassification) {
+                  // Use ONLY match_type, ignore colorClassification
+                  const matchType = recommendation.match_type || recommendation.matchType
+                  
+                  switch (matchType) {
                     case 'heavy':
                       return 'match__type--heavy'
                     case 'medium':
@@ -134,14 +137,19 @@ export function TimetableList({
                 }
 
                 // Get indicator class based on match type
-                const getIndicatorClass = (matchType) => {
+                const getIndicatorClass = (recommendation) => {
+                  const matchType = recommendation.match_type || recommendation.matchType
                   switch (matchType) {
+                    case 'heavy':
                     case 'direct':
                       return 'match-indicator match-indicator--direct'
+                    case 'medium':
                     case 'related':
                       return 'match-indicator match-indicator--relevant-artist'
+                    case 'light':
                     case 'genre':
                       return 'match-indicator match-indicator--genre'
+                    case 'soft':
                     case 'genre_light':
                       return 'match-indicator match-indicator--genre-light'
                     default:
@@ -150,14 +158,19 @@ export function TimetableList({
                 }
 
                 // Get details class based on match type
-                const getDetailsClass = (matchType) => {
+                const getDetailsClass = (recommendation) => {
+                  const matchType = recommendation.match_type || recommendation.matchType
                   switch (matchType) {
+                    case 'heavy':
                     case 'direct':
                       return 'match-details--direct'
+                    case 'medium':
                     case 'related':
                       return 'match-details--relevant-artist'
+                    case 'light':
                     case 'genre':
                       return 'match-details--genre'
+                    case 'soft':
                     case 'genre_light':
                       return 'match-details--genre-light'
                     default:
@@ -187,13 +200,23 @@ export function TimetableList({
                         )}
                         <span>{act.name}</span>
                         {isRecommended && recommendation && recommendations.length > 0 && (
-                          <span className={getIndicatorClass(recommendation.matchType)}>
-                            {recommendation.matchType === 'direct' ? 
-                              (recommendation.positions?.artist_position ? `#${recommendation.positions.artist_position} Direct` :
-                               recommendation.positions?.track_position ? `#${recommendation.positions.track_position} Direct` : '★ Direct') :
-                             recommendation.matchType === 'related' ? '◆ Related' :
-                             recommendation.matchType === 'genre' ? '● Genre' :
-                             recommendation.matchType === 'genre_light' ? '○ Genre Light' : '• Recommended'}
+                          <span className={getIndicatorClass(recommendation)}>
+                            {(() => {
+                              // Use ONLY the match_type from the API
+                              const matchType = recommendation.match_type || recommendation.matchType
+                              
+                              if (matchType === 'heavy') {
+                                return '★ Strong'
+                              } else if (matchType === 'medium') {
+                                return '◆ Related'
+                              } else if (matchType === 'light') {
+                                return '● Genre'
+                              } else if (matchType === 'soft') {
+                                return '● Genre'
+                              } else {
+                                return '● Genre'
+                              }
+                            })()}
                           </span>
                         )}
                       </div>
@@ -202,11 +225,17 @@ export function TimetableList({
                       {formatTimeForDisplay(act.start_time)} - {formatTimeForDisplay(act.end_time)}
                     </div>
                     {isRecommended && recommendation && recommendations.length > 0 && (
-                      <div className={`match-details ${getDetailsClass(recommendation.matchType)}`}>
-                        {recommendation.matchType === 'direct' ? 'Direct match' :
-                         recommendation.matchType === 'related' ? 'Related artist' :
-                         recommendation.matchType === 'genre' ? 'Genre match' :
-                         recommendation.matchType === 'genre_light' ? 'Genre light match' : 'Recommended'}
+                      <div className={`match-details ${getDetailsClass(recommendation)}`}>
+                        {(() => {
+                          // Use ONLY the match_type from the API
+                          const matchType = recommendation.match_type || recommendation.matchType
+                          
+                          if (matchType === 'heavy') return 'Strong match'
+                          if (matchType === 'medium') return 'Related artist'
+                          if (matchType === 'light') return 'Genre match'
+                          if (matchType === 'soft') return 'Genre match'
+                          return 'Recommended'
+                        })()}
                         {recommendation.matchScore > 0 && ` (${recommendation.matchScore}pts)`}
                       </div>
                     )}

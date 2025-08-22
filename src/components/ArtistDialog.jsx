@@ -165,7 +165,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
         </div>
         
         {/* Recommendation section */}
-        {artist.recommendation && artist.recommendation.matchType && artist.recommendation.colorClassification && artist.recommendation.recommended === true && (
+        {artist.recommendation && (artist.recommendation.match_type || artist.recommendation.matchType) && artist.recommendation.colorClassification && artist.recommendation.recommended === true && (
           <div 
             className="artist-dialog__recommendation artist-dialog__recommendation--animate"
             style={{
@@ -174,32 +174,29 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
             }}
           >
                             {/* Match strength badge */}
-                            {artist.recommendation && artist.recommendation.recommended === true && (
+                            {artist.recommendation && (artist.recommendation.match_type || artist.recommendation.matchType) && artist.recommendation.recommended === true && (
                   <div className="match-strength-badge">
                     {(() => {
-                      // Determine overall match strength
+                      // Determine overall match strength based on actual matches
                       let strength = 'light'
                       let strengthText = 'Light Match'
                       
-                      if (artist.recommendation.matchType === 'direct') {
+                      // Use ONLY the match_type from the API
+                      const matchType = artist.recommendation?.match_type || artist.recommendation?.matchType
+                      
+                      if (matchType === 'heavy') {
                         strength = 'strong'
                         strengthText = 'Strong Match'
-                      } else if (artist.recommendation.matchType === 'related') {
-                        // Check if any related matches are heavy
-                        const hasHeavyMatch = artist.recommendation.detailedMatches?.some(match => match.rel_strength === 'heavy')
-                        const hasMediumMatch = artist.recommendation.detailedMatches?.some(match => match.rel_strength === 'medium')
-                        
-                        if (hasHeavyMatch) {
-                          strength = 'strong'
-                          strengthText = 'Strong Match'
-                        } else if (hasMediumMatch) {
-                          strength = 'medium'
-                          strengthText = 'Medium Match'
-                        }
-                      } else if (artist.recommendation.matchType === 'genre') {
+                      } else if (matchType === 'medium') {
                         strength = 'medium'
-                        strengthText = 'Genre Match'
-                      } else if (artist.recommendation.matchType === 'genre_light') {
+                        strengthText = 'Medium Match'
+                      } else if (matchType === 'light') {
+                        strength = 'light'
+                        strengthText = 'Light Match'
+                      } else if (matchType === 'soft') {
+                        strength = 'light'
+                        strengthText = 'Light Match'
+                      } else {
                         strength = 'light'
                         strengthText = 'Light Match'
                       }
@@ -215,10 +212,16 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                 )}
             <h3>RECOMMENDED BASED ON 
 
-            {artist.recommendation.matchType === 'direct' && ' TOP ARTISTS'}
-                  {artist.recommendation.matchType === 'related' && ' RELATED ARTISTS'}
-                                      {artist.recommendation.matchType === 'genre' && ' GENRE'}
-                    {artist.recommendation.matchType === 'genre_light' && ' GENRE'}
+            {(() => {
+              // Use ONLY the match_type from the API
+              const matchType = artist.recommendation?.match_type || artist.recommendation?.matchType
+              
+              if (matchType === 'heavy') return ' RELATED ARTISTS'
+              if (matchType === 'medium') return ' RELATED ARTISTS'
+              if (matchType === 'light') return ' GENRE'
+              if (matchType === 'soft') return ' GENRE'
+              return ' RECOMMENDED'
+            })()}
 
             </h3>
             
@@ -229,7 +232,7 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                 <div className="related-artists-grid">
                   {artist.recommendation.detailedMatches.map((match, index) => (
                     <div key={index} className="related-artist-item">
-                      {match.type === 'genre' || artist.recommendation.matchType === 'genre' || artist.recommendation.matchType === 'genre_light' ? (
+                      {match.type === 'genre' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'light' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'soft' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'genre' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'genre_light' ? (
                         // Genre match display
                         <>
                           <div className="genre-badge">
