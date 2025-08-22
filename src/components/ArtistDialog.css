@@ -116,6 +116,7 @@
 
 .artist-dialog__about {
   padding: 16px 24px;
+  padding-bottom: 0px;
 }
 
 .artist-dialog__about h3 {
@@ -205,11 +206,13 @@
   margin-top: 0px;
   display: flex;
   justify-content: flex-start;
+  position: absolute;
+  right: 16px;
 }
 
 .match-strength-badge__text {
   position: relative;
-  padding: 4px;
+  padding: 3px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -217,20 +220,22 @@
   transition: all 0.2s ease;
   background-color: var(--black);
   color: white;
+  padding-left: 6px;
+  padding-right: 2px;
 }
 
-.match-strength-badge__text--strong:before,
-.match-strength-badge__text--medium:before,
-.match-strength-badge__text--light:before,
-.match-strength-badge__text--soft:before {
+.match-strength-badge__text--strong:after,
+.match-strength-badge__text--medium:after,
+.match-strength-badge__text--light:after,
+.match-strength-badge__text--soft:after {
   
 
-  padding: 4px 4px;
+  padding: 0;
   
   padding-left: 4px;
-  padding-bottom: 4px;
+  padding-right: 4px;
   
-  font-size: 10px;
+  font-size: 9px;
   line-height: 12px;
  
   text-align: center;
@@ -239,24 +244,28 @@
 
   font-family: "Font Awesome 7 Sharp"; /* match the FA kit you're using */
   font-weight: 900; /* solid */
+  
+  display: inline-block;
+  top: -1px;
+  position: relative;
 }
 
-.match-strength-badge__text--strong:before {
+.match-strength-badge__text--strong:after {
   content: "\f0e7 \f0e7 \f0e7 \f0e7"; 
   color:rgb(254, 254, 173);
 }
 
-.match-strength-badge__text--medium:before {
+.match-strength-badge__text--medium:after {
   content: "\f0e7 \f0e7"; 
   color:rgb(254, 254, 173);
 }
 
-.match-strength-badge__text--light:before {
+.match-strength-badge__text--light:after {
   content: "\f0e7"; 
   color:rgb(254, 254, 173);
 }
 
-.match-strength-badge__text--soft:before {
+.match-strength-badge__text--soft:after {
   content: "\f0e7 "; 
   color:rgb(254, 254, 173);
 }
@@ -301,7 +310,7 @@
 
 /* Related Artists Section */
 .related-artists-section {
-  margin-top: 4px;
+  margin-top: 16px;
 }
 
 .related-artists-section h4 {
@@ -352,7 +361,7 @@
 }
 
 .related-artist-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #374151;
   margin-bottom: 4px;

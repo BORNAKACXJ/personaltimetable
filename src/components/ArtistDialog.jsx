@@ -140,8 +140,41 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               >
                 {artist.name}
               </h2>
-                               {/* Match strength badge */}
-                {artist.recommendation && artist.recommendation.recommended === true && (
+               
+              <div className="artist-dialog__name-actions">
+                {artist.spotify_url && (
+                  <a 
+                    href={artist.spotify_url} 
+                    className="artist-dialog__spotify-link artist-dialog__spotify--animate" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{
+                      transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
+                      opacity: animationStep >= 3 ? 1 : 0
+                    }}
+                  >
+                    <i className="fa-brands fa-spotify"></i>
+                    LISTEN ON SPOTIFY
+                  </a>
+                )}
+
+               
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Recommendation section */}
+        {artist.recommendation && artist.recommendation.matchType && artist.recommendation.colorClassification && artist.recommendation.recommended === true && (
+          <div 
+            className="artist-dialog__recommendation artist-dialog__recommendation--animate"
+            style={{
+              transform: animationStep >= 4 ? 'translateY(0)' : 'translateY(20px)',
+              opacity: animationStep >= 4 ? 1 : 0
+            }}
+          >
+                            {/* Match strength badge */}
+                            {artist.recommendation && artist.recommendation.recommended === true && (
                   <div className="match-strength-badge">
                     {(() => {
                       // Determine overall match strength
@@ -180,38 +213,6 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                     })()}
                   </div>
                 )}
-              <div className="artist-dialog__name-actions">
-                {artist.spotify_url && (
-                  <a 
-                    href={artist.spotify_url} 
-                    className="artist-dialog__spotify-link artist-dialog__spotify--animate" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{
-                      transform: animationStep >= 3 ? 'translateY(0)' : 'translateY(20px)',
-                      opacity: animationStep >= 3 ? 1 : 0
-                    }}
-                  >
-                    <i className="fa-brands fa-spotify"></i>
-                    LISTEN ON SPOTIFY
-                  </a>
-                )}
-
-               
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Recommendation section */}
-        {artist.recommendation && artist.recommendation.matchType && artist.recommendation.colorClassification && artist.recommendation.recommended === true && (
-          <div 
-            className="artist-dialog__recommendation artist-dialog__recommendation--animate"
-            style={{
-              transform: animationStep >= 4 ? 'translateY(0)' : 'translateY(20px)',
-              opacity: animationStep >= 4 ? 1 : 0
-            }}
-          >
             <h3>RECOMMENDED BASED ON 
 
             {artist.recommendation.matchType === 'direct' && ' TOP ARTISTS'}

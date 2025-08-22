@@ -174,7 +174,7 @@ export default function ConnectSpotify() {
       ];
 
       const randomHeadline = headlines[Math.floor(Math.random() * headlines.length)];
-      const generatedSummary = `Let's find some of that and also some ${artist02}, ${artist03} and ${artist04} energy at HtC 2025`;
+      const generatedSummary = `Let's find some of that and also some ${artist02}, ${artist03} and ${artist04} energy at Hit The City 2025!`;
       
       setSelectedHeadline(randomHeadline);
       setGeneratedSummary(generatedSummary);

@@ -110,7 +110,7 @@
 }
 
 .spotify-connect-btn:hover:not(:disabled) {
-  background-color: var(--purple);
+  background-color: var(--purpler);
 }
 
 .spotify-connect-btn:disabled {
@@ -121,7 +121,7 @@
 .step__wrapper {
   padding: 24px;
   background-color: white;
-  color: var(--purple);
+  color: black;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -213,7 +213,7 @@
 }
 
 .create-timetable-btn:hover {
-  background-color:var(--purple);
+  background-color:var(--purpler);
 }
 
 /* Loading Step */
@@ -291,6 +291,7 @@ line-height: 1;
 text-transform: uppercase;
 letter-spacing: 0.05em;
 font-weight: 600;
+color: var(--black);
 }
 
 /* Mobile Responsiveness */
