@@ -175,7 +175,7 @@
 .match__type--nomatch {
   background-color: rgba(163, 92, 157, 0.9) !important;
   /* border: 1px solid #E5E7EB !important; */
-  color: var(--black) !important;
+  color: var(--white) !important;
   opacity: 1;
 
 }
