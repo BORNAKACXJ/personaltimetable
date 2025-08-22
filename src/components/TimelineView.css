@@ -135,6 +135,11 @@
   color: white !important;
 }
 
+.list__acts .match__type--medium:hover {
+  /* background-color: #AD60A6 !important; */
+  background: linear-gradient(287.63deg, #8873D8 33.67%, #4B5CFF 74.56%);
+}
+
 .match__type--light,
 .match__type--soft {
   background-color: #8873D8 !important;
@@ -176,7 +181,7 @@
 
 .match__type--nomatch .act__name,
 .match__type--nomatch .act__time {
-  color: var(--black) !important;
+  color: var(--white) !important;
 }
 
 /* Match type indicators */
