@@ -13,7 +13,7 @@ function EULA() {
 
   <section>
     <h2>Reference</h2>
-    <p>For details on how we collect and handle your data, please refer to our Privacy Policy.</p>
+    <p>For details on how we collect and handle your data, please refer to our <a href="/privacy-policy">Privacy Policy</a>.</p>
     <p><strong>Effective Date:</strong> 20 08 2024
        <strong>Last Updated:</strong> 25 08 2025</p>
   </section>

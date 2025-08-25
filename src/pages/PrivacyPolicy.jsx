@@ -12,7 +12,7 @@ function PrivacyPolicy() {
   <h2>Privacy Policy</h2>
 
   <section>
-    <p>For details on the terms of use for the Web App, please refer to our End User License Agreement (EULA).</p>
+    <p>For details on the terms of use for the Web App, please refer to our <a href="/eula">End User License Agreement (EULA)</a>.</p>
     <p>
       <strong>Effective Date:</strong> 20 08 2024
       <br />
