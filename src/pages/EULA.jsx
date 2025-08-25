@@ -14,13 +14,13 @@ function EULA() {
   <section>
     <h2>Reference</h2>
     <p>For details on how we collect and handle your data, please refer to our <a href="/privacy-policy">Privacy Policy</a>.</p>
-    <p><strong>Effective Date:</strong> 20 08 2024
+    <p><strong>Effective Date:</strong> 20 08 2024<br />
        <strong>Last Updated:</strong> 25 08 2025</p>
   </section>
 
   <section>
     <h2>Introduction</h2>
-    <p>This End User License Agreement (“Agreement”) is a legal agreement between you (“User”) and VOF TENFOLD (“Tenfold,” “we,” or “us”) governing the use of the “Hit The City Personal Timetable” web application (“Web App”).</p>
+    <p>This End User License Agreement (“Agreement”) is a legal agreement between you (“User”) and VOF TENFOLD technology (“Tenfold,” “we,” or “us”) governing the use of the “Hit The City Personal Timetable” web application (“Web App”).</p>
     <p>By checking the box in the Web App, you agree to the terms of this Agreement. If you do not agree, do not use the Web App.</p>
   </section>
 
@@ -80,7 +80,7 @@ function EULA() {
 
   <section>
     <h2>Support and Maintenance</h2>
-    <p>For support, feedback, or deletion requests, email <a href="mailto:support@hitthecity-timetable.nl">support@hitthecity-timetable.nl</a>. We aim to respond within 48 hours.</p>
+    <p>For support, feedback, or deletion requests, email <a href="mailto:support@tenfold.technology">support@tenfold.technology</a>. We aim to respond within 48 hours.</p>
   </section>
 
   <section>

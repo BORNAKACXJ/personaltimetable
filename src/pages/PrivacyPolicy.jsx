@@ -21,7 +21,7 @@ function PrivacyPolicy() {
   </section>
 
   <section>
-    <p>VOF TENFOLD Technology (“Tenfold”, “we,” “us”) respects your privacy and is committed to protecting it. This Privacy Policy explains how we collect, use, and store your personal information when you use the Hit The City Personal Timetable web application (“Web App”).</p>
+    <p>VOF TENFOLD technology (“Tenfold”, “we,” “us”) respects your privacy and is committed to protecting it. This Privacy Policy explains how we collect, use, and store your personal information when you use the Hit The City Personal Timetable web application (“Web App”).</p>
   </section>
 
   <section>
@@ -48,7 +48,7 @@ function PrivacyPolicy() {
     <h3>Purpose of Data Use</h3>
     <ul>
       <li>Generate a personalized timetable for the Hit The City festival</li>
-      <li>Provide act recommendations every two hours based on your listening preferences</li>
+      <li>Provide act recommendations based on your listening preferences</li>
     </ul>
     <p>Your data will not be used for marketing purposes.</p>
 
