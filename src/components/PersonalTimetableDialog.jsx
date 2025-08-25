@@ -104,7 +104,7 @@ export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) 
         <div className="personal-timetable-dialog__body">
           <div className="personal-timetable-dialog__description">
             <p>
-            Hit The City is here! With 88+ emerging and established live acts, there is so much to see and to discover. But where to go? To help you a little bit, we created a tool that gives you personal advice based on your music taste.
+            Hit The City is here! With 85+ emerging and established live acts, there is so much to see and to discover. But where to go? To help you a little bit, we created a tool that gives you personal advice based on your music taste.
             <br /><br />
             Connect your Spotify and we'll build your personal timetable based on your last 6 months of listening.
             
@@ -121,7 +121,7 @@ export function PersonalTimetableDialog({ isOpen, onClose, onCreateTimetable }) 
               />
               <span className="checkmark"></span>
               <span className="agreement-text">
-                I agree to the HTC {' '}
+                I agree to the {' '}
                 <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
                   Privacy Policy
                 </a>

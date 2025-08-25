@@ -138,7 +138,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
           <div className="share-timetable-dialog__description">
             <p>
               Share your Personal Hit The City 2025 timetable with friends!
-              Optional you can ddd your name and email to personalize it even more.
+              Optional you can add your name to personalize it even more.
               Your preferences will be automatically saved.
             </p>
           </div>
@@ -157,8 +157,8 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
               />
             </div>
 
-            {/* Email Field */}
-            <div className="form-group">
+            {/* Email Field - HIDDEN FOR NOW */}
+            {/* <div className="form-group">
               <label htmlFor="share-email" className="form-label">Email</label>
               <input
                 type="email"
@@ -168,10 +168,10 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
                 placeholder="Enter your email"
                 className="form-input"
               />
-            </div>
+            </div> */}
 
-            {/* Email Consent Checkbox */}
-            <div className="form-group">
+            {/* Email Consent Checkbox - HIDDEN FOR NOW */}
+            {/* <div className="form-group">
               <div className="checkbox-group">
                 <label className="checkbox-label">
                   <input
@@ -186,7 +186,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
                   </span>
                 </label>
               </div>
-            </div>
+            </div> */}
 
             {/* Autosave Status */}
             {saveStatus && (
