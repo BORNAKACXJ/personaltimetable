@@ -46,6 +46,13 @@
     padding-top: 2px;
 }
 
+.nav__main--share:hover, 
+.nav__main--settings:hover {
+    background-color: var(--purple);
+    color: #ffffff;
+    cursor: pointer;
+}
+
 .nav__main--spotify {
     display: flex;
     align-items: center;

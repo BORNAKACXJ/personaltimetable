@@ -9,6 +9,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
   const [isMobile, setIsMobile] = useState(false)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [emailConsent, setEmailConsent] = useState(false)
   const [copied, setCopied] = useState(false)
   const [shareLink, setShareLink] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -27,14 +28,14 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
   }, [])
 
   // Autosave function with debouncing
-  const autosavePreferences = useCallback(async (displayName, emailAddress) => {
+  const autosavePreferences = useCallback(async (displayName, emailAddress, consent) => {
     if (!userId) return
     
     setIsSaving(true)
     setSaveStatus('Saving...')
     
     try {
-      await UserDataManager.saveSharingPreferences(userId, displayName, emailAddress)
+      await UserDataManager.saveSharingPreferences(userId, displayName, emailAddress, consent)
       setSaveStatus('Saved!')
       setTimeout(() => setSaveStatus(''), 2000)
     } catch (error) {
@@ -55,6 +56,7 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
       if (preferences) {
         setName(preferences.share_display_name || '')
         setEmail(preferences.share_email || '')
+        setEmailConsent(preferences.email_consent || false)
       }
     } catch (error) {
       console.error('Error loading saved preferences:', error)
@@ -86,11 +88,11 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
     if (!userId || (!name && !email)) return
     
     const timeoutId = setTimeout(() => {
-      autosavePreferences(name, email)
+      autosavePreferences(name, email, emailConsent)
     }, 1000) // 1 second delay
     
     return () => clearTimeout(timeoutId)
-  }, [name, email, userId, autosavePreferences])
+  }, [name, email, emailConsent, userId, autosavePreferences])
 
   const handleCopyLink = async () => {
     try {
@@ -166,6 +168,24 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
                 placeholder="Enter your email"
                 className="form-input"
               />
+            </div>
+
+            {/* Email Consent Checkbox */}
+            <div className="form-group">
+              <div className="checkbox-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={emailConsent}
+                    onChange={(e) => setEmailConsent(e.target.checked)}
+                    className="checkbox-input"
+                  />
+                  <span className="checkbox-custom"></span>
+                  <span className="checkbox-text">
+                    Yes, you can use my email to send me updates about recommended artists and new festivals
+                  </span>
+                </label>
+              </div>
             </div>
 
             {/* Autosave Status */}

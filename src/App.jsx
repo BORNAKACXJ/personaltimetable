@@ -18,6 +18,8 @@ import ArtistRecommendations from './pages/ArtistRecommendations'
 import { Cache } from './pages/Cache'
 import { TestRecommendations } from './pages/TestRecommendations'
 import ConnectSpotify from './pages/ConnectSpotify'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import EULA from './pages/EULA'
 import { trackPageView, trackActPopup } from './utils/tracking'
 
 function App() {
@@ -256,6 +258,8 @@ function App() {
   const isCacheRoute = currentPath === '/cache'
   const isCallbackRoute = currentPath === '/callback'
   const isTestRecommendationsRoute = currentPath === '/test-recommendations'
+  const isPrivacyPolicyRoute = currentPath === '/privacy-policy'
+  const isEULARoute = currentPath === '/eula'
   const isPersonalTimetableRoute = currentPath.match(/^\/t\/[a-f0-9-]+$/)
 
   // 5. Conditional returns (after all hooks)
@@ -285,6 +289,14 @@ function App() {
 
   if (currentPath === '/connect-spotify') {
     return <ConnectSpotify />
+  }
+
+  if (isPrivacyPolicyRoute) {
+    return <PrivacyPolicy />
+  }
+
+  if (isEULARoute) {
+    return <EULA />
   }
 
 
@@ -510,12 +522,12 @@ function App() {
       <footer className="font__size--label">
         <div className="section__margin">
           <div className="footer__row--left">
-            <a href="#" className="btn__type--link">
+            <a href="/privacy-policy" className="btn__type--link">
               Privacy policy
             </a>
           </div>
           <div className="footer__row--right">
-            <a href="#" className="btn__type--link">
+            <a href="/eula" className="btn__type--link">
               User agreement
             </a>
           </div>

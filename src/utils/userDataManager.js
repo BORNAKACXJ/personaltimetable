@@ -209,10 +209,10 @@ export class UserDataManager {
   }
 
   // Save user sharing preferences (autosave) - directly to spotify_profiles
-  static async saveSharingPreferences(userId, shareDisplayName, shareEmail) {
+  static async saveSharingPreferences(userId, shareDisplayName, shareEmail, emailConsent = false) {
     try {
       console.log('Saving sharing preferences for user:', userId)
-      console.log('Sharing preferences:', { shareDisplayName, shareEmail })
+      console.log('Sharing preferences:', { shareDisplayName, shareEmail, emailConsent })
 
       // Update the spotify_profiles table directly with sharing preferences using the UUID
       const { data, error } = await supabase
@@ -220,6 +220,7 @@ export class UserDataManager {
         .update({
           display_name: shareDisplayName,
           email: shareEmail,
+          email_consent: emailConsent,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId) // Use the UUID directly
@@ -247,7 +248,7 @@ export class UserDataManager {
       // Get sharing preferences directly from spotify_profiles using the UUID
       const { data: profile, error } = await supabase
         .from('spotify_profiles')
-        .select('display_name, email')
+        .select('display_name, email, email_consent')
         .eq('id', userId) // Use the UUID directly
         .single()
 
@@ -259,7 +260,8 @@ export class UserDataManager {
       console.log('Retrieved sharing preferences:', profile)
       return {
         share_display_name: profile?.display_name || '',
-        share_email: profile?.email || ''
+        share_email: profile?.email || '',
+        email_consent: profile?.email_consent || false
       }
     } catch (error) {
       console.error('Error getting sharing preferences:', error)

@@ -1,0 +1,95 @@
+.eula {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  padding: 2rem 0;
+}
+
+.eula__content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.eula h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.eula h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 2rem 0 1rem 0;
+  color: #fff;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.5rem;
+}
+
+.eula h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 1.5rem 0 0.5rem 0;
+  color: #fff;
+}
+
+.eula p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.eula ul {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.eula li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.eula section {
+  margin-bottom: 2rem;
+}
+
+.eula__back {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #333;
+  text-align: center;
+}
+
+.eula__back a {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: #333;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.eula__back a:hover {
+  background: #555;
+}
+
+@media (max-width: 768px) {
+  .eula {
+    padding: 1rem 0;
+  }
+  
+  .eula h1 {
+    font-size: 2rem;
+  }
+  
+  .eula h2 {
+    font-size: 1.3rem;
+  }
+  
+  .eula__content {
+    padding: 0 0.5rem;
+  }
+}
