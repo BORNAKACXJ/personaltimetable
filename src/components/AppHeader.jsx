@@ -43,7 +43,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
         ) : (
           // Show main navigation menu when there's no personal timetable
           <div className="nav navbar-nav navbar-main navbar-nav-first">
-            <ul id="menu-hoofdmenu" className="menu-primary-inner menu-smart sm" role="menu" data-smartmenus-id="17551600275673013">
+            {/* <ul id="menu-hoofdmenu" className="menu-primary-inner menu-smart sm" role="menu" data-smartmenus-id="17551600275673013">
               <li role="menuitem" id="menu-item-3595" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-3595 menu-item-link">
                 <a href="https://hitthecity-festival.nl/" className="cursor-init">Home</a>
               </li>
@@ -68,7 +68,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
               <li role="menuitem" id="menu-item-833" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-833 menu-item-link">
                 <a href="https://hitthecity-festival.nl/about-us/" className="cursor-init">About us</a>
               </li>
-            </ul>
+            </ul> */}
           </div>
         )}
         
