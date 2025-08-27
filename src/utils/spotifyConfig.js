@@ -6,15 +6,22 @@ export function getSpotifyRedirectUri() {
                      window.location.port === '5173' ||
                      window.location.port === '3000'
   
-  // Check if we're on Netlify
+  // Check if we're on Netlify or the new domain
   const isNetlify = window.location.hostname.includes('netlify.app') ||
                    window.location.hostname.includes('tenfold-mpt.netlify.app')
+  
+  // Check if we're on the new domain
+  const isNewDomain = window.location.hostname.includes('hitthecity-festival.nl') ||
+                     window.location.hostname.includes('timetable.hitthecity-festival.nl')
   
   if (isLocalhost) {
     // Development environment
     return 'http://localhost:5173/callback'
+  } else if (isNewDomain) {
+    // Production environment on new domain
+    return 'https://timetable.hitthecity-festival.nl/callback'
   } else if (isNetlify) {
-    // Production environment on Netlify
+    // Production environment on Netlify (fallback)
     return 'https://tenfold-mpt.netlify.app/callback'
   } else {
     // Fallback to environment variable or default

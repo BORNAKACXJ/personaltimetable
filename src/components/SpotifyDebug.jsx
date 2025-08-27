@@ -71,7 +71,7 @@ export function SpotifyDebug() {
           <p>Make sure your Spotify app has these redirect URIs configured:</p>
           <ul style={{ textAlign: 'left' }}>
             <li><code>http://localhost:5173/callback</code> (for development)</li>
-            <li><code>https://tenfold-mpt.netlify.app/callback</code> (for production)</li>
+            <li><code>https://timetable.hitthecity-festival.nl/callback</code> (for production)</li>
           </ul>
         </div>
       )}
