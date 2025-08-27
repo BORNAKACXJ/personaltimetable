@@ -75,6 +75,13 @@
     pointer-events: auto;
 }
 
+.nav__main--spotify span {
+    width: 230px;
+    line-height: 14px;
+    text-align: left;
+    padding: 6px 0;
+}
+
 .nav__main--spotify.huge {
     font-size: 16px;
     line-height: 48px;
@@ -175,9 +182,9 @@
         display: none;
     }
 
-    .nav__main--spotify span {
+    /* .nav__main--spotify span {
         display: none;
-    }
+    } */
 }
 
 
