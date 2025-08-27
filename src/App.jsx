@@ -20,6 +20,7 @@ import { TestRecommendations } from './pages/TestRecommendations'
 import ConnectSpotify from './pages/ConnectSpotify'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import EULA from './pages/EULA'
+import Status101010 from './pages/Status101010'
 import { trackPageView, trackActPopup } from './utils/tracking'
 
 function App() {
@@ -260,6 +261,7 @@ function App() {
   const isTestRecommendationsRoute = currentPath === '/test-recommendations'
   const isPrivacyPolicyRoute = currentPath === '/privacy-policy'
   const isEULARoute = currentPath === '/eula'
+  const isStatus101010Route = currentPath === '/101010'
   const isPersonalTimetableRoute = currentPath.match(/^\/t\/[a-f0-9-]+$/)
 
   // 5. Conditional returns (after all hooks)
@@ -297,6 +299,10 @@ function App() {
 
   if (isEULARoute) {
     return <EULA />
+  }
+
+  if (isStatus101010Route) {
+    return <Status101010 />
   }
 
 
