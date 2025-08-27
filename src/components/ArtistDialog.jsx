@@ -173,95 +173,58 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               opacity: animationStep >= 4 ? 1 : 0
             }}
           >
-                            {/* Match strength badge */}
-                            {artist.recommendation && (artist.recommendation.match_type || artist.recommendation.matchType) && artist.recommendation.recommended === true && (
-                  <div className="match-strength-badge">
-                    {(() => {
-                      // Determine overall match strength based on actual matches
-                      let strength = 'light'
-                      let strengthText = 'Light Match'
-                      
-                      // Use ONLY the match_type from the API
-                      const matchType = artist.recommendation?.match_type || artist.recommendation?.matchType
-                      
-                      if (matchType === 'heavy') {
-                        strength = 'strong'
-                        strengthText = 'Strong Match'
-                      } else if (matchType === 'medium') {
-                        strength = 'medium'
-                        strengthText = 'Medium Match'
-                      } else if (matchType === 'light') {
-                        strength = 'light'
-                        strengthText = 'Light Match'
-                      } else if (matchType === 'soft') {
-                        strength = 'light'
-                        strengthText = 'Light Match'
-                      } else {
-                        strength = 'light'
-                        strengthText = 'Light Match'
-                      }
-                      
-                      return (
-                        <span className={`match-strength-badge__text match-strength-badge__text--${strength}`}>
-                          {/* {strengthText} */}
-                          match
-                        </span>
-                      )
-                    })()}
-                  </div>
-                )}
-            <h3>RECOMMENDED BASED ON 
+            {/* Match strength badge */}
+            {artist.recommendation && (artist.recommendation.match_type || artist.recommendation.matchType) && artist.recommendation.recommended === true && (
+              <div className="match-strength-badge">
+                {(() => {
+                  // Determine overall match strength based on actual matches
+                  let strength = 'light'
+                  let strengthText = 'Light Match'
+                  
+                  // Use ONLY the match_type from the API
+                  const matchType = artist.recommendation?.match_type || artist.recommendation?.matchType
+                  
+                  if (matchType === 'heavy') {
+                    strength = 'strong'
+                    strengthText = 'Strong Match'
+                  } else if (matchType === 'medium') {
+                    strength = 'medium'
+                    strengthText = 'Medium Match'
+                  } else if (matchType === 'direct') {
+                    strength = 'direct'
+                    strengthText = 'Direct Match'
+                  } else if (matchType === 'light') {
+                    strength = 'light'
+                    strengthText = 'Light Match'
+                  } else if (matchType === 'soft') {
+                    strength = 'light'
+                    strengthText = 'Light Match'
+                  } else {
+                    strength = 'light'
+                    strengthText = 'Light Match'
+                  }
+                  
+                  return (
+                    <span className={`match-strength-badge__text match-strength-badge__text--${strength}`}>
+                      {/* {strengthText} */}
+                      match
+                    </span>
+                  )
+                })()}
+              </div>
+            )}
 
-            {(() => {
-              // Use ONLY the match_type from the API
-              const matchType = artist.recommendation?.match_type || artist.recommendation?.matchType
-              
-              if (matchType === 'heavy') return ' RELATED ARTISTS'
-              if (matchType === 'medium') return ' RELATED ARTISTS'
-              if (matchType === 'light') return ' GENRE'
-              if (matchType === 'soft') return ' GENRE'
-              return ' RECOMMENDED'
-            })()}
-
-            </h3>
-            
-            {/* Related Artists with Images - Only show if there are detailed matches */}
-            {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
-              <div className="related-artists-section">
+            {/* HEAVY MATCH SECTION */}
+            {artist.recommendation?.match_type === 'heavy' && (
+              <div className="match-section match-section--heavy">
+                <h3>RECOMMENDED BASED ON RELATED ARTISTS</h3>
                 
-                <div className="related-artists-grid">
-                  {artist.recommendation.detailedMatches.map((match, index) => (
-                    <div key={index} className="related-artist-item">
-                      {match.type === 'genre' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'light' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'soft' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'genre' || (artist.recommendation.match_type || artist.recommendation.matchType) === 'genre_light' ? (
-                        // Genre match display
-                        <>
-                          <div className="genre-badge">
-                          <i class="fa-sharp fa-regular fa-wave-square"></i>
-                            <span className="genre-name">{match.name}</span>
-                          </div>
-                          
-                        </>
-                      ) : match.type === 'direct' ? (
-                        // Direct match display
-                        <>
-                          <div className="direct-match-badge">
-                            <span className="direct-match-icon">
-                              {match.positions?.artist_position ? `#${match.positions.artist_position}` : 
-                               match.positions?.track_position ? `#${match.positions.track_position}` : 
-                               '★'}
-                            </span>
-                          </div>
-                          <div className="related-artist-info">
-                            <div className="related-artist-name">{match.name}</div>
-                            <div className="related-artist-strength">
-                              {match.positions?.artist_position && `_Top Artist #${match.positions.artist_position}`}
-                              {match.positions?.track_position && `_Top Track #${match.positions.track_position}`}
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        // Related artist match display
-                        <>
+                {/* Related Artists with Images - Only show if there are detailed matches */}
+                {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
+                  <div className="related-artists-section">
+                    <div className="related-artists-grid">
+                      {artist.recommendation.detailedMatches.map((match, index) => (
+                        <div key={index} className="related-artist-item">
                           <div className="related-artist-image">
                             <img 
                               src={match.image_url || '/_assets/_images/default-artist.png'} 
@@ -279,11 +242,79 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                               {match.rel_strength === 'light' && '_Light'}
                             </div>
                           </div>
-                        </>
-                      )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* MEDIUM MATCH SECTION */}
+            {artist.recommendation?.match_type === 'medium' && (
+              <div className="match-section match-section--medium">
+                <h3>RECOMMENDED BASED ON RELATED ARTISTS</h3>
+                
+                {/* Related Artists with Images - Only show if there are detailed matches */}
+                {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
+                  <div className="related-artists-section">
+                    <div className="related-artists-grid">
+                      {artist.recommendation.detailedMatches.map((match, index) => (
+                        <div key={index} className="related-artist-item">
+                          <div className="related-artist-image">
+                            <img 
+                              src={match.image_url || '/_assets/_images/default-artist.png'} 
+                              alt={match.name}
+                              onError={(e) => {
+                                e.target.src = '/_assets/_images/default-artist.png'
+                              }}
+                            />
+                          </div>
+                          <div className="related-artist-info">
+                            <div className="related-artist-name">{match.name}</div>
+                            <div className="related-artist-strength">
+                              {match.rel_strength === 'heavy' && '_Strong'}
+                              {match.rel_strength === 'medium' && '_Medium'}
+                              {match.rel_strength === 'light' && '_Light'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* LIGHT MATCH SECTION */}
+            {artist.recommendation?.match_type === 'light' && (
+              <div className="match-section match-section--light">
+                <h3>RECOMMENDED BASED ON GENRE</h3>
+                
+                {/* Genre matches - Only show if there are detailed matches */}
+                {artist.recommendation.detailedMatches && artist.recommendation.detailedMatches.length > 0 && (
+                  <div className="genre-section">
+                    <div className="genre-grid">
+                      {artist.recommendation.detailedMatches.map((match, index) => (
+                        <div key={index} className="genre-item">
+                          <div className="genre-badge">
+                            <i className="fa-sharp fa-regular fa-wave-square"></i>
+                            <span className="genre-name">{match.name}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* DIRECT MATCH SECTION */}
+            {artist.recommendation?.match_type === 'direct' && (
+              <div className="match-section match-section--direct">
+                <h3>ONE OF YOUR FAVOURITE ARTISTS</h3>
+                
+               
               </div>
             )}
            
