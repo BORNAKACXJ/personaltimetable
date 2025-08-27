@@ -120,7 +120,7 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
             }}
           >
             <img src="/_assets/_images/spotify_icon.svg" alt="Spotify" style={{ width: '20px', height: '20px' }} />
-            Create your personal timetable
+            Create <span>your personal </span> timetable
           </button>
         )}
       </div>

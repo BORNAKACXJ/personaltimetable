@@ -75,6 +75,10 @@
     pointer-events: auto;
 }
 
+.nav__main--spotify span {
+    display: none;
+}
+
 .nav__main--spotify.huge {
     font-size: 16px;
     line-height: 48px;
