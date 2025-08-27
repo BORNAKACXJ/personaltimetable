@@ -1,0 +1,26 @@
+# Ignore neon-related files
+.neon/
+neon.json
+.neonignore
+
+# Ignore development files
+node_modules/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore build artifacts
+dist/
+build/
+
+# Ignore git files
+.git/
+.gitignore
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
