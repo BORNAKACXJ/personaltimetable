@@ -68,7 +68,7 @@ export function TimetableList({
         <div style={{ 
           textAlign: 'center', 
           padding: '2rem',
-          color: '#666',
+          color: 'white',
           fontSize: '1.1rem'
         }}>
           {showOnlyRecommended ? 'No recommended acts for this day' : 'No acts scheduled for this day'}
