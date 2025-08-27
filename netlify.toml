@@ -6,11 +6,6 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
 
-# Explicitly disable neon extension
-[[plugins]]
-  package = "@netlify/plugin-neon"
-  enabled = false
-
 [[headers]]
   for = "*.js"
   [headers.values]
