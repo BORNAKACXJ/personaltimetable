@@ -515,6 +515,43 @@ function App() {
                 </a>
               </div>
             )}
+
+            {/* Feedback Link - only show when personal timetable is active */}
+            {isPersonalTimetable && (
+              <div className="timetable__feedback">
+                <a 
+                  href="https://forms.gle/ZFrcPpJQcvDzqz2k8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn__feedback"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 20px',
+                    backgroundColor: '#f3f4f6',
+                    color: '#374151',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease',
+                    marginTop: '20px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#e5e7eb'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#f3f4f6'
+                  }}
+                >
+                  <i className="fa-sharp fa-regular fa-comment" style={{ fontSize: '1rem' }}></i>
+                  Give Feedback
+                </a>
+              </div>
+            )}
+
+
           </div>
         </div>
       </main>
