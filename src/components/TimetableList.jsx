@@ -188,7 +188,8 @@ export function TimetableList({
                       animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`
                     }}
                     data-artist={act.name}
-                    onClick={() => onArtistClick(act)}
+                    data-stage={act.stage?.name || stage.name || ''}
+                    onClick={(event) => onArtistClick(act, event)}
                   >
                     <div className="list__act-name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

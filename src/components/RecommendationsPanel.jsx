@@ -88,7 +88,7 @@ export function RecommendationsPanel({
               <div 
                 key={rec.artist_id} 
                 className="recommendation-tag current-day"
-                onClick={() => {
+                onClick={(event) => {
                   if (rec.artist && onArtistClick) {
                     onArtistClick({
                       ...rec.act,
@@ -96,7 +96,7 @@ export function RecommendationsPanel({
                       stage: rec.stage,
                       start_time: rec.startTime,
                       end_time: rec.endTime
-                    })
+                    }, event)
                   }
                 }}
               >
@@ -120,7 +120,7 @@ export function RecommendationsPanel({
             <div 
               key={rec.artist_id} 
               className="recommendation-tag"
-              onClick={() => {
+              onClick={(event) => {
                 if (rec.artist && onArtistClick) {
                   onArtistClick({
                     ...rec.act,
@@ -128,7 +128,7 @@ export function RecommendationsPanel({
                     stage: rec.stage,
                     start_time: rec.startTime,
                     end_time: rec.endTime
-                  })
+                  }, event)
                 }
               }}
             >

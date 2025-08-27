@@ -122,6 +122,10 @@ export function useCachedFestivalData() {
                     name: act.name,
                     start_time: act.start_time,
                     end_time: act.end_time,
+                    stage: {
+                      id: stage.id,
+                      name: stage.name
+                    },
                     artist: act.artist ? {
                       id: act.artist.id,
                       name: act.artist.name,

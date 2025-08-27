@@ -239,6 +239,11 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
           const actsRow = currentStageRow + 1 + rowIndex
           
           actRow.forEach((act, actIndex) => {
+            // Debug: Log the act structure to see what's available
+            console.log('Act data:', act)
+            console.log('Stage data:', act.stage)
+            console.log('Stage name:', act.stage?.name)
+            
             const startCol = timeToColumnIndex(act.start_time, timeRange.start, timeMarkers)
             const endCol = timeToColumnIndex(act.end_time, timeRange.start, timeMarkers)
 
@@ -324,12 +329,13 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
                 <div
                   key={act.id}
                   className={`event-card ${isRecommended && recommendations.length > 0 ? 'event-card--recommended' : ''}`}
+                  data-stage={act.stage?.name || stage.name || ''}
                   style={{
                     gridArea: `${actsRow} / ${startCol} / auto / ${endCol}`,
                     animationDelay: `${(stageIndex * 0.1) + (actIndex * 0.05)}s`,
                     cursor: 'pointer'
                   }}
-                  onClick={() => onArtistClick(act)}
+                  onClick={(event) => onArtistClick(act, event)}
                 >
                   <div className="act__wrapper">
                     <div 

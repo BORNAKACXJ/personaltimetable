@@ -389,7 +389,7 @@ function App() {
 
   const flattenedRecommendations = getFlattenedRecommendations()
 
-  const handleArtistClick = (act) => {
+  const handleArtistClick = (act, event) => {
     if (act.artist) {
       // Find the day that contains this act
       const actDay = data?.days?.find(day => 
@@ -403,10 +403,13 @@ function App() {
         rec.artist.spotify_id === act.artist.spotify_id
       )
       
+      // Get stage name from data-stage attribute if available
+      const stageNameFromAttribute = event?.target?.closest('[data-stage]')?.getAttribute('data-stage') || ''
+      
       // Track the popup open
       trackActPopup(
         act.name, 
-        act.stage_name, 
+        act.stage?.name || stageNameFromAttribute || '', 
         `${act.start_time} - ${act.end_time}`,
         act.id,
         act.stage?.id,
@@ -418,7 +421,8 @@ function App() {
         ...act.artist, 
         actData: act,
         dayData: actDay,
-        recommendation: artistRecommendation
+        recommendation: artistRecommendation,
+        stageName: stageNameFromAttribute
       })
       setIsArtistDialogOpen(true)
     } else {

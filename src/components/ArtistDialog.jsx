@@ -351,7 +351,13 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
                 {formatDateForDisplay(artist.dayData?.date)}
               </div>
               <div className="artist-dialog__performance-stage">
-                {artist.actData.stage?.name || 'EFFENAAR KLEINE ZAAL'}
+                {/* Debug: Log the stage information */}
+                {(() => {
+                  console.log('Artist actData:', artist.actData)
+                  console.log('Artist actData.stage:', artist.actData.stage)
+                  console.log('Artist stageName:', artist.stageName)
+                  return artist.actData.stage?.name || artist.stageName || 'EFFENAAR KLEINE ZAAL'
+                })()}
               </div>
             </div>
             
