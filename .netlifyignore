@@ -1,7 +1,9 @@
-# Ignore neon-related files
+# Ignore neon-related files and configurations
 .neon/
 neon.json
 .neonignore
+.netlify/plugins/
+.netlify/functions/
 
 # Ignore development files
 node_modules/
@@ -24,3 +26,8 @@ build/
 .idea/
 *.swp
 *.swo
+
+# Ignore any neon database configurations
+**/neon/
+**/neon.json
+**/.neon/
