@@ -15,7 +15,7 @@
 }
 
 .status-content h1 {
-  font-size: 48px;
+  font-size: 32px;
   margin: 0 0 40px 0;
   text-align: center;
   font-weight: normal;
@@ -43,7 +43,7 @@
 }
 
 .stat-value {
-  font-size: 32px;
+  font-size: 80px;
   font-weight: bold;
   color: #fff;
 }
@@ -71,7 +71,7 @@
 }
 
 @media (max-width: 768px) {
-  .status-content h1 {
+  /* .status-content h1 {
     font-size: 36px;
   }
   
@@ -82,5 +82,5 @@
   
   .stat-value {
     font-size: 24px;
-  }
+  } */
 }
