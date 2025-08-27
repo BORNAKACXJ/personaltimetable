@@ -525,18 +525,22 @@ function App() {
                   rel="noopener noreferrer"
                   className="btn__feedback"
                   style={{
-                    display: 'inline-flex',
+                    display: 'block',
                     alignItems: 'center',
                     gap: '8px',
                     padding: '12px 20px',
-                    backgroundColor: '#f3f4f6',
-                    color: '#374151',
+                    backgroundColor: 'transparent',
+                    color: 'white',
                     textDecoration: 'none',
                     borderRadius: '8px',
-                    fontSize: '0.9rem',
+                    fontSize: '14px',
                     fontWeight: '500',
-                    transition: 'all 0.2s ease',
-                    marginTop: '20px'
+                    transition: '0.2s',
+                    marginTop: '20px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 auto',
+                    width: 'max-content'
                   }}
                   onMouseEnter={(e) => {
                     e.target.style.backgroundColor = '#e5e7eb'
@@ -545,8 +549,8 @@ function App() {
                     e.target.style.backgroundColor = '#f3f4f6'
                   }}
                 >
-                  <i className="fa-sharp fa-regular fa-comment" style={{ fontSize: '1rem' }}></i>
-                  Give Feedback
+                  
+                  Share your feedback
                 </a>
               </div>
             )}
