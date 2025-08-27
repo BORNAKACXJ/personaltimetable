@@ -542,12 +542,7 @@ function App() {
                     margin: '0 auto',
                     width: 'max-content'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#e5e7eb'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#f3f4f6'
-                  }}
+                  
                 >
                   
                   Share your feedback
