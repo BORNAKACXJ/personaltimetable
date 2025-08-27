@@ -21,26 +21,56 @@ export function AppHeader({ isPersonalTimetable, currentUserId, currentUserName,
         <div className="festival__logo--header">
           <img src="/_assets/_images/logo-hitthecity.png" alt="Hit the City" />
         </div>
-        
-        {/* Center Title */}
-        <div className="nav__main--title">
-          <div style={{
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            color: '#333',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em'
-          }}>
-            {isPersonalTimetable ? (
+
+
+        {/* Conditional Navigation/Title */}
+        {isPersonalTimetable ? (
+          // Show timetable title when there's a personal timetable
+          <div className="nav__main--title">
+            <div style={{
+              fontSize: '1.2rem',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              color: '#333',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
               <span dangerouslySetInnerHTML={{
-                __html: `Personal Timetable of <span style="color: var(--purpler);">${currentUserName}</span>`
+                __html: `Timetable of <span style="color: var(--purpler);">${currentUserName}</span>`
               }} />
-            ) : (
-              'Hit The City Timetable'
-            )}
+            </div>
           </div>
-        </div>
+        ) : (
+          // Show main navigation menu when there's no personal timetable
+          <div className="nav navbar-nav navbar-main navbar-nav-first">
+            <ul id="menu-hoofdmenu" className="menu-primary-inner menu-smart sm" role="menu" data-smartmenus-id="17551600275673013">
+              <li role="menuitem" id="menu-item-3595" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-3595 menu-item-link">
+                <a href="https://hitthecity-festival.nl/" className="cursor-init">Home</a>
+              </li>
+              <li role="menuitem" id="menu-item-3589" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3589 menu-item-link">
+                <a href="timetable.hitthecity-festival.nl" className="cursor-init">Timetable</a>
+              </li>
+              <li role="menuitem" id="menu-item-3589" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3589 menu-item-link">
+                <a href="https://hitthecity-festival.nl/line-up/" className="cursor-init">Line up</a>
+              </li>
+              <li role="menuitem" id="menu-item-101" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-101 menu-item-link">
+                <a href="https://hitthecity-festival.nl/venues/" className="cursor-init">Venues</a>
+              </li>
+              <li role="menuitem" id="menu-item-104" className="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-86 current_page_item menu-item-104 active menu-item-link">
+                <a href="https://hitthecity-festival.nl/news/" className="cursor-init">News</a>
+              </li>
+              <li role="menuitem" id="menu-item-3080" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3080 menu-item-link">
+                <a href="https://hitthecity-festival.nl/getting-there/" className="cursor-init">Getting there</a>
+              </li>
+              <li role="menuitem" id="menu-item-3099" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-3099 menu-item-link">
+                <a href="https://hitthecity-festival.nl/faq/" className="cursor-init">FAQ</a>
+              </li>
+              <li role="menuitem" id="menu-item-833" className="menu-item menu-item-type-post_type menu-item-object-page menu-item-833 menu-item-link">
+                <a href="https://hitthecity-festival.nl/about-us/" className="cursor-init">About us</a>
+              </li>
+            </ul>
+          </div>
+        )}
         
         
         <div className="nav__main--right">
