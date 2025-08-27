@@ -265,6 +265,8 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
               switch (matchType) {
                 case 'heavy':
                   return 'match__type--heavy'
+                case 'direct':
+                  return 'match__type--direct'
                 case 'medium':
                   return 'match__type--medium'
                 case 'light':

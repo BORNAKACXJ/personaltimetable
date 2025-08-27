@@ -200,7 +200,7 @@ function App() {
           // Show loading dialog for personal timetables
           setIsPersonalTimetableLoading(true)
           
-          const response = await fetch(`https://mpt-api.netlify.app/api/artist-recommendations/${userId}`)
+          const response = await fetch(`https://mpt-api.netlify.app/api/artist-recommendations-v2/${userId}`)
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)
           }

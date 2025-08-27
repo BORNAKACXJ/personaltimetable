@@ -227,7 +227,8 @@
 .match-strength-badge__text--strong:after,
 .match-strength-badge__text--medium:after,
 .match-strength-badge__text--light:after,
-.match-strength-badge__text--soft:after {
+.match-strength-badge__text--soft:after,
+.match-strength-badge__text--direct:after {
   
 
   padding: 0;
@@ -248,6 +249,11 @@
   display: inline-block;
   top: -1px;
   position: relative;
+}
+
+.match-strength-badge__text--direct:after {
+  content: "\f005"; 
+  color:rgb(254, 254, 173);
 }
 
 .match-strength-badge__text--strong:after {
