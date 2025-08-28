@@ -1,234 +1,187 @@
-import { useEffect, useState, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
-import { supabase } from '../lib/supabase'
 import './SpotifyCallback.css'
 
-export function SpotifyCallback() {
-  const { handleCallback, loading, error, user: authUser, topArtists, topTracks } = useSpotifyAuth({ disableSupabaseSaving: true })
-  const [status, setStatus] = useState('Processing...')
-  const [currentStep, setCurrentStep] = useState('processing') // processing, success, error, ready
-  const [user, setUser] = useState(null)
-  const [callbackError, setCallbackError] = useState(null)
-  const hasProcessed = useRef(false)
+export default function SpotifyCallback() {
+  const [step, setStep] = useState('processing')
+  const [error, setError] = useState(null)
+  const [redirectUrl, setRedirectUrl] = useState(null)
+  const [timeoutId, setTimeoutId] = useState(null)
+  
+  const { handleCallback, user, topArtists, topTracks, loading, error: authError } = useSpotifyAuth()
 
   useEffect(() => {
+    // Get authorization code from URL
+    const urlParams = new URLSearchParams(window.location.search)
+    const code = urlParams.get('code')
+    const error = urlParams.get('error')
+    const state = urlParams.get('state')
+
+    // Check if callback was already processed
+    const processed = sessionStorage.getItem('spotify_callback_processed')
+    if (processed) {
+      setStep('redirecting')
+      setRedirectUrl('/connect-spotify')
+      return
+    }
+
+    // Mark as processed
+    sessionStorage.setItem('spotify_callback_processed', 'true')
+
+    if (error) {
+      setStep('error')
+      setError(`Spotify authorization failed: ${error}`)
+      return
+    }
+
+    if (!code) {
+      setStep('error')
+      setError('No authorization code received from Spotify')
+      return
+    }
+
+    // Process the callback
     const processCallback = async () => {
-      // Prevent multiple executions
-      if (hasProcessed.current) {
-        console.log('🔄 Callback already processed, skipping')
-        return
-      }
-      
-      console.log('🚀 Starting callback processing...')
-      hasProcessed.current = true
-      
       try {
-        // Get the authorization code from URL parameters
-        const urlParams = new URLSearchParams(window.location.search)
-        const code = urlParams.get('code')
-        const error = urlParams.get('error')
-
-        if (error) {
-          console.error('Spotify OAuth error:', error)
-          
-          // Handle specific Spotify errors
-          let errorMessage = ''
-          if (error === 'invalid_scope') {
-            errorMessage = 'Invalid scope requested. The scope "user-top-read" is required. Please check your Spotify app configuration.'
-          } else if (error === 'invalid_client') {
-            errorMessage = 'Invalid client ID. Please check your Spotify app configuration.'
-          } else if (error === 'invalid_redirect_uri') {
-            errorMessage = 'Invalid redirect URI. Please check your Spotify app configuration.'
-          } else {
-            errorMessage = `Spotify error: ${error}`
-          }
-          
-          console.log('❌ Setting step to error:', errorMessage)
-          setStatus(errorMessage)
-          setCallbackError(errorMessage)
-          setCurrentStep('error')
-          return
-        }
-
-        if (!code) {
-          const errorMsg = 'No authorization code received from Spotify'
-          setStatus(errorMsg)
-          setCallbackError(errorMsg)
-          setCurrentStep('error')
-          return
-        }
-
-        setStatus('Connecting to Spotify...')
-        try {
-          await handleCallback(code)
-          console.log('✅ Spotify callback successful')
-          setStatus('Successfully connected! Loading your music taste...')
-          
-          // Set a timeout to redirect even if data doesn't load
-          setTimeout(() => {
-            if (currentStep === 'processing') {
-              console.log('⏰ Timeout reached, redirecting with available data')
-              const userDataParam = user ? encodeURIComponent(JSON.stringify(user)) : ''
-              const topArtistsParam = topArtists && topArtists.length > 0 ? encodeURIComponent(JSON.stringify(topArtists)) : ''
-              const topTracksParam = topTracks && topTracks.length > 0 ? encodeURIComponent(JSON.stringify(topTracks)) : ''
-              
-              const redirectUrl = `/connect-spotify?step=success&user=${userDataParam}&artists=${topArtistsParam}&tracks=${topTracksParam}`
-              console.log('🔄 Timeout redirect to:', redirectUrl)
-              window.location.href = redirectUrl
-            }
-          }, 5000) // 5 second timeout
-          
-        } catch (error) {
-          console.error('❌ Spotify callback error:', error)
-          const errorMsg = `Authentication failed: ${error.message}`
-          setStatus(errorMsg)
-          setCallbackError(errorMsg)
-          setCurrentStep('error')
-          return
-        }
-        
-        // TODO: Uncomment this when ready to enable direct personal timetable redirects
-        /*
-        // Check if user has a profile and redirect accordingly
-        try {
-          if (user?.id) {
-            // Check if user already has a profile
-            const { data: profile } = await supabase
-              .from('spotify_profiles')
-              .select('id')
-              .eq('spotify_id', user.id)
-              .single()
-
-            if (profile?.id) {
-              // User has a profile, redirect to their personal timetable
-              setStatus('Redirecting to your personal timetable...')
-              setTimeout(() => {
-                window.location.href = `/t/${profile.id}`
-              }, 2000)
-            } else {
-              // User doesn't have a profile, redirect to connect-spotify to create one
-              setStatus('Redirecting to complete setup...')
-              setTimeout(() => {
-                window.location.href = '/connect-spotify'
-              }, 2000)
-            }
-          } else {
-            // Fallback to main page
-            setStatus('Redirecting to timetable...')
-            setTimeout(() => {
-              window.location.href = '/'
-            }, 2000)
-          }
-        } catch (profileError) {
-          console.error('Error checking profile:', profileError)
-          // Fallback to main page
-          setStatus('Redirecting to timetable...')
-          setTimeout(() => {
-            window.location.href = '/'
-          }, 2000)
-        }
-        */
-
+        setStep('processing')
+        await handleCallback(code)
+        setStep('success')
       } catch (err) {
-        console.error('Error processing callback:', err)
-        setStatus(`Error: ${err.message}`)
+        setStep('error')
+        setError(err.message)
       }
     }
 
     processCallback()
-  }, []) // Remove handleCallback from dependencies since we're using useRef to prevent multiple executions
 
-  // Debug step changes
-  useEffect(() => {
-    console.log('🎯 Step changed to:', currentStep)
-  }, [currentStep])
+    // Set timeout for automatic redirect
+    const timeout = setTimeout(() => {
+      if (step === 'processing') {
+        setStep('timeout')
+        setRedirectUrl('/connect-spotify')
+      }
+    }, 10000) // 10 seconds
 
-  // Watch for data changes and redirect when ready
-  useEffect(() => {
-    console.log('🔍 Data change detected:', {
-      currentStep,
-      hasUser: !!user,
-      userId: user?.id,
-      userName: user?.display_name,
-      topArtistsLength: topArtists?.length || 0,
-      topTracksLength: topTracks?.length || 0,
-      firstArtist: topArtists?.[0]?.name,
-      firstTrack: topTracks?.[0]?.name
-    })
-    
-    // Check if we have enough data to redirect
-    const hasValidUser = user && user.id
-    const hasAnyData = (topArtists && topArtists.length > 0) || (topTracks && topTracks.length > 0)
-    
-    if (currentStep === 'processing' && hasValidUser && hasAnyData) {
-      console.log('🎯 Data loaded, redirecting to ConnectSpotify')
-      console.log('🎯 User data:', user)
-      console.log('🎯 Top artists:', topArtists?.length || 0)
-      console.log('🎯 Top tracks:', topTracks?.length || 0)
-      
-      // Redirect to ConnectSpotify with success step and user data
-      const userDataParam = encodeURIComponent(JSON.stringify(user))
-      const topArtistsParam = topArtists && topArtists.length > 0 ? encodeURIComponent(JSON.stringify(topArtists)) : ''
-      const topTracksParam = topTracks && topTracks.length > 0 ? encodeURIComponent(JSON.stringify(topTracks)) : ''
-      
-      const redirectUrl = `/connect-spotify?step=success&user=${userDataParam}&artists=${topArtistsParam}&tracks=${topTracksParam}`
-      console.log('🔄 Redirecting to:', redirectUrl)
-      window.location.href = redirectUrl
-    } else if (currentStep === 'processing') {
-      console.log('⏳ Still waiting for data:', {
-        hasValidUser,
-        hasAnyData,
-        userExists: !!user,
-        userId: user?.id
-      })
+    setTimeoutId(timeout)
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
     }
-  }, [currentStep, user, topArtists, topTracks])
+  }, [handleCallback, step, timeoutId])
 
+  useEffect(() => {
+    if (step === 'success' && user && topArtists && topTracks) {
+      // Redirect to main app after successful authentication
+      const redirectUrl = '/connect-spotify'
+      setRedirectUrl(redirectUrl)
+      setStep('redirecting')
+      
+      // Small delay to show success state
+      setTimeout(() => {
+        window.location.href = redirectUrl
+      }, 1000)
+    }
+  }, [step, user, topArtists, topTracks])
 
+  useEffect(() => {
+    if (redirectUrl && step === 'redirecting') {
+      setTimeout(() => {
+        window.location.href = redirectUrl
+      }, 1000)
+    }
+  }, [redirectUrl, step])
 
-  const handleRetry = () => {
-    window.location.href = '/'
+  useEffect(() => {
+    if (authError) {
+      setStep('error')
+      setError(authError)
+    }
+  }, [authError])
+
+  const getStepContent = () => {
+    switch (step) {
+      case 'processing':
+        return {
+          title: 'Connecting to Spotify...',
+          message: 'Please wait while we connect your Spotify account.',
+          icon: '🔄'
+        }
+      case 'success':
+        return {
+          title: 'Successfully Connected!',
+          message: 'Your Spotify account has been connected successfully.',
+          icon: '✅'
+        }
+      case 'error':
+        return {
+          title: 'Connection Failed',
+          message: error || 'An error occurred while connecting to Spotify.',
+          icon: '❌'
+        }
+      case 'timeout':
+        return {
+          title: 'Connection Timeout',
+          message: 'The connection is taking longer than expected. Redirecting...',
+          icon: '⏰'
+        }
+      case 'redirecting':
+        return {
+          title: 'Redirecting...',
+          message: 'Taking you to the main application.',
+          icon: '🚀'
+        }
+      default:
+        return {
+          title: 'Processing...',
+          message: 'Please wait.',
+          icon: '⏳'
+        }
+    }
   }
 
-  // Processing Step
-  if (currentStep === 'processing') {
-    return (
-      <div className="spotify-callback processing">
-        <div className="callback-step">
-          <h2>Connecting to Spotify...</h2>
-          <div className="status-info">
-            <p>{status}</p>
-          </div>
-          <div className="loading-indicator">
-            <div className="spinner"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const content = getStepContent()
 
-  // Error Step
-  if (currentStep === 'error') {
-    return (
-      <div className="spotify-callback error">
-        <div className="callback-step">
-          <h2>Authorization Failed</h2>
-          <div className="status-info">
-            <p className="error-message">{callbackError || status}</p>
-          </div>
-          <div className="step-actions">
-            <button className="btn-retry" onClick={handleRetry}>
+  return (
+    <div className="spotify-callback">
+      <div className="callback-container">
+        <div className="callback-icon">{content.icon}</div>
+        <h1>{content.title}</h1>
+        <p>{content.message}</p>
+        
+        {step === 'processing' && (
+          <div className="loading-spinner"></div>
+        )}
+        
+        {step === 'error' && (
+          <div className="error-actions">
+            <button 
+              onClick={() => window.location.href = '/connect-spotify'}
+              className="retry-button"
+            >
               Try Again
             </button>
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="home-button"
+            >
+              Go Home
+            </button>
           </div>
-        </div>
+        )}
+        
+        {step === 'timeout' && (
+          <div className="timeout-actions">
+            <button 
+              onClick={() => window.location.href = redirectUrl}
+              className="redirect-button"
+            >
+              Continue Now
+            </button>
+          </div>
+        )}
       </div>
-    )
-  }
-
-
-
-
-
-  return null
+    </div>
+  )
 } 

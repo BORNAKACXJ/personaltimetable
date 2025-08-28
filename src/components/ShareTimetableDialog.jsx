@@ -105,10 +105,37 @@ export function ShareTimetableDialog({ isOpen, onClose, userId, userName }) {
   }
 
   const handleSaveProfile = async () => {
-    // Here you would typically save the name and email to the database
-    // For now, we'll just close the dialog
-    console.log('Saving profile:', { name, email })
-    onClose()
+    if (!name.trim() || !email.trim()) {
+      setError('Please fill in both name and email')
+      return
+    }
+
+    try {
+      setSaving(true)
+      setError(null)
+
+      // Save profile to Supabase
+      const { data: profile, error: profileError } = await supabase
+        .from('spotify_profiles')
+        .insert({
+          display_name: name.trim(),
+          email: email.trim(),
+          spotify_id: `shared_${Date.now()}` // Generate a unique ID for shared profiles
+        })
+        .select()
+        .single()
+
+      if (profileError) {
+        throw new Error(`Failed to save profile: ${profileError.message}`)
+      }
+
+      setProfile(profile)
+      setStep('success')
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (!isVisible) return null

@@ -123,15 +123,6 @@ export function useFestivalData() {
         setTimetableEntries(entriesData || [])
       }
 
-      console.log('Fetched data:', {
-        festival: festivalData,
-        days: daysData?.length || 0,
-        stages: stagesData?.length || 0,
-        stageDays: stageDaysData?.length || 0,
-        artists: artistsData?.length || 0,
-        entries: entriesData?.length || 0
-      })
-
     } catch (err) {
       console.error('Error fetching festival data:', err)
       setError(err.message)
