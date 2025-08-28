@@ -5,8 +5,8 @@ import { useRecommendations } from './hooks/useRecommendations'
 import { useLandscapeMode } from './hooks/useLandscapeMode'
 import { ArtistDialog } from './components/ArtistDialog'
 import { TimelineView } from './components/TimelineView'
-import { SpotifyCallback } from './components/SpotifyCallback'
-import { SpotifyAuth } from './components/SpotifyAuth'
+import SpotifyCallback from './components/SpotifyCallback'
+import SpotifyAuth from './components/SpotifyAuth'
 import { RecommendationsPanel } from './components/RecommendationsPanel'
 import { TimetableNavigation } from './components/TimetableNavigation'
 import { TimetableList } from './components/TimetableList'
@@ -39,10 +39,11 @@ function App() {
     topArtists, 
     topTracks,
     isAuthenticated: spotifyAuthenticated, 
-    login: spotifyLogin, 
+    getAuthorizationUrl,
+    handleCallback,
     logout: spotifyLogout,
     loading: spotifyLoading 
-  } = useSpotifyAuth({ disableSupabaseSaving: true })
+  } = useSpotifyAuth()
 
   const { 
     recommendations, 
