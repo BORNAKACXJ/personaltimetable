@@ -132,43 +132,15 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log('App useEffect - spotifyAuthenticated:', spotifyAuthenticated)
-    console.log('App useEffect - topArtists:', topArtists?.length || 0)
-    console.log('App useEffect - topTracks:', topTracks?.length || 0)
-    console.log('App useEffect - data:', !!data)
-    console.log('App useEffect - data.days:', data?.days?.length || 0)
-    console.log('App useEffect - spotifyUser?.id:', spotifyUser?.id)
-    console.log('App useEffect - data?.festival?.id:', data?.festival?.id)
-    
     if (spotifyAuthenticated && spotifyUser?.id && data?.festival?.id && 
         ((topArtists && topArtists.length > 0) || (topTracks && topTracks.length > 0))) {
-      console.log('🎯 Generating recommendations with:', {
-        spotifyUserId: spotifyUser.id,
-        festivalId: data.festival.id,
-        topArtists: topArtists?.length || 0,
-        topTracks: topTracks?.length || 0
-      })
       generateRecommendations()
-    } else {
-      console.log('Not generating recommendations because:', {
-        spotifyAuthenticated,
-        hasSpotifyUserId: !!spotifyUser?.id,
-        hasFestivalId: !!data?.festival?.id,
-        hasTopArtists: !!(topArtists && topArtists.length > 0),
-        hasTopTracks: !!(topTracks && topTracks.length > 0)
-      })
     }
   }, [spotifyAuthenticated, spotifyUser?.id, data?.festival?.id, topArtists, topTracks, generateRecommendations])
 
   // Get user ID from URL path
   const getUserFromUrl = () => {
     const path = window.location.pathname
-    console.log('🔍 getUserFromUrl Debug:', {
-      path,
-      fullUrl: window.location.href,
-      search: window.location.search,
-      hash: window.location.hash
-    })
     
     // Try exact match first
     let match = path.match(/^\/t\/([a-f0-9-]+)$/)
@@ -177,12 +149,6 @@ function App() {
     if (!match) {
       match = path.match(/^\/t\/([a-f0-9-]+)/)
     }
-    
-    console.log('🔍 URL Match Result:', {
-      match,
-      extractedUserId: match ? match[1] : null,
-      regexPattern: match ? 'flexible' : 'none'
-    })
     
     return match ? match[1] : null
   }
@@ -217,15 +183,12 @@ function App() {
         setApiRecommendationsError(error.message)
       } finally {
         setApiRecommendationsLoading(false)
-        // Hide loading dialog after a short delay to show completion
-        setTimeout(() => {
-          setIsPersonalTimetableLoading(false)
-        }, 1000)
+        setIsPersonalTimetableLoading(false)
       }
     }
 
     fetchApiRecommendations()
-  }, [window.location.pathname]) // Re-run when URL changes
+  }, [])
 
   // Fetch Spotify profile display name for header when viewing personal timetable
   useEffect(() => {
@@ -354,21 +317,10 @@ function App() {
   // Check if we're viewing a personal timetable
   const currentUserId = getUserFromUrl()
   const isPersonalTimetable = !!currentUserId
-  
-  // Debug logging
-  console.log('🔍 Personal Timetable Debug:', {
-    currentPath: window.location.pathname,
-    currentUserId,
-    isPersonalTimetable,
-    hasRecommendations: !!(apiRecommendations && apiRecommendations.length > 0)
-  })
 
   // Helper function to flatten time slot recommendations
   const getFlattenedRecommendations = () => {
-    console.log('getFlattenedRecommendations called with recommendations:', recommendations)
-    
     if (!recommendations || !Array.isArray(recommendations)) {
-      console.log('No recommendations array found')
       return []
     }
     
@@ -389,14 +341,16 @@ function App() {
       }
     })
     
-    console.log('Final flattened recommendations:', flattened)
     return flattened
   }
 
   const flattenedRecommendations = getFlattenedRecommendations()
 
   const handleArtistClick = (act, event) => {
-    if (act.artist) {
+    if (!act.artist) {
+      return
+    }
+      
       // Find the day that contains this act
       const actDay = data?.days?.find(day => 
         day.stages?.some(stage => 
@@ -431,10 +385,7 @@ function App() {
         stageName: stageNameFromAttribute
       })
       setIsArtistDialogOpen(true)
-    } else {
-      console.log('No artist found for:', act)
     }
-  }
 
   const closeArtistDialog = () => {
     setIsArtistDialogOpen(false)

@@ -39,7 +39,6 @@ const TestRecommendations = () => {
       if (cachedUserData && userTimestamp) {
         const age = Date.now() - parseInt(userTimestamp)
         if (age < 60 * 60 * 1000) {
-          console.log('📊 Loading cached user artists data...')
           setUserSpotifyArtists(JSON.parse(cachedUserData))
         }
       }
@@ -65,76 +64,65 @@ const TestRecommendations = () => {
     return Array.from(ids)
   }
 
-  // Load user artists directly from Spotify data (no related artists)
+  // Load user artists from cache or Spotify data
   const loadUserArtists = async () => {
+    setLoading(true)
+    
+    // Try to load from cache first
+    const cachedData = localStorage.getItem('user_spotify_artists_direct')
+    const cachedTimestamp = localStorage.getItem('user_spotify_artists_timestamp')
+    
+    if (cachedData && cachedTimestamp) {
+      const age = Date.now() - parseInt(cachedTimestamp)
+      if (age < 24 * 60 * 60 * 1000) { // 24 hours
+        const userArtists = JSON.parse(cachedData)
+        setUserSpotifyArtists(userArtists)
+        setLoading(false)
+        return
+      }
+    }
+    
+    // Load from Spotify data if not authenticated or no data
     if (!isAuthenticated || !topArtists || !topTracks) {
-      console.log('❌ Not authenticated or no data available')
+      setLoading(false)
       return
     }
-
-    setLoading(true)
-    console.log('📊 Loading user artists directly from Spotify data...')
     
+    // Combine top artists and track artists
     const userArtists = []
     
-    // Process top artists
-    if (topArtists) {
-      topArtists.forEach((artist, index) => {
-        userArtists.push({
-          id: artist.id,
-          name: artist.name,
-          spotify_id: artist.id,
-          genres: artist.genres || [],
-          rank: index + 1,
-          source: 'top_artists'
-        })
+    // Add top artists
+    topArtists.forEach(artist => {
+      userArtists.push({
+        name: artist.name,
+        spotify_id: artist.id,
+        source: 'top_artist'
       })
-    }
+    })
     
-    // Process top tracks (get unique artists)
-    if (topTracks) {
-      const trackArtists = new Map()
-      topTracks.forEach((track, index) => {
-        const artist = track.artists[0]
-        if (!trackArtists.has(artist.id)) {
-          trackArtists.set(artist.id, {
-            id: artist.id,
-            name: artist.name,
-            spotify_id: artist.id,
-            genres: artist.genres || [],
-            rank: index + 1,
-            source: 'top_tracks'
-          })
-        }
-      })
-      
-      // Add track artists that aren't already in top artists
-      trackArtists.forEach((artist) => {
-        if (!userArtists.find(a => a.spotify_id === artist.spotify_id)) {
-          userArtists.push(artist)
-        }
-      })
-    }
+    // Add track artists (avoid duplicates)
+    const existingIds = new Set(userArtists.map(a => a.spotify_id))
+    topTracks.forEach(track => {
+      if (!existingIds.has(track.artists[0].id)) {
+        userArtists.push({
+          name: track.artists[0].name,
+          spotify_id: track.artists[0].id,
+          source: 'top_track'
+        })
+        existingIds.add(track.artists[0].id)
+      }
+    })
     
     setUserSpotifyArtists(userArtists)
-    
-    // Save to localStorage
     localStorage.setItem('user_spotify_artists_direct', JSON.stringify(userArtists))
     localStorage.setItem('user_spotify_artists_timestamp', Date.now().toString())
     
-    console.log('📊 User artists loaded directly from Spotify data:', userArtists.length)
-    console.log('📊 Breakdown:', {
-      topArtists: topArtists?.length || 0,
-      topTracks: topTracks?.length || 0,
-      uniqueArtists: userArtists.length
-    })
     setLoading(false)
   }
 
   // Load festival artists from Supabase
   const loadFestivalArtists = async () => {
     setLoading(true)
-    console.log('🎪 Loading festival artists from Supabase...')
     
     try {
       const { data, error } = await supabase
@@ -148,7 +136,6 @@ const TestRecommendations = () => {
       }
       
       setFestivalArtists(data || [])
-      console.log('✅ Festival artists loaded:', data?.length || 0)
     } catch (error) {
       console.error('❌ Error loading festival artists:', error)
     } finally {
@@ -159,7 +146,6 @@ const TestRecommendations = () => {
   // Load related artists from Supabase
   const loadRelatedArtists = async () => {
     setLoading(true)
-    console.log('🔗 Loading related artists from Supabase...')
     
     try {
       const { data, error } = await supabase
@@ -173,7 +159,6 @@ const TestRecommendations = () => {
       }
       
       setRelatedArtists(data || [])
-      console.log('✅ Related artists loaded:', data?.length || 0)
     } catch (error) {
       console.error('❌ Error loading related artists:', error)
     } finally {
@@ -184,7 +169,6 @@ const TestRecommendations = () => {
   // Load timetable entries from Supabase for specific edition
   const loadTimetableEntries = async () => {
     setLoading(true)
-    console.log('📅 Loading timetable entries for edition...')
     
     const editionId = 'a2a26ced-06df-47e2-9745-2b708f2d6a0a'
     
@@ -204,7 +188,6 @@ const TestRecommendations = () => {
       }
       
       setTimetableEntries(data || [])
-      console.log(`✅ Timetable entries loaded for edition ${editionId}:`, data?.length || 0)
     } catch (error) {
       console.error('❌ Error loading timetable entries:', error)
     } finally {
@@ -215,18 +198,15 @@ const TestRecommendations = () => {
   // Create personal timetable based on user preferences
   const createPersonalTimetable = async () => {
     if (!userSpotifyArtists.length || !timetableEntries.length) {
-      console.log('❌ Need both user artists and timetable entries')
       return
     }
 
     setLoading(true)
-    console.log('🎵 Creating personal timetable...')
     
     const userSpotifyIds = new Set(userSpotifyArtists.map(a => a.spotify_id))
     const personalTimetable = []
     
     // Step 1: Direct matches (user artists match timetable acts)
-    console.log('Step 1: Adding direct matches to personal timetable...')
     timetableEntries.forEach(entry => {
       if (entry.artist && entry.artist.spotify_id && userSpotifyIds.has(entry.artist.spotify_id)) {
         const userArtist = userSpotifyArtists.find(u => u.spotify_id === entry.artist.spotify_id)
@@ -243,117 +223,68 @@ const TestRecommendations = () => {
     })
     
     // Step 2: Related artist matches (timetable acts' related artists match user artists)
-    console.log('Step 2: Adding related artist matches to personal timetable...')
     timetableEntries.forEach(entry => {
-      if (!entry.artist || !entry.artist.spotify_id) return
-      
-      // Find related artists for this timetable artist
-      const artistRelated = relatedArtists.filter(ra => ra.artist_id === entry.artist_id)
-      
-      // Debug: Check for Daft Punk related artists
-      if (entry.artist.name.toLowerCase().includes('daft punk')) {
-        console.log(`🔍 Checking related artists for ${entry.artist.name}:`, artistRelated)
-      }
-      
-      artistRelated.forEach(related => {
-        if (userSpotifyIds.has(related.spotify_id)) {
-          const userArtist = userSpotifyArtists.find(u => u.spotify_id === related.spotify_id)
-          
-          // Debug: Log Daft Punk matches
-          if (userArtist?.name?.toLowerCase().includes('daft punk') || entry.artist?.name?.toLowerCase().includes('daft punk')) {
-            console.log(`🎵 Daft Punk match found: ${userArtist?.name} related to ${entry.artist?.name}`)
+      if (entry.artist && entry.artist.spotify_id) {
+        const artistRelated = relatedArtists.filter(ra => ra.spotify_id === entry.artist.spotify_id)
+        
+        artistRelated.forEach(related => {
+          if (userSpotifyIds.has(related.related_spotify_id)) {
+            const userArtist = userSpotifyArtists.find(u => u.spotify_id === related.related_spotify_id)
+            personalTimetable.push({
+              type: 'related',
+              strength: 'medium',
+              userArtist: userArtist,
+              timetableEntry: entry,
+              score: 80,
+              reason: `You listen to ${userArtist?.name} - ${entry.artist?.name} is similar!`,
+              priority: 2
+            })
           }
+        })
+      }
+    })
+    
+    // Step 3: Genre matches (simplified - just check if genres overlap)
+    timetableEntries.forEach(entry => {
+      if (entry.artist && entry.artist.genres) {
+        const entryGenres = entry.artist.genres.toLowerCase().split(',').map(g => g.trim())
+        
+        userSpotifyArtists.forEach(userArtist => {
+          // For now, just add a basic genre match if we haven't already matched this artist
+          const alreadyMatched = personalTimetable.some(pt => 
+            pt.timetableEntry.artist.spotify_id === entry.artist.spotify_id
+          )
           
-          personalTimetable.push({
-            type: 'related',
-            strength: 'medium',
-            userArtist: userArtist,
-            timetableEntry: entry,
-            relatedArtist: related,
-            score: 75,
-            reason: `${entry.artist?.name} is similar to ${userArtist?.name} (you listen to)`,
-            priority: 2
-          })
-        }
-      })
+          if (!alreadyMatched) {
+            personalTimetable.push({
+              type: 'genre',
+              strength: 'low',
+              userArtist: userArtist,
+              timetableEntry: entry,
+              score: 60,
+              reason: `You might like ${entry.artist?.name} based on your music taste`,
+              priority: 3
+            })
+          }
+        })
+      }
     })
     
-    // Step 3: Genre matches (shared genres between user and timetable artists)
-    console.log('Step 3: Adding genre matches to personal timetable...')
-    userSpotifyArtists.forEach(userArtist => {
-      if (!userArtist.genres || userArtist.genres.length === 0) return
-      
-      timetableEntries.forEach(entry => {
-        if (!entry.artist || !entry.artist.genres || entry.artist.genres.length === 0) return
-        
-        const sharedGenres = userArtist.genres.filter(genre => 
-          entry.artist.genres.includes(genre)
-        )
-        
-        if (sharedGenres.length > 0) {
-          personalTimetable.push({
-            type: 'genre',
-            strength: 'low',
-            userArtist: userArtist,
-            timetableEntry: entry,
-            sharedGenres: sharedGenres,
-            score: 25 + (sharedGenres.length * 10),
-            reason: `Shared genres with ${userArtist?.name}: ${sharedGenres.join(', ')}`,
-            priority: 3
-          })
-        }
-      })
-    })
-    
-    // Remove duplicates and keep best matches per timetable entry
+    // Remove duplicates and sort by priority/score
     const uniqueTimetable = []
     const seenEntries = new Set()
     
-    personalTimetable.forEach(item => {
-      const entryId = item.timetableEntry.id
-      if (!seenEntries.has(entryId)) {
-        seenEntries.add(entryId)
-        uniqueTimetable.push(item)
-      } else {
-        // If we already have this entry, keep the one with higher priority
-        const existingIndex = uniqueTimetable.findIndex(t => t.timetableEntry.id === entryId)
-        if (existingIndex !== -1) {
-          if (item.priority < uniqueTimetable[existingIndex].priority) {
-            uniqueTimetable[existingIndex] = item
-          }
+    personalTimetable
+      .sort((a, b) => a.priority - b.priority || b.score - a.score)
+      .forEach(item => {
+        const key = `${item.timetableEntry.id}-${item.userArtist.spotify_id}`
+        if (!seenEntries.has(key)) {
+          seenEntries.add(key)
+          uniqueTimetable.push(item)
         }
-      }
-    })
-    
-    // Sort by priority and score
-    uniqueTimetable.sort((a, b) => {
-      if (a.priority !== b.priority) return a.priority - b.priority
-      return b.score - a.score
-    })
+      })
     
     setMatches(uniqueTimetable)
-    
-    console.log('🎵 Personal timetable created:', {
-      direct: personalTimetable.filter(t => t.type === 'direct').length,
-      related: personalTimetable.filter(t => t.type === 'related').length,
-      genre: personalTimetable.filter(t => t.type === 'genre').length,
-      unique: uniqueTimetable.length
-    })
-    
-    // Debug: Show all user artists
-    console.log('🔍 All user artists:', userSpotifyArtists.map(a => ({ name: a.name, spotify_id: a.spotify_id, source: a.source })))
-    
-    // Debug: Show related artist matches specifically
-    const daftPunkMatches = personalTimetable.filter(t => 
-      t.userArtist?.name?.toLowerCase().includes('daft punk') || 
-      t.timetableEntry?.artist?.name?.toLowerCase().includes('daft punk')
-    )
-    if (daftPunkMatches.length > 0) {
-      console.log('🎵 Daft Punk matches found:', daftPunkMatches)
-    } else {
-      console.log('❌ No Daft Punk matches found')
-    }
-    
     setLoading(false)
   }
 
