@@ -1,75 +1,118 @@
-import React, { useState } from 'react'
 import { useSpotifyAuth } from '../hooks/useSpotifyAuth'
+import { Heart, User, Music, Settings } from 'lucide-react'
 import { testSupabaseConnection } from '../utils/testSupabaseConnection'
+import { SupabaseDebug } from './SupabaseDebug'
 import './SpotifyAuth.css'
 
-export default function SpotifyAuth() {
-  const [connectionTest, setConnectionTest] = useState(null)
-  const { getAuthorizationUrl, loading, error } = useSpotifyAuth()
+export function SpotifyAuth({ onUserDataReady }) {
+  const { 
+    user: spotifyUser, 
+    topArtists, 
+    topTracks,
+    isAuthenticated: spotifyAuthenticated, 
+    login: spotifyLogin, 
+    logout: spotifyLogout,
+    loading: spotifyLoading 
+  } = useSpotifyAuth()
 
   const handleLogin = async () => {
-    try {
-      // Test Supabase connection before proceeding
-      const result = await testSupabaseConnection()
-      setConnectionTest(result)
-
-      if (result.success) {
-        // Proceed with Spotify login
-        const authUrl = getAuthorizationUrl()
-        window.location.href = authUrl
-      } else {
-        console.error('Supabase connection failed:', result.error)
-      }
-    } catch (error) {
-      console.error('Error during login:', error)
-      setConnectionTest({ success: false, error: error.message })
+    // Test Supabase connection before login
+    console.log('Testing Supabase connection before login...')
+    const connectionTest = await testSupabaseConnection()
+    console.log('Connection test result:', connectionTest)
+    
+    if (!connectionTest.success) {
+      console.error('❌ Supabase connection failed:', connectionTest.message)
+      alert('Database connection failed. Please check your Supabase configuration.')
+      return
     }
+    
+    console.log('✅ Supabase connection successful, proceeding with login')
+    await spotifyLogin()
+  }
+
+  const handleLogout = async () => {
+    await spotifyLogout()
+  }
+
+  if (spotifyLoading) {
+    return (
+      <div className="spotify-auth-loading">
+        <div className="loading-spinner"></div>
+        <p>Connecting to Spotify...</p>
+      </div>
+    )
+  }
+
+  if (!spotifyAuthenticated) {
+    return (
+      <div className="spotify-auth-prompt">
+        <div className="spotify-auth-content">
+          <div className="spotify-auth-icon">
+            <Music size={48} color="#1DB954" />
+          </div>
+          <h3>Connect with Spotify</h3>
+          <p>Get personalized recommendations based on your listening history</p>
+          <button 
+            className="btn__spotify-login"
+            onClick={handleLogin}
+          >
+            <i className="fa fa-spotify"></i>
+            Connect Spotify Account
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="spotify-auth">
-      <div className="auth-container">
-        <div className="auth-header">
-          <h1>Connect Your Spotify Account</h1>
-          <p>Get personalized festival recommendations based on your music taste</p>
-        </div>
-
-        <div className="auth-content">
-          {connectionTest && !connectionTest.success && (
-            <div className="connection-error">
-              <p>⚠️ Database connection failed. Please try again later.</p>
-              <p className="error-details">{connectionTest.error}</p>
+    <div className="spotify-user-profile">
+      {/* Debug panel - remove this after testing */}
+      <SupabaseDebug />
+      
+      <div className="user-profile-header">
+        <div className="user-info">
+          {spotifyUser?.images?.[0]?.url ? (
+            <img 
+              src={spotifyUser.images[0].url} 
+              alt={spotifyUser.display_name}
+              className="user-avatar"
+            />
+          ) : (
+            <div className="user-avatar-placeholder">
+              <User size={24} />
             </div>
           )}
-
-          <button 
-            onClick={handleLogin}
-            disabled={loading}
-            className="spotify-login-button"
-          >
-            {loading ? 'Connecting...' : 'Connect with Spotify'}
-          </button>
-
-          {error && (
-            <div className="auth-error">
-              <p>Error: {error}</p>
-            </div>
-          )}
-
-          <div className="auth-info">
-            <h3>What we'll access:</h3>
-            <ul>
-              <li>Your top artists and tracks</li>
-              <li>Your music preferences</li>
-              <li>Your Spotify profile information</li>
-            </ul>
-            <p className="privacy-note">
-              We only use this data to provide personalized festival recommendations. 
-              We don't store your music listening history or share your data with third parties.
-            </p>
+          <div className="user-details">
+            <h4>{spotifyUser?.display_name || 'Spotify User'}</h4>
+            <p>Connected to Spotify</p>
           </div>
         </div>
+        <button 
+          className="btn__settings"
+          onClick={handleLogout}
+          title="Disconnect Spotify"
+        >
+          <Settings size={20} />
+        </button>
       </div>
+      
+      {topTracks && topTracks.length > 0 && (
+        <div className="user-top-tracks">
+          <h5>Your Top Tracks</h5>
+          <div className="top-tracks-list">
+            {topTracks.slice(0, 5).map((track, index) => (
+              <div key={track.id} className="top-track-item">
+                <span className="track-number">{index + 1}</span>
+                <div className="track-info">
+                  <span className="track-name">{track.name}</span>
+                  <span className="track-artist">{track.artists[0].name}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

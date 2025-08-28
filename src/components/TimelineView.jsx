@@ -239,6 +239,11 @@ export function TimelineView({ currentDayData, recommendations = [], onArtistCli
           const actsRow = currentStageRow + 1 + rowIndex
           
           actRow.forEach((act, actIndex) => {
+            // Debug: Log the act structure to see what's available
+            console.log('Act data:', act)
+            console.log('Stage data:', act.stage)
+            console.log('Stage name:', act.stage?.name)
+            
             const startCol = timeToColumnIndex(act.start_time, timeRange.start, timeMarkers)
             const endCol = timeToColumnIndex(act.end_time, timeRange.start, timeMarkers)
 

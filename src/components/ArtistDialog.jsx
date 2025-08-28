@@ -353,6 +353,9 @@ export function ArtistDialog({ artist, isOpen, onClose }) {
               <div className="artist-dialog__performance-stage">
                 {/* Debug: Log the stage information */}
                 {(() => {
+                  console.log('Artist actData:', artist.actData)
+                  console.log('Artist actData.stage:', artist.actData.stage)
+                  console.log('Artist stageName:', artist.stageName)
                   return artist.actData.stage?.name || artist.stageName || 'EFFENAAR KLEINE ZAAL'
                 })()}
               </div>

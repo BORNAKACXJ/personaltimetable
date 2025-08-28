@@ -1,60 +1,128 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { UserDataManager } from '../utils/userDataManager'
+import { getSpotifyRedirectUri, getSpotifyClientId, getSpotifyClientSecret, logSpotifyConfig } from '../utils/spotifyConfig'
 
 // Spotify API configuration
-const SPOTIFY_CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID
-const SPOTIFY_REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI
-const SPOTIFY_SCOPES = 'user-read-private user-read-email user-top-read'
+const SPOTIFY_CLIENT_ID = getSpotifyClientId()
+const SPOTIFY_REDIRECT_URI = getSpotifyRedirectUri()
+const SPOTIFY_SCOPES = [
+  'user-top-read'       // Access to user's top artists and tracks
+].join(' ')
 
-export function useSpotifyAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+export function useSpotifyAuth(options = {}) {
+  const { disableSupabaseSaving = false } = options
   const [user, setUser] = useState(null)
-  const [topArtists, setTopArtists] = useState([])
   const [topTracks, setTopTracks] = useState([])
+  const [topArtists, setTopArtists] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [tokenExchangeInProgress, setTokenExchangeInProgress] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isExchangingToken, setIsExchangingToken] = useState(false)
 
-  // Initialize auth state
-  useEffect(() => {
-    const token = localStorage.getItem('spotify_access_token')
-    const tokenExpiry = localStorage.getItem('spotify_token_expiry')
-    
-    if (token && tokenExpiry && new Date().getTime() < parseInt(tokenExpiry)) {
-      setIsAuthenticated(true)
-      fetchUserData()
-    }
-  }, [])
-
-  // Generate authorization URL
-  const getAuthorizationUrl = useCallback(() => {
-    const params = new URLSearchParams({
-      client_id: SPOTIFY_CLIENT_ID,
-      response_type: 'code',
-      redirect_uri: SPOTIFY_REDIRECT_URI,
-      scope: SPOTIFY_SCOPES,
-      state: Math.random().toString(36).substring(7)
-    })
-    
-    return `https://accounts.spotify.com/authorize?${params.toString()}`
-  }, [])
-
-  // Exchange authorization code for access token
-  const exchangeCodeForToken = useCallback(async (code) => {
-    if (tokenExchangeInProgress) {
-      return null
-    }
-
-    setTokenExchangeInProgress(true)
-    setLoading(true)
-    setError(null)
-
+  // Load Spotify data from localStorage
+  const loadSpotifyDataFromStorage = useCallback(() => {
     try {
+      // Load top tracks
+      const storedTracks = localStorage.getItem('spotify_top_tracks')
+      const tracksTimestamp = localStorage.getItem('spotify_top_tracks_timestamp')
+      if (storedTracks && tracksTimestamp) {
+        const tracksAge = Date.now() - parseInt(tracksTimestamp)
+        // Cache for 24 hours
+        if (tracksAge < 24 * 60 * 60 * 1000) {
+          setTopTracks(JSON.parse(storedTracks))
+        }
+      }
+
+      // Load top artists
+      const storedArtists = localStorage.getItem('spotify_top_artists')
+      const artistsTimestamp = localStorage.getItem('spotify_top_artists_timestamp')
+      if (storedArtists && artistsTimestamp) {
+        const artistsAge = Date.now() - parseInt(artistsTimestamp)
+        // Cache for 24 hours
+        if (artistsAge < 24 * 60 * 60 * 1000) {
+          setTopArtists(JSON.parse(storedArtists))
+        }
+      }
+
+      // Load user profile
+      const storedUser = localStorage.getItem('spotify_user_profile')
+      const userTimestamp = localStorage.getItem('spotify_user_profile_timestamp')
+      if (storedUser && userTimestamp) {
+        const userAge = Date.now() - parseInt(userTimestamp)
+        // Cache for 24 hours
+        if (userAge < 24 * 60 * 60 * 1000) {
+          setUser(JSON.parse(storedUser))
+        }
+      }
+    } catch (error) {
+      console.error('Error loading Spotify data from storage:', error)
+    }
+  }, [])
+
+  const login = () => {
+    // Log current Spotify configuration
+    logSpotifyConfig()
+    
+    // Debug logging
+    console.log('SPOTIFY_CLIENT_ID:', SPOTIFY_CLIENT_ID)
+    console.log('SPOTIFY_REDIRECT_URI:', SPOTIFY_REDIRECT_URI)
+    console.log('SPOTIFY_SCOPES:', SPOTIFY_SCOPES)
+    
+    // Validate required environment variables
+    if (!SPOTIFY_CLIENT_ID) {
+      console.error('SPOTIFY_CLIENT_ID is not set')
+      setError('Spotify Client ID is not configured')
+      return
+    }
+    
+    if (!import.meta.env.VITE_SPOTIFY_CLIENT_SECRET) {
+      console.error('VITE_SPOTIFY_CLIENT_SECRET is not set')
+      setError('Spotify Client Secret is not configured')
+      return
+    }
+    
+    // Clear any existing tokens to start fresh
+    localStorage.removeItem('spotify_access_token')
+    localStorage.removeItem('spotify_token_expiry')
+    localStorage.removeItem('spotify_refresh_token')
+    
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(SPOTIFY_REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES)}&show_dialog=true`
+    console.log('Authorization URL:', authUrl)
+    
+    // Clear any previous errors
+    setError(null)
+    
+    window.location.href = authUrl
+  }
+
+  const logout = () => {
+    localStorage.removeItem('spotify_access_token')
+    localStorage.removeItem('spotify_token_expiry')
+    localStorage.removeItem('spotify_refresh_token')
+    localStorage.removeItem('spotify_top_tracks')
+    localStorage.removeItem('spotify_top_tracks_timestamp')
+    localStorage.removeItem('spotify_top_artists')
+    localStorage.removeItem('spotify_top_artists_timestamp')
+    localStorage.removeItem('spotify_user_profile')
+    localStorage.removeItem('spotify_user_profile_timestamp')
+    setUser(null)
+    setTopTracks([])
+    setTopArtists([])
+    setIsAuthenticated(false)
+  }
+
+  const getAccessToken = useCallback(async (code) => {
+    try {
+      console.log('Getting access token with code:', code)
+      console.log('Client ID:', SPOTIFY_CLIENT_ID)
+      console.log('Client Secret exists:', !!import.meta.env.VITE_SPOTIFY_CLIENT_SECRET)
+      console.log('Redirect URI:', SPOTIFY_REDIRECT_URI)
+      
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${btoa(`${SPOTIFY_CLIENT_ID}:${import.meta.env.VITE_SPOTIFY_CLIENT_SECRET}`)}`
+          'Authorization': 'Basic ' + btoa(SPOTIFY_CLIENT_ID + ':' + import.meta.env.VITE_SPOTIFY_CLIENT_SECRET)
         },
         body: new URLSearchParams({
           grant_type: 'authorization_code',
@@ -63,42 +131,40 @@ export function useSpotifyAuth() {
         })
       })
 
+      console.log('Token response status:', response.status)
       const data = await response.json()
+      console.log('Token response data:', data)
+      
+      if (data.access_token) {
+        localStorage.setItem('spotify_access_token', data.access_token)
+        localStorage.setItem('spotify_token_expiry', (Date.now() + data.expires_in * 1000).toString())
+        if (data.refresh_token) {
+          localStorage.setItem('spotify_refresh_token', data.refresh_token)
+        }
+        setIsAuthenticated(true)
+        return data.access_token
+      } else {
+        console.error('No access token in response:', data)
+        throw new Error(`Failed to get access token: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error getting access token:', error)
+      throw error
+    }
+  }, [])
 
-      if (!response.ok) {
-        throw new Error(data.error_description || 'Failed to exchange code for token')
+  const refreshAccessToken = useCallback(async () => {
+    try {
+      const refreshToken = localStorage.getItem('spotify_refresh_token')
+      if (!refreshToken) {
+        throw new Error('No refresh token available')
       }
 
-      // Store token and expiry
-      const expiryTime = new Date().getTime() + (data.expires_in * 1000)
-      localStorage.setItem('spotify_access_token', data.access_token)
-      localStorage.setItem('spotify_refresh_token', data.refresh_token)
-      localStorage.setItem('spotify_token_expiry', expiryTime.toString())
-
-      setIsAuthenticated(true)
-      return data.access_token
-    } catch (error) {
-      setError(error.message)
-      throw error
-    } finally {
-      setLoading(false)
-      setTokenExchangeInProgress(false)
-    }
-  }, [tokenExchangeInProgress])
-
-  // Refresh access token
-  const refreshToken = useCallback(async () => {
-    const refreshToken = localStorage.getItem('spotify_refresh_token')
-    if (!refreshToken) {
-      throw new Error('No refresh token available')
-    }
-
-    try {
       const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${btoa(`${SPOTIFY_CLIENT_ID}:${import.meta.env.VITE_SPOTIFY_CLIENT_SECRET}`)}`
+          'Authorization': 'Basic ' + btoa(SPOTIFY_CLIENT_ID + ':' + import.meta.env.VITE_SPOTIFY_CLIENT_SECRET)
         },
         body: new URLSearchParams({
           grant_type: 'refresh_token',
@@ -107,262 +173,266 @@ export function useSpotifyAuth() {
       })
 
       const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error_description || 'Failed to refresh token')
-      }
-
-      // Update stored token and expiry
-      const expiryTime = new Date().getTime() + (data.expires_in * 1000)
-      localStorage.setItem('spotify_access_token', data.access_token)
-      localStorage.setItem('spotify_token_expiry', expiryTime.toString())
-
-      if (data.refresh_token) {
-        localStorage.setItem('spotify_refresh_token', data.refresh_token)
-      }
-
-      return data.access_token
-    } catch (error) {
-      setError(error.message)
-      throw error
-    }
-  }, [])
-
-  // Get valid access token (refresh if needed)
-  const getValidToken = useCallback(async () => {
-    const token = localStorage.getItem('spotify_access_token')
-    const tokenExpiry = localStorage.getItem('spotify_token_expiry')
-    
-    if (!token) {
-      throw new Error('No access token available')
-    }
-
-    if (new Date().getTime() >= parseInt(tokenExpiry)) {
-      return await refreshToken()
-    }
-
-    return token
-  }, [refreshToken])
-
-  // Save user profile to Supabase
-  const saveUserProfile = useCallback(async (userProfile) => {
-    try {
-      const { data: existingProfile, error: fetchError } = await supabase
-        .from('spotify_profiles')
-        .select('*')
-        .eq('spotify_id', userProfile.id)
-        .single()
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError
-      }
-
-      if (existingProfile) {
-        // Update existing profile
-        const { data: updatedProfile, error: updateError } = await supabase
-          .from('spotify_profiles')
-          .update({
-            display_name: userProfile.display_name,
-            email: userProfile.email,
-            country: userProfile.country,
-            product: userProfile.product,
-            images: userProfile.images,
-            updated_at: new Date().toISOString()
-          })
-          .eq('spotify_id', userProfile.id)
-          .select()
-          .single()
-
-        if (updateError) throw updateError
-        return updatedProfile
+      
+      if (data.access_token) {
+        localStorage.setItem('spotify_access_token', data.access_token)
+        localStorage.setItem('spotify_token_expiry', (Date.now() + data.expires_in * 1000).toString())
+        if (data.refresh_token) {
+          localStorage.setItem('spotify_refresh_token', data.refresh_token)
+        }
+        return data.access_token
       } else {
-        // Create new profile
-        const { data: newProfile, error: insertError } = await supabase
-          .from('spotify_profiles')
-          .insert({
-            spotify_id: userProfile.id,
-            display_name: userProfile.display_name,
-            email: userProfile.email,
-            country: userProfile.country,
-            product: userProfile.product,
-            images: userProfile.images
-          })
-          .select()
-          .single()
-
-        if (insertError) throw insertError
-        return newProfile
+        throw new Error('Failed to refresh access token')
       }
     } catch (error) {
-      console.error('Error saving user profile:', error)
+      console.error('Error refreshing access token:', error)
+      // Clear invalid tokens
+      localStorage.removeItem('spotify_access_token')
+      localStorage.removeItem('spotify_token_expiry')
+      localStorage.removeItem('spotify_refresh_token')
+      setIsAuthenticated(false)
       throw error
     }
   }, [])
 
-  // Save top tracks to Supabase
-  const saveTopTracks = useCallback(async (spotifyProfileId, tracks) => {
+  const getValidAccessToken = useCallback(async () => {
+    const token = localStorage.getItem('spotify_access_token')
+    const expiry = localStorage.getItem('spotify_token_expiry')
+    
+    if (token && expiry && Date.now() < parseInt(expiry)) {
+      return token
+    }
+    
+    const refreshToken = localStorage.getItem('spotify_refresh_token')
+    if (refreshToken) {
+      return await refreshAccessToken()
+    }
+    
+    throw new Error('No valid access token available')
+  }, [refreshAccessToken])
+
+  const fetchUserProfile = useCallback(async () => {
     try {
-      // Delete existing top tracks
-      await supabase
-        .from('spotify_top_tracks')
-        .delete()
-        .eq('spotify_profile_id', spotifyProfileId)
-
-      // Insert new top tracks
-      const tracksData = tracks.map((track, index) => ({
-        spotify_profile_id: spotifyProfileId,
-        spotify_id: track.id,
-        name: track.name,
-        artist_name: track.artists[0].name,
-        artist_spotify_id: track.artists[0].id,
-        album_name: track.album.name,
-        album_spotify_id: track.album.id,
-        rank: index + 1,
-        popularity: track.popularity
-      }))
-
-      const { data: savedTracks, error } = await supabase
-        .from('spotify_top_tracks')
-        .insert(tracksData)
-        .select()
-
-      if (error) throw error
-      return savedTracks
+      const token = await getValidAccessToken()
+      const response = await fetch('https://api.spotify.com/v1/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data)
+        
+        // Save to localStorage (for caching)
+        localStorage.setItem('spotify_user_profile', JSON.stringify(data))
+        localStorage.setItem('spotify_user_profile_timestamp', Date.now().toString())
+        
+        // Only save to Supabase if not disabled
+        if (!disableSupabaseSaving) {
+          try {
+            const savedProfile = await UserDataManager.saveSpotifyProfile(data)
+            console.log('User profile saved to Supabase:', savedProfile)
+          } catch (supabaseError) {
+            console.error('Failed to save profile to Supabase:', supabaseError)
+            // Don't throw error - localStorage fallback is still available
+          }
+        }
+        
+        return data
+      } else {
+        throw new Error('Failed to fetch user profile')
+      }
     } catch (error) {
-      console.error('Error saving top tracks:', error)
-      throw error
+      console.error('Error fetching user profile:', error)
+      setError(error.message)
+      return null
     }
-  }, [])
+  }, [getValidAccessToken, disableSupabaseSaving])
 
-  // Save top artists to Supabase
-  const saveTopArtists = useCallback(async (spotifyProfileId, artists) => {
+  const fetchTopTracks = useCallback(async (timeRange = 'medium_term', limit = 50) => {
     try {
-      // Delete existing top artists
-      await supabase
-        .from('spotify_top_artists')
-        .delete()
-        .eq('spotify_profile_id', spotifyProfileId)
-
-      // Insert new top artists
-      const artistsData = artists.map((artist, index) => ({
-        spotify_profile_id: spotifyProfileId,
-        spotify_id: artist.id,
-        name: artist.name,
-        artist_name: artist.name,
-        genres: artist.genres,
-        rank: index + 1,
-        popularity: artist.popularity,
-        images: artist.images
-      }))
-
-      const { data: savedArtists, error } = await supabase
-        .from('spotify_top_artists')
-        .insert(artistsData)
-        .select()
-
-      if (error) throw error
-      return savedArtists
+      setLoading(true)
+      const token = await getValidAccessToken()
+      const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setTopTracks(data.items)
+        
+        // Save to localStorage (for caching)
+        localStorage.setItem('spotify_top_tracks', JSON.stringify(data.items))
+        localStorage.setItem('spotify_top_tracks_timestamp', Date.now().toString())
+        
+        // Only save to Supabase if not disabled and we have a user profile
+        if (!disableSupabaseSaving && user?.id) {
+          try {
+            const savedTracks = await UserDataManager.saveTopTracks(user.id, data.items, timeRange)
+            console.log('Top tracks saved to Supabase:', savedTracks.length)
+          } catch (supabaseError) {
+            console.error('Failed to save top tracks to Supabase:', supabaseError)
+            // Don't throw error - localStorage fallback is still available
+          }
+        }
+        
+        return data.items
+      } else {
+        throw new Error('Failed to fetch top tracks')
+      }
     } catch (error) {
-      console.error('Error saving top artists:', error)
-      throw error
+      console.error('Error fetching top tracks:', error)
+      setError(error.message)
+      return []
+    } finally {
+      setLoading(false)
     }
-  }, [])
+  }, [getValidAccessToken, user?.id, disableSupabaseSaving])
 
-  // Fetch user data from Spotify
+  const fetchTopArtists = useCallback(async (timeRange = 'medium_term', limit = 50) => {
+    try {
+      setLoading(true)
+      const token = await getValidAccessToken()
+      const response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=${timeRange}&limit=${limit}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setTopArtists(data.items)
+        
+        // Save to localStorage (for caching)
+        localStorage.setItem('spotify_top_artists', JSON.stringify(data.items))
+        localStorage.setItem('spotify_top_artists_timestamp', Date.now().toString())
+        
+        // Only save to Supabase if not disabled and we have a user profile
+        if (!disableSupabaseSaving && user?.id) {
+          try {
+            const savedArtists = await UserDataManager.saveTopArtists(user.id, data.items, timeRange)
+            console.log('Top artists saved to Supabase:', savedArtists.length)
+          } catch (supabaseError) {
+            console.error('Failed to save top artists to Supabase:', supabaseError)
+            // Don't throw error - localStorage fallback is still available
+          }
+        }
+        
+        return data.items
+      } else {
+        throw new Error('Failed to fetch top artists')
+      }
+    } catch (error) {
+      console.error('Error fetching top artists:', error)
+      setError(error.message)
+      return []
+    } finally {
+      setLoading(false)
+    }
+  }, [getValidAccessToken, user?.id, disableSupabaseSaving])
+
   const fetchUserData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-
-      const token = await getValidToken()
-
-      // Fetch user profile
-      const profileResponse = await fetch('https://api.spotify.com/v1/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (!profileResponse.ok) {
-        throw new Error('Failed to fetch user profile')
-      }
-
-      const userProfile = await profileResponse.json()
-      const savedProfile = await saveUserProfile(userProfile)
-      setUser(savedProfile)
-
-      // Fetch top tracks
-      const tracksResponse = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=short_term', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (tracksResponse.ok) {
-        const tracksData = await tracksResponse.json()
-        await saveTopTracks(savedProfile.id, tracksData.items)
-        setTopTracks(tracksData.items)
-      }
-
-      // Fetch top artists
-      const artistsResponse = await fetch('https://api.spotify.com/v1/me/top/artists?limit=50&time_range=short_term', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (artistsResponse.ok) {
-        const artistsData = await artistsResponse.json()
-        await saveTopArtists(savedProfile.id, artistsData.items)
-        setTopArtists(artistsData.items)
-      }
-
+      
+      console.log('🔄 Starting fetchUserData...')
+      const userProfile = await fetchUserProfile()
+      console.log('✅ User profile fetched:', userProfile?.id)
+      
+      const topTracksData = await fetchTopTracks()
+      console.log('✅ Top tracks fetched:', topTracksData?.length || 0)
+      
+      const topArtistsData = await fetchTopArtists()
+      console.log('✅ Top artists fetched:', topArtistsData?.length || 0)
+      
+      console.log('✅ fetchUserData completed successfully')
     } catch (error) {
+      console.error('❌ fetchUserData error:', error)
       setError(error.message)
-      console.error('Error fetching user data:', error)
     } finally {
       setLoading(false)
     }
-  }, [getValidToken, saveUserProfile, saveTopTracks, saveTopArtists])
+  }, [fetchUserProfile, fetchTopTracks, fetchTopArtists])
 
-  // Handle callback with authorization code
+  // Handle callback from Spotify OAuth
   const handleCallback = useCallback(async (code) => {
+    // Prevent multiple simultaneous token exchanges
+    if (isExchangingToken) {
+      console.log('Token exchange already in progress, skipping')
+      return
+    }
+    
     try {
+      setIsExchangingToken(true)
       setLoading(true)
       setError(null)
-
-      const token = await exchangeCodeForToken(code)
-      if (token) {
+      
+      console.log('Handling callback with code:', code)
+      
+      // Check if we already have a valid token
+      const existingToken = localStorage.getItem('spotify_access_token')
+      const tokenExpiry = localStorage.getItem('spotify_token_expiry')
+      
+      if (existingToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+        console.log('Already have valid token, skipping token exchange')
+        setIsAuthenticated(true)
         await fetchUserData()
+        return
+      }
+      
+      const token = await getAccessToken(code)
+      console.log('Got access token:', token ? 'SUCCESS' : 'FAILED')
+      
+      if (token) {
+        setIsAuthenticated(true)
+        console.log('✅ Setting isAuthenticated to true')
+        await fetchUserData()
+        console.log('✅ fetchUserData completed')
       }
     } catch (error) {
+      console.error('HandleCallback error:', error)
       setError(error.message)
-      console.error('Error handling callback:', error)
+    } finally {
+      setLoading(false)
+      setIsExchangingToken(false)
     }
-  }, [exchangeCodeForToken, fetchUserData])
+  }, [isExchangingToken, fetchUserData, getAccessToken])
 
-  // Logout
-  const logout = useCallback(() => {
-    localStorage.removeItem('spotify_access_token')
-    localStorage.removeItem('spotify_refresh_token')
-    localStorage.removeItem('spotify_token_expiry')
-    setIsAuthenticated(false)
-    setUser(null)
-    setTopArtists([])
-    setTopTracks([])
-    setError(null)
-  }, [])
+  // Check if user is already authenticated
+  useEffect(() => {
+    const token = localStorage.getItem('spotify_access_token')
+    const tokenExpiry = localStorage.getItem('spotify_token_expiry')
+    
+    if (token && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+      setIsAuthenticated(true)
+      // Load cached data first
+      loadSpotifyDataFromStorage()
+      // Then fetch fresh data
+      fetchUserData()
+    } else if (token) {
+      // Token expired, clear it
+      localStorage.removeItem('spotify_access_token')
+      localStorage.removeItem('spotify_token_expiry')
+      localStorage.removeItem('spotify_refresh_token')
+    }
+  }, [fetchUserData, loadSpotifyDataFromStorage])
 
   return {
-    isAuthenticated,
     user,
-    topArtists,
     topTracks,
+    topArtists,
     loading,
     error,
-    getAuthorizationUrl,
-    handleCallback,
+    isAuthenticated,
+    login,
     logout,
-    fetchUserData
+    fetchUserData,
+    handleCallback,
+    fetchTopTracks,
+    fetchTopArtists
   }
 } 
