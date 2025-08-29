@@ -84,6 +84,21 @@ function App() {
     }
   }, [window.location.pathname])
 
+  // Set current day to today's date when festival data loads
+  useEffect(() => {
+    if (data?.days && data.days.length > 0) {
+      const today = new Date()
+      const todayString = today.toISOString().split('T')[0] // Format: YYYY-MM-DD
+      
+      // Find the day index that matches today's date
+      const todayIndex = data.days.findIndex(day => day.date === todayString)
+      
+      if (todayIndex !== -1) {
+        setCurrentDay(todayIndex)
+      }
+    }
+  }, [data?.days])
+
   // 3. All useEffect hooks
   useEffect(() => {
     // Track page view on app load
